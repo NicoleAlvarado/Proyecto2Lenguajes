@@ -1,4 +1,5 @@
 import bcrypt from "bcrypt";
+import { SALT_ROUNDS } from "./environment.js";
 import { User } from "../models/User.js";
 
 export const validateUserData = (username, email, password, avatar) => {
@@ -45,7 +46,7 @@ export const validateUserName = async (username, email) => {
 
 export const generateHashPassword = async (password) => {
     try {
-        const hashpassword = await bcrypt.hash(password, parseInt(process.env.SALT_ROUNDS));
+        const hashpassword = await bcrypt.hash(password, parseInt(SALT_ROUNDS));
         return hashpassword;
     } catch (error) {
         throw new Error("Can not encript the password");

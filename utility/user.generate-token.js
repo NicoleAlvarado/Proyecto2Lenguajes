@@ -1,29 +1,30 @@
 import jwt from "jsonwebtoken";
+import { SECRET_KEY, REFRESH_SECRET_KEY } from "./environment.js";
 
 export const generateTokens = async (user, res) => {
     try {
         const accessToken = jwt.sign(
             { id: user.id, username: user.username },
-            process.env.SECRET_KEY,
+            SECRET_KEY,
             { expiresIn: "5m" } // Access token expira en 5 minutos
         );
 
         const refreshToken = jwt.sign(
             { id: user.id, username: user.username },
-            process.env.REFRESH_SECRET_KEY,
+            REFRESH_SECRET_KEY,
             { expiresIn: "7d" } // Refresh token expira en 7 días
         );
 
         res.cookie("access_token", accessToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
+            secure: NODE_ENV === "production",
             sameSite: "strict",
             maxAge: 1000 * 60 * 5, // 5 minutos
         });
 
         res.cookie("refresh_token", refreshToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
+            secure: NODE_ENV === "production",
             sameSite: "strict",
             maxAge: 1000 * 60 * 60 * 24 * 7, // 7 días
         });

@@ -1,7 +1,8 @@
+import jwt from "jsonwebtoken";
+import { SECRET_KEY, REFRESH_SECRET_KEY } from "../utility/environment.js";
 import { User } from "../models/User.js";
 import { generateTokens } from "../utility/user.generate-token.js";
 import { validatePassword } from "../utility/user.validation.js";
-import jwt from "jsonwebtoken";
 
 const loginUser = async (req, res) => {
     try {
@@ -24,7 +25,7 @@ const refreshAccessToken = async (req, res) => {
         const { refresh_token } = req.cookies;
         if (!refresh_token) return res.status(401).json({ message: "Refresh token is required" });
 
-        jwt.verify(refresh_token, process.env.REFRESH_SECRET_KEY, async (err, decoded) => {
+        jwt.verify(refresh_token, REFRESH_SECRET_KEY, async (err, decoded) => {
             if (err) return res.status(403).json({ message: "Invalid refresh token" });
 
             const user = await User.findById(decoded.id);
@@ -32,13 +33,13 @@ const refreshAccessToken = async (req, res) => {
 
             const accessToken = jwt.sign(
                 { id: user.id, username: user.username },
-                process.env.SECRET_KEY,
+                SECRET_KEY,
                 { expiresIn: "5m" } // Access token expira en 5 minutos
             );
 
             res.cookie("access_token", accessToken, {
                 httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
+                secure: NODE_ENV === "production",
                 sameSite: "lax",
                 maxAge: 1000 * 60 * 5, // 5 minutos
             });
@@ -55,7 +56,7 @@ const getUserInSession = (req, res) => {
         const token = req.cookies.access_token;
         if (!token) return res.status(401).json({ message: "Access token is required" });
 
-        jwt.verify(token, process.env.SECRET_KEY, async (err, decoded) => {
+        jwt.verify(token, SECRET_KEY, async (err, decoded) => {
             if (err) return res.status(403).json({ message: "Invalid access token" });
 
             const user = await User.findById(decoded.id);
