@@ -1,5 +1,10 @@
-import User from "../models/User.js";
-import { validateUserData, validateUserName, generateHashPassword, validatePassword } from "../utility/user.validation.js";
+import { User } from "../models/User.js";
+import {
+    validateUserData,
+    validateUserName,
+    generateHashPassword,
+    validatePassword,
+} from "../utility/user.validation.js";
 
 export const createUser = async (req, res) => {
     try {
