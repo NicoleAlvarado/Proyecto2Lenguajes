@@ -1,4 +1,4 @@
-async function registeredUser(event) {
+const registeredUser = async (event) => {
     event.preventDefault();
 
     const user = {
@@ -58,24 +58,24 @@ async function registeredUser(event) {
         document.getElementById("loginForm").classList.add("is-invalid");
         document.getElementById("errorMessage").style.display = "block"; // Mostrar mensaje de error
     }
-}
+};
 
-function cleanForm() {
+const cleanForm = () => {
     document.getElementById("name").value = "";
     document.getElementById("email").value = "";
     document.getElementById("password").value = "";
     document.getElementById("bio").value = "";
     document.querySelector('input[name="avatar"]:checked').checked = false;
-}
+};
 
-function cleanMessages() {
+const cleanMessages = () => {
     document.getElementById("successMessage").style.display = "none";
     document.getElementById("errorMessage").style.display = "none";
-}
+};
 
-async function requestRegistUser(user) {
+const requestRegistUser = async (user) => {
     try {
-        const response = await fetch("/api/users", {
+        const response = await fetch("/users/createUser", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -95,4 +95,4 @@ async function requestRegistUser(user) {
         document.getElementById("errorMessage").textContent = "Network error. Please try again later.";
         return false;
     }
-}
+};

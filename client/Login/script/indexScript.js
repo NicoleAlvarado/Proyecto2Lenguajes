@@ -12,7 +12,7 @@ window.addEventListener("DOMContentLoaded", async function () {
 
 async function fetchSession() {
     try {
-        const response = await fetchWithAuth("/api/users/login/session");
+        const response = await fetchWithAuth("/users/login/session");
         if (response) {
             window.location.href = "/Home/home.html";
         }
@@ -37,7 +37,7 @@ function rememberMe() {
 
 async function requestLogin(email, password) {
     try {
-        const response = await fetchWithAuth("/api/users/login", {
+        const response = await fetchWithAuth("/users/login", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -85,7 +85,7 @@ async function login(event) {
 
 async function refreshAccessToken() {
     try {
-        const response = await fetch("/api/users/refresh-token", {
+        const response = await fetch("/users/refresh-token", {
             method: "POST",
             credentials: "include",
             headers: { "Content-Type": "application/json" },

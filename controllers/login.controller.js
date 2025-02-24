@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { SECRET_KEY, REFRESH_SECRET_KEY } from "../utility/environment.js";
+import { SECRET_KEY, REFRESH_SECRET_KEY, NODE_ENV } from "../utility/environment.js";
 import { User } from "../models/User.js";
 import { generateTokens } from "../utility/user.generate-token.js";
 import { validatePassword } from "../utility/user.validation.js";

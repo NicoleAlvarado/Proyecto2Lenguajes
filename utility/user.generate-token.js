@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { SECRET_KEY, REFRESH_SECRET_KEY } from "./environment.js";
+import { SECRET_KEY, REFRESH_SECRET_KEY, NODE_ENV } from "./environment.js";
 
 export const generateTokens = async (user, res) => {
     try {
