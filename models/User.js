@@ -1,34 +1,28 @@
-const {Schema, model} = require('mongoose');
+import { Schema, model } from "mongoose";
 
 const UserSchema = new Schema({
     username: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
     },
     email: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
     },
     password: {
         type: String,
-        required: true
+        required: true,
     },
     bio: {
         type: String,
-        default: ''
+        default: "",
     },
     avatar: {
         type: String,
-        required: true
-    }
+        required: true,
+    },
 });
 
-UserSchema.method('toJSON', function(){
-    const {__v, _id, ...object} = this.toObject();
-    object.id = _id;
-    return object;
-});
-
-module.exports = model('User', UserSchema);
+export const User = model("User", UserSchema);
