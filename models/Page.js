@@ -1,5 +1,6 @@
-import { Schema, model } from "mongoose";
-import { Post } from "./Post.js";
+const mongoose = require("mongoose");
+const { Schema, model } = mongoose;
+const Post = require("./Post");
 
 const PageSchema = new Schema({
     title: {
@@ -26,4 +27,4 @@ const PageSchema = new Schema({
     posts: [Post.schema],
 });
 
-export const Page = model("Page", PageSchema);
+module.exports = model("Page", PageSchema);

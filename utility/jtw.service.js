@@ -1,16 +1,16 @@
-import jwt from "jsonwebtoken";
-import { SECRET_KEY, REFRESH_SECRET_KEY, NODE_ENV } from "./environment.js";
+const jwt = require("jsonwebtoken");
+const { SECRET_KEY, REFRESH_SECRET_KEY, NODE_ENV } = require("./environment");
 
-export const getTokenCookieConfig = (maxAgeMinutes) => ({
+const getTokenCookieConfig = (maxAgeMinutes) => ({
     httpOnly: true,
     secure: NODE_ENV === "production",
     sameSite: "strict",
     maxAge: 1000 * 60 * maxAgeMinutes,
 });
 
-export const generateToken = (payload, secret, expiresIn) => jwt.sign(payload, secret, { expiresIn });
+const generateToken = (payload, secret, expiresIn) => jwt.sign(payload, secret, { expiresIn });
 
-export const verifyToken = (token, secret) => {
+const verifyToken = (token, secret) => {
     try {
         return jwt.verify(token, secret);
     } catch (error) {
@@ -18,7 +18,7 @@ export const verifyToken = (token, secret) => {
     }
 };
 
-export const generateAuthTokens = (user, res) => {
+const generateAuthTokens = (user, res) => {
     try {
         const payload = { id: user._id, username: user.username };
 
@@ -34,10 +34,18 @@ export const generateAuthTokens = (user, res) => {
     }
 };
 
-export const refreshAccessToken = (refreshToken) => {
+const refreshAccessToken = (refreshToken) => {
     const decoded = verifyToken(refreshToken, REFRESH_SECRET_KEY);
     if (!decoded) return null;
 
     const payload = { id: decoded.id, username: decoded.username };
     return generateToken(payload, SECRET_KEY, "5m");
+};
+
+module.exports = {
+    getTokenCookieConfig,
+    generateToken,
+    verifyToken,
+    generateAuthTokens,
+    refreshAccessToken,
 };

@@ -1,15 +1,15 @@
-import { Router } from "express";
-import { loginUser, refreshToken, logoutUser } from "../controllers/login.controller.js";
-import {
+const { Router } = require("express");
+const { loginUser, refreshToken, logoutUser } = require("../controllers/login.controller");
+const {
     createUser,
     updateUser,
     deleteUser,
     getUser,
     registerPurchase,
     getPurchasesByUser,
-} from "../controllers/user.controller.js";
+} = require("../controllers/user.controller");
 
-export const createUserRouter = () => {
+const createUserRouter = () => {
     const router = Router();
 
     router.post("/createUser", createUser);
@@ -21,6 +21,8 @@ export const createUserRouter = () => {
     router.get("/getUser/:username", getUser);
     router.get("/getPurchasesByUser/:username", getPurchasesByUser);
     router.get("/login/logout", logoutUser);
-    
+
     return router;
 };
+
+module.exports = { createUserRouter };

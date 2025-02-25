@@ -1,11 +1,13 @@
-import { Router } from "express";
-import { insertText, getRandomText } from "../controllers/text.controller.js";
+const { Router } = require("express");
+const { insertText, getRandomText } = require("../controllers/text.controller");
 
-export const createTextRouter = () => {
+const createTextRouter = () => {
     const router = Router();
 
     router.post("/insertText", insertText);
     router.get("/getRandomText", getRandomText);
 
     return router;
-}
+};
+
+module.exports = { createTextRouter };

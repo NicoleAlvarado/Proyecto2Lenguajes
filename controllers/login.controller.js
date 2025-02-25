@@ -1,11 +1,10 @@
-import { User } from "../models/User.js";
-import { getTokenCookieConfig, generateAuthTokens, refreshAccessToken } from "../utility/jtw.service.js";
-import { validatePassword } from "../utility/user.validation.js";
+const User = require("../models/User");
+const { getTokenCookieConfig, generateAuthTokens, refreshAccessToken } = require("../utility/jtw.service");
+const { validatePassword } = require("../utility/user.validation");
 
-export const loginUser = async (req, res) => {
+const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body;
-        // if (!email || !password) return res.status(400).json({ message: "Email and password are required" });
         const user = await User.findOne({ email });
 
         if (!user || !(await validatePassword(password, user.password)))
@@ -17,13 +16,13 @@ export const loginUser = async (req, res) => {
     }
 };
 
-export const refreshToken = async (req, res) => {
+const refreshToken = async (req, res) => {
     try {
         const { refresh_token } = req.cookies;
 
         const newAccessToken = refreshAccessToken(refresh_token);
 
-        res.cookie("access_token", newAccessToken, getTokenCookieConfig(15));
+        res.cookie("access_token", newAccessToken, getTokenCookieConfig(5));
 
         return res.status(200).json({ success: true, accessToken: newAccessToken });
     } catch (error) {
@@ -31,7 +30,7 @@ export const refreshToken = async (req, res) => {
     }
 };
 
-export const logoutUser = (req, res) => {
+const logoutUser = (req, res) => {
     try {
         res.clearCookie("access_token");
         res.clearCookie("refresh_token");
@@ -41,3 +40,5 @@ export const logoutUser = (req, res) => {
         return res.status(500).json({ message: "Error al cerrar sesión", error: error.message });
     }
 };
+
+module.exports = { loginUser, refreshToken, logoutUser };

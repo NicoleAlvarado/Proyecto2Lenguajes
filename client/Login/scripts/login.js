@@ -1,26 +1,7 @@
-window.addEventListener("DOMContentLoaded", async function () {
-    // await fetchSession();
-
+window.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("login-form");
     form.addEventListener("submit", login);
-
-    // const emailStorage = localStorage.getItem("email");
-    // const passwordStorage = localStorage.getItem("password");
-
-    // if (emailStorage && passwordStorage) {
-    //     document.getElementById("email").value = emailStorage;
-    //     document.getElementById("password").value = passwordStorage;
-    // }
 });
-
-// const fetchSession = async () => {
-//     try {
-//         const response = await fetchWithAuth("/users/login/session");
-//         if (response) window.location.href = "/Home/home.html";
-//     } catch (error) {
-//         console.error("Error fetching session:", error);
-//     }
-// };
 
 const handleRememberMe = (email, password, rememberMe) => {
     if (rememberMe == "on") {
@@ -34,7 +15,7 @@ const handleRememberMe = (email, password, rememberMe) => {
 
 const loginUser = async (email, password) => {
     try {
-        const response = await fetch("/users/loginUser", {
+        const response = await fetch("/api/users/loginUser", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, password }),

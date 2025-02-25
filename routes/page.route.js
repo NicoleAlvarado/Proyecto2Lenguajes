@@ -1,14 +1,14 @@
-import { Router } from "express";
-import {
+const { Router } = require("express");
+const {
     insertPage,
     insertPostInPage,
     updatePage,
     deletePage,
     getPages,
     getRamdomPage,
-} from "../controllers/page.controller.js";
+} = require("../controllers/page.controller");
 
-export const createPageRouter = () => {
+const createPageRouter = () => {
     const router = Router();
 
     router.post("/insertPage", insertPage);
@@ -20,3 +20,5 @@ export const createPageRouter = () => {
 
     return router;
 };
+
+module.exports = { createPageRouter };

@@ -1,7 +1,7 @@
-import { Page } from "../models/Page.js";
-import { Post } from "../models/Post.js";
+const Page = require("../models/Page");
+const Post = require("../models/Post");
 
-export const insertPage = async (req, res) => {
+const insertPage = async (req, res) => {
     try {
         const { title, description, phone, email, address, posts } = req.body;
 
@@ -20,7 +20,7 @@ export const insertPage = async (req, res) => {
     }
 };
 
-export const insertPostInPage = async (req, res) => {
+const insertPostInPage = async (req, res) => {
     try {
         const { id } = req.params;
         const { content } = req.body;
@@ -34,7 +34,7 @@ export const insertPostInPage = async (req, res) => {
     }
 };
 
-export const updatePage = async (req, res) => {
+const updatePage = async (req, res) => {
     try {
         const { id } = req.params;
         const { title, description, phone, email, address } = req.body;
@@ -57,7 +57,7 @@ export const updatePage = async (req, res) => {
     }
 };
 
-export const deletePage = async (req, res) => {
+const deletePage = async (req, res) => {
     try {
         const { id } = req.params;
         await Page.findByIdAndDelete(id);
@@ -67,7 +67,7 @@ export const deletePage = async (req, res) => {
     }
 };
 
-export const getPages = async (req, res) => {
+const getPages = async (req, res) => {
     try {
         res.status(200).json(await Page.find());
     } catch (error) {
@@ -75,11 +75,20 @@ export const getPages = async (req, res) => {
     }
 };
 
-export const getRamdomPage = async (req, res) => {
+const getRamdomPage = async (req, res) => {
     try {
         const [randomPage] = await Page.aggregate([{ $sample: { size: 1 } }]);
         res.status(200).json(randomPage);
     } catch (error) {
         res.status(404).json({ message: error.message });
     }
+};
+
+module.exports = {
+    insertPage,
+    insertPostInPage,
+    updatePage,
+    deletePage,
+    getPages,
+    getRamdomPage,
 };

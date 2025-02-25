@@ -1,8 +1,8 @@
-import bcrypt from "bcrypt";
-import { SALT_ROUNDS } from "./environment.js";
-import { User } from "../models/User.js";
+const bcrypt = require("bcrypt");
+const { SALT_ROUNDS } = require("./environment");
+const User = require("../models/User");
 
-export const validateUserData = (username, email, password, avatar) => {
+const validateUserData = (username, email, password, avatar) => {
     if (typeof username != "string") throw new Error("Username must be a string");
     if (username.length < 3) {
         throw new Error("The name must have 3 characters");
@@ -39,12 +39,12 @@ export const validateUserData = (username, email, password, avatar) => {
     return true;
 };
 
-export const validateUserName = async (username, email) => {
+const validateUserName = async (username, email) => {
     if (await User.findOne({ username })) throw new Error("The user already exists");
     if (await User.findOne({ email })) throw new Error("The email already exists");
 };
 
-export const generateHashPassword = async (password) => {
+const generateHashPassword = async (password) => {
     try {
         const hashpassword = await bcrypt.hash(password, parseInt(SALT_ROUNDS));
         return hashpassword;
@@ -53,10 +53,12 @@ export const generateHashPassword = async (password) => {
     }
 };
 
-export const validatePassword = async (loginPassword, userPassword) => {
+const validatePassword = async (loginPassword, userPassword) => {
     try {
         return await bcrypt.compare(loginPassword, userPassword);
     } catch (error) {
         throw new Error("Can not compare the passwords");
     }
 };
+
+module.exports = { validateUserData, validateUserName, generateHashPassword, validatePassword };

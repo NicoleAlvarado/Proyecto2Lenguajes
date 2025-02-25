@@ -1,7 +1,7 @@
-import jwt from "jsonwebtoken";
-import { SECRET_KEY } from "../utility/environment.js";
+const jwt = require("jsonwebtoken");
+const { SECRET_KEY } = require("../utility/environment");
 
-export const sessionMiddleware = (req, res, next) => {
+const sessionMiddleware = (req, res, next) => {
     const token = req.cookies.access_token;
     req.session = { user: null };
 
@@ -12,3 +12,5 @@ export const sessionMiddleware = (req, res, next) => {
 
     next();
 };
+
+module.exports = { sessionMiddleware };

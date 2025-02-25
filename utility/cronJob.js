@@ -1,6 +1,6 @@
-import { API_URL } from "./environment.js";
+const { API_URL } = require("./environment");
 
-export const insertPostEveryMinute = async () => {
+const insertPostEveryMinute = async () => {
     try {
         console.log("Insertando post cada minuto");
 
@@ -22,3 +22,5 @@ export const insertPostEveryMinute = async () => {
         console.error(error);
     }
 };
+
+module.exports = { insertPostEveryMinute };

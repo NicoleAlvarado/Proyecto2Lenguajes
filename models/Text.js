@@ -1,4 +1,5 @@
-import { Schema, model } from "mongoose";
+const mongoose = require("mongoose");
+const { Schema, model } = mongoose;
 
 const TextSchema = new Schema({
     text: {
@@ -7,4 +8,4 @@ const TextSchema = new Schema({
     },
 });
 
-export const Text = model("Text", TextSchema);
+module.exports = model("Text", TextSchema);

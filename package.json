@@ -3,22 +3,13 @@
     "version": "1.0.0",
     "description": "",
     "main": "index.js",
-    "type": "module",
     "scripts": {
-        "start": "node --watch app.js",
+        "dev": "nodemon --env-file=.env index.js",
         "test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/NicoleAlvarado/Proyecto2Lenguajes.git"
     },
     "keywords": [],
     "author": "",
     "license": "ISC",
-    "bugs": {
-        "url": "https://github.com/NicoleAlvarado/Proyecto2Lenguajes/issues"
-    },
-    "homepage": "https://github.com/NicoleAlvarado/Proyecto2Lenguajes#readme",
     "dependencies": {
         "bcrypt": "^5.1.1",
         "cookie-parser": "^1.4.7",
@@ -26,6 +17,7 @@
         "express": "^4.21.2",
         "jsonwebtoken": "^9.0.2",
         "mongoose": "^8.10.1",
-        "node-cron": "^3.0.3"
+        "node-cron": "^3.0.3",
+        "nodemon": "^3.1.9"
     }
 }

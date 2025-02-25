@@ -1,12 +1,12 @@
-import { User } from "../models/User.js";
-import {
+const User = require("../models/User");
+const {
     validateUserData,
     validateUserName,
     generateHashPassword,
     validatePassword,
-} from "../utility/user.validation.js";
+} = require("../utility/user.validation");
 
-export const createUser = async (req, res) => {
+const createUser = async (req, res) => {
     try {
         const { username, email, password, bio, avatar } = req.body;
         validateUserData(username, email, password, avatar);
@@ -21,7 +21,7 @@ export const createUser = async (req, res) => {
     }
 };
 
-export const deleteUser = async (req, res) => {
+const deleteUser = async (req, res) => {
     try {
         const { username } = req.params;
         if (!username) return res.status(204).json("Username is required");
@@ -36,7 +36,7 @@ export const deleteUser = async (req, res) => {
     }
 };
 
-export const updateUser = async (req, res) => {
+const updateUser = async (req, res) => {
     try {
         const { name } = req.params;
         if (!name) return res.status(204).json("Username is required");
@@ -67,7 +67,7 @@ export const updateUser = async (req, res) => {
     }
 };
 
-export const getUser = async (req, res) => {
+const getUser = async (req, res) => {
     try {
         const { username } = req.params;
         if (!username) return res.status(204).json("Username is required");
@@ -79,7 +79,7 @@ export const getUser = async (req, res) => {
     }
 };
 
-export const registerPurchase = async (req, res) => {
+const registerPurchase = async (req, res) => {
     try {
         const { username } = req.params;
         const { courseId } = req.body;
@@ -116,7 +116,7 @@ export const registerPurchase = async (req, res) => {
     }
 };
 
-export const getPurchasesByUser = async (req, res) => {
+const getPurchasesByUser = async (req, res) => {
     try {
         const { username } = req.params;
 
@@ -133,4 +133,13 @@ export const getPurchasesByUser = async (req, res) => {
     } catch (error) {
         return res.status(500).json(`Error: ${error.message}`);
     }
+};
+
+module.exports = {
+    createUser,
+    deleteUser,
+    updateUser,
+    getUser,
+    registerPurchase,
+    getPurchasesByUser,
 };

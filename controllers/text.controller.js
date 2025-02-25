@@ -1,6 +1,6 @@
-import { Text } from "../models/Text.js";
+const Text = require("../models/Text");
 
-export const insertText = async (req, res) => {
+const insertText = async (req, res) => {
     try {
         const { text } = req.body;
         const newText = new Text({ text });
@@ -11,7 +11,7 @@ export const insertText = async (req, res) => {
     }
 };
 
-export const getRandomText = async (req, res) => {
+const getRandomText = async (req, res) => {
     try {
         const [randomText] = await Text.aggregate([{ $sample: { size: 1 } }]);
         res.status(200).json(randomText);
@@ -19,3 +19,5 @@ export const getRandomText = async (req, res) => {
         res.status(404).json({ message: error.message });
     }
 };
+
+module.exports = { insertText, getRandomText };
