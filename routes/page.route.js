@@ -1,5 +1,12 @@
 import { Router } from "express";
-import { insertPage, insertPostInPage, updatePage, getPages, getRamdomPage } from "../controllers/page.controller.js";
+import {
+    insertPage,
+    insertPostInPage,
+    updatePage,
+    deletePage,
+    getPages,
+    getRamdomPage,
+} from "../controllers/page.controller.js";
 
 export const createPageRouter = () => {
     const router = Router();
@@ -7,6 +14,7 @@ export const createPageRouter = () => {
     router.post("/insertPage", insertPage);
     router.post("/insertPostInPage/:id", insertPostInPage);
     router.put("/updatePage/:id", updatePage);
+    router.delete("/deletePage/:id", deletePage);
     router.get("/getPages", getPages);
     router.get("/getRamdomPage", getRamdomPage);
 

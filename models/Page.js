@@ -4,6 +4,7 @@ import { Post } from "./Post.js";
 const PageSchema = new Schema({
     title: {
         type: String,
+        unique: true,
         required: true,
     },
     description: {

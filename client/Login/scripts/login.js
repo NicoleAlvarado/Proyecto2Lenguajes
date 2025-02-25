@@ -1,4 +1,4 @@
-import { fetchWithAuth } from './auth.js';
+import { fetchWithAuth } from "./auth.js";
 
 window.addEventListener("DOMContentLoaded", async function () {
     await fetchSession();
@@ -35,22 +35,19 @@ const rememberMe = () => {
     }
 };
 
-const requestLogin = async (email, password) => {
+const loginUser = async (email, password) => {
     try {
-        const response = await fetch("/users/login", {
+        const response = await fetch("/users/loginUser", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, password }),
         });
 
-        if (!response.ok) {
-            throw new Error("Login failed");
-        }
+        if (!response.ok) throw new Error("Login failed");
 
         const data = await response.json();
-        localStorage.setItem('accessToken', data.accessToken); // Almacenar el token de acceso
+        console.log({ data });
+        // localStorage.setItem("accessToken", data.accessToken);
         return true;
     } catch (error) {
         console.error("Login request failed:", error);
@@ -58,7 +55,7 @@ const requestLogin = async (email, password) => {
     }
 };
 
-async function login(event) {
+const login = async (event) => {
     event.preventDefault();
 
     const email = document.getElementById("email");
@@ -73,23 +70,22 @@ async function login(event) {
     loginError.style.display = "none";
 
     // Validate login
-    const response = await requestLogin(email.value, password.value);
-    if (response) {
-        if (document.getElementById("rememberMe").checked) {
-            rememberMe();
-        }
-        window.location.href = "/Home/home.html"; // Asegúrate de que la ruta sea correcta
-    } else {
-        form.classList.add("is-invalid");
-        loginError.style.display = "block";
-    }
-}
+    const response = await loginUser(email.value, password.value);
+    // if (response) {
+    //     if (document.getElementById("rememberMe").checked) rememberMe();
 
-function cleanForm() {
+    //     window.location.href = "/Home/home.html"; // Asegúrate de que la ruta sea correcta
+    // } else {
+    //     form.classList.add("is-invalid");
+    //     loginError.style.display = "block";
+    // }
+};
+
+const cleanForm = () => {
     document.getElementById("email").value = "";
     document.getElementById("password").value = "";
     document.getElementById("rememberMe").checked = false;
-}
+};
 
 (function () {
     "use strict";
@@ -112,4 +108,4 @@ function cleanForm() {
     });
 })();
 
-console.log("indexScript.js loaded");
+console.log('hasoodasdasd asjfn')

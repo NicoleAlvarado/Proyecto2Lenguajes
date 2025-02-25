@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { loginUser, refreshAccessToken, getUserInSession, logoutUser } from "../controllers/login.controller.js";
+import { loginUser, refreshToken, logoutUser } from "../controllers/login.controller.js";
 import {
     createUser,
     updateUser,
@@ -14,13 +14,12 @@ export const createUserRouter = () => {
 
     router.post("/createUser", createUser);
     router.post("/registerPurchase/:username", registerPurchase);
-    router.post("/login", loginUser);
-    router.post("/refresh-token", refreshAccessToken);
+    router.post("/loginUser", loginUser);
+    router.post("/refreshToken", refreshToken);
     router.put("/updateUser/:username", updateUser);
     router.delete("/deleteUser/:username", deleteUser);
     router.get("/getUser/:username", getUser);
     router.get("/getPurchasesByUser/:username", getPurchasesByUser);
-    router.get("/login/session", getUserInSession);
     router.get("/login/logout", logoutUser);
     
     return router;

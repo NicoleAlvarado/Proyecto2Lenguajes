@@ -57,6 +57,16 @@ export const updatePage = async (req, res) => {
     }
 };
 
+export const deletePage = async (req, res) => {
+    try {
+        const { id } = req.params;
+        await Page.findByIdAndDelete(id);
+        res.status(200).json({ message: "Página eliminada" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 export const getPages = async (req, res) => {
     try {
         res.status(200).json(await Page.find());
