@@ -34,6 +34,29 @@ export const insertPostInPage = async (req, res) => {
     }
 };
 
+export const updatePage = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { title, description, phone, email, address } = req.body;
+
+        const page = await Page.findByIdAndUpdate(
+            id,
+            {
+                title,
+                description,
+                phone,
+                email,
+                address,
+            },
+            { new: true }
+        );
+
+        res.status(200).json(page);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 export const getPages = async (req, res) => {
     try {
         res.status(200).json(await Page.find());

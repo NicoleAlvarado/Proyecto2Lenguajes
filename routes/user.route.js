@@ -11,6 +11,7 @@ import {
 
 export const createUserRouter = () => {
     const router = Router();
+
     router.post("/createUser", createUser);
     router.post("/registerPurchase/:username", registerPurchase);
     router.post("/login", loginUser);
@@ -21,5 +22,6 @@ export const createUserRouter = () => {
     router.get("/getPurchasesByUser/:username", getPurchasesByUser);
     router.get("/login/session", getUserInSession);
     router.get("/login/logout", logoutUser);
+    
     return router;
 };

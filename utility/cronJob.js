@@ -1,14 +1,19 @@
+import { API_URL } from "./environment.js";
+
 export const insertPostEveryMinute = async () => {
     try {
         console.log("Insertando post cada minuto");
-        const randomPageResponse = await fetch("http://localhost:3000/pages/getRamdomPage");
-        const randomPageData = await randomPageResponse.json();
 
-        const response = await fetch(`http://localhost:3000/pages/insertPostInPage/${randomPageData._id}`, {
+        const [randomPageData, randomTextData] = await Promise.all([
+            fetch(`${API_URL}pages/getRamdomPage`).then((res) => res.json()),
+            fetch(`${API_URL}texts/getRandomText`).then((res) => res.json()),
+        ]);
+
+        const response = await fetch(`${API_URL}pages/insertPostInPage/${randomPageData._id}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                content: `Post que se inserta cada minuto ${new Date().toISOString()}`,
+                content: randomTextData.text,
             }),
         });
 

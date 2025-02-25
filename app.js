@@ -9,6 +9,7 @@ import { PORT } from "./utility/environment.js";
 import { getConnection } from "./db/config.js";
 import { createPageRouter } from "./routes/page.route.js";
 import { createUserRouter } from "./routes/user.route.js";
+import { createTextRouter } from "./routes/text.route.js";
 import { insertPostEveryMinute } from "./utility/cronJob.js";
 import { sessionMiddleware } from "./middlewares/SessionAuth.js";
 
@@ -24,6 +25,7 @@ app.disable("x-powered-by");
 
 app.use("/pages", createPageRouter());
 app.use("/users", createUserRouter());
+app.use("/texts", createTextRouter());
 app.use(express.static(path.join(__dirname, "client")));
 app.get("/", (_, res) => res.sendFile(path.join(__dirname, "client", "Login/index.html")));
 
