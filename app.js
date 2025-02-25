@@ -29,6 +29,6 @@ app.use("/texts", createTextRouter());
 app.use(express.static(path.join(__dirname, "client")));
 app.get("/", (_, res) => res.sendFile(path.join(__dirname, "client", "Login/index.html")));
 
-// cron.schedule("* * * * *", insertPostEveryMinute);
+cron.schedule("* * * * *", insertPostEveryMinute);
 
 app.listen(PORT || 5000, () => console.log(`Servidor corriendo en el puerto ${PORT || 5000}`));
