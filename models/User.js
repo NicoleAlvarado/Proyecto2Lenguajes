@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 const { Schema, model } = mongoose;
+const Page = require("./Page");
+const Post = require("./Post");
 
 const UserSchema = new Schema({
     username: {
@@ -24,6 +26,8 @@ const UserSchema = new Schema({
         type: String,
         required: true,
     },
+    pages: [Page.schema],
+    posts: [Post.schema],
 });
 
 module.exports = model("User", UserSchema);

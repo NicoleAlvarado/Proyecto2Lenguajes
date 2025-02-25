@@ -1,3 +1,4 @@
+const User = require("../models/User");
 const Page = require("../models/Page");
 const Post = require("../models/Post");
 
@@ -5,7 +6,7 @@ const insertPage = async (req, res) => {
     try {
         const { title, description, phone, email, address, posts } = req.body;
 
-        const newPage = new Page({
+        const page = new Page({
             title,
             description,
             phone,
@@ -14,7 +15,7 @@ const insertPage = async (req, res) => {
             posts,
         });
 
-        res.status(201).json(await newPage.save());
+        res.status(201).json(await page.save());
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -22,10 +23,10 @@ const insertPage = async (req, res) => {
 
 const insertPostInPage = async (req, res) => {
     try {
-        const { id } = req.params;
+        const { pageId } = req.params;
         const { content } = req.body;
 
-        const page = await Page.findById(id);
+        const page = await Page.findBypageId(pageId);
         page.posts.push(new Post({ content }));
 
         res.status(201).json(await page.save());
@@ -34,34 +35,60 @@ const insertPostInPage = async (req, res) => {
     }
 };
 
-const updatePage = async (req, res) => {
+const insertUserPage = async (req, res) => {
     try {
-        const { id } = req.params;
+        const { username } = req.params;
         const { title, description, phone, email, address } = req.body;
 
-        const page = await Page.findByIdAndUpdate(
-            id,
-            {
-                title,
-                description,
-                phone,
-                email,
-                address,
-            },
-            { new: true }
-        );
+        const page = new Page({
+            title,
+            description,
+            phone,
+            email,
+            address,
+        });
 
-        res.status(200).json(page);
+        const user = await User.findOne({ username }).populate("pages");
+        user.pages.push(page);
+
+        res.status(201).json(await user.save());
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
 
-const deletePage = async (req, res) => {
+const updateUserPage = async (req, res) => {
     try {
-        const { id } = req.params;
-        await Page.findByIdAndDelete(id);
-        res.status(200).json({ message: "Página eliminada" });
+        const { username, pageId } = req.params;
+        const { title, description, phone, email, address } = req.body;
+
+        const user = await User.findOneAndUpdate(
+            { username, "pages._id": pageId },
+            {
+                $set: {
+                    "pages.$.title": title,
+                    "pages.$.description": description,
+                    "pages.$.phone": phone,
+                    "pages.$.email": email,
+                    "pages.$.address": address,
+                },
+            },
+            { new: true }
+        );
+
+        res.status(200).json(user);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+const deleteUserPage = async (req, res) => {
+    try {
+        const { username, pageId } = req.params;
+
+        const user = await User.findOneAndUpdate({ username }, { $pull: { pages: { _id: pageId } } }, { new: true });
+
+        res.status(200).json(user);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -87,8 +114,9 @@ const getRamdomPage = async (req, res) => {
 module.exports = {
     insertPage,
     insertPostInPage,
-    updatePage,
-    deletePage,
+    insertUserPage,
+    updateUserPage,
+    deleteUserPage,
     getPages,
     getRamdomPage,
 };

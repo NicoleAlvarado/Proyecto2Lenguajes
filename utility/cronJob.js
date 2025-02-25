@@ -12,9 +12,7 @@ const insertPostEveryMinute = async () => {
         const response = await fetch(`${API_URL}pages/insertPostInPage/${randomPageData._id}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                content: randomTextData.text,
-            }),
+            body: JSON.stringify({ content: randomTextData.text }),
         });
 
         console.log(await response.json());

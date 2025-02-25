@@ -79,59 +79,11 @@ const getUser = async (req, res) => {
     }
 };
 
-const registerPurchase = async (req, res) => {
+const getUsers = async (req, res) => {
     try {
-        const { username } = req.params;
-        const { courseId } = req.body;
-
-        if (!username || !courseId) {
-            console.log(username, courseId);
-            return res.status(400).json("Username and Course ID are required");
-        }
-
-        const user = await User.findOne({ username });
-        if (!user) {
-            return res.status(404).json("User not found");
-        }
-
-        const course = await findById(courseId);
-        if (!course) {
-            return res.status(404).json("Course not found");
-        }
-
-        if (user.purchaseCourses.includes(courseId)) {
-            return res.status(400).json("Course already purchased");
-        }
-
-        if (!course.available) {
-            return res.status(400).json("Course not available");
-        }
-
-        user.purchaseCourses.push(courseId);
-        await user.save();
-
-        return res.status(201).json("Purchase registered successfully");
+        return res.status(200).json(await User.find());
     } catch (error) {
-        return res.status(500).json(`Error: ${error.message}`);
-    }
-};
-
-const getPurchasesByUser = async (req, res) => {
-    try {
-        const { username } = req.params;
-
-        if (!username) {
-            return res.status(400).json("User ID is required");
-        }
-
-        const user = await User.findOne({ username: username }).populate("purchaseCourses");
-        if (!user) {
-            return res.status(404).json("User not found");
-        }
-
-        return res.status(200).json(user.purchaseCourses);
-    } catch (error) {
-        return res.status(500).json(`Error: ${error.message}`);
+        return res.status(404).json(error.message);
     }
 };
 
@@ -140,6 +92,5 @@ module.exports = {
     deleteUser,
     updateUser,
     getUser,
-    registerPurchase,
-    getPurchasesByUser,
+    getUsers,
 };
