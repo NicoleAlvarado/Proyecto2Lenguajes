@@ -1,34 +1,31 @@
-import { fetchWithAuth } from "./auth.js";
-
 window.addEventListener("DOMContentLoaded", async function () {
-    await fetchSession();
+    // await fetchSession();
 
-    const emailStorage = localStorage.getItem("email");
-    const passwordStorage = localStorage.getItem("password");
+    const form = document.getElementById("login-form");
+    form.addEventListener("submit", login);
 
-    if (emailStorage && passwordStorage) {
-        document.getElementById("email").value = emailStorage;
-        document.getElementById("password").value = passwordStorage;
-    }
+    // const emailStorage = localStorage.getItem("email");
+    // const passwordStorage = localStorage.getItem("password");
+
+    // if (emailStorage && passwordStorage) {
+    //     document.getElementById("email").value = emailStorage;
+    //     document.getElementById("password").value = passwordStorage;
+    // }
 });
 
-const fetchSession = async () => {
-    try {
-        const response = await fetchWithAuth("/users/login/session");
-        if (response) window.location.href = "/Home/home.html";
-    } catch (error) {
-        console.error("Error fetching session:", error);
-    }
-};
+// const fetchSession = async () => {
+//     try {
+//         const response = await fetchWithAuth("/users/login/session");
+//         if (response) window.location.href = "/Home/home.html";
+//     } catch (error) {
+//         console.error("Error fetching session:", error);
+//     }
+// };
 
-const rememberMe = () => {
-    const checkBox = document.getElementById("rememberMe");
-    const email = document.getElementById("email");
-    const password = document.getElementById("password");
-
-    if (checkBox.checked && email.value !== "" && password.value !== "") {
-        localStorage.setItem("email", email.value);
-        localStorage.setItem("password", password.value);
+const handleRememberMe = (email, password, rememberMe) => {
+    if (rememberMe == "on") {
+        localStorage.setItem("email", email);
+        localStorage.setItem("password", password);
     } else {
         localStorage.removeItem("email");
         localStorage.removeItem("password");
@@ -45,46 +42,48 @@ const loginUser = async (email, password) => {
 
         if (!response.ok) throw new Error("Login failed");
 
-        const data = await response.json();
-        console.log({ data });
-        // localStorage.setItem("accessToken", data.accessToken);
-        return true;
+        return await response.json();
     } catch (error) {
         console.error("Login request failed:", error);
         return false;
     }
 };
 
-const login = async (event) => {
-    event.preventDefault();
+const login = async (e) => {
+    e.preventDefault();
 
-    const email = document.getElementById("email");
-    const password = document.getElementById("password");
-    const form = document.getElementById("loginForm");
-    const loginError = document.getElementById("loginError");
+    const { email, password, rememberMe } = Object.fromEntries(new FormData(e.target));
+
+    // const email = document.getElementById("email");
+    // const password = document.getElementById("password");
+    // const form = document.getElementById("loginForm");
+    // const loginError = document.getElementById("loginError");
 
     // Reset error states
-    form.classList.remove("is-invalid");
-    email.classList.remove("is-invalid");
-    password.classList.remove("is-invalid");
-    loginError.style.display = "none";
+    // form.classList.remove("is-invalid");
+    // email.classList.remove("is-invalid");
+    // password.classList.remove("is-invalid");
+    // loginError.style.display = "none";
 
     // Validate login
-    const response = await loginUser(email.value, password.value);
-    // if (response) {
-    //     if (document.getElementById("rememberMe").checked) rememberMe();
+    const response = await loginUser(email, password);
 
-    //     window.location.href = "/Home/home.html"; // Asegúrate de que la ruta sea correcta
-    // } else {
-    //     form.classList.add("is-invalid");
-    //     loginError.style.display = "block";
-    // }
+    if (!response) {
+        form.classList.add("is-invalid");
+        loginError.style.display = "block";
+        return;
+    }
+
+    localStorage.setItem("accessToken", response.accessToken);
+    handleRememberMe(email, password, rememberMe);
+    window.location.href = "/Home/index.html";
 };
 
-const cleanForm = () => {
-    document.getElementById("email").value = "";
-    document.getElementById("password").value = "";
-    document.getElementById("rememberMe").checked = false;
+// CREO QUE NO SE OCUPA
+const cleanForm = (e) => {
+    // document.getElementById("email").value = "";
+    // document.getElementById("password").value = "";
+    // document.getElementById("rememberMe").checked = false;
 };
 
 (function () {
@@ -107,5 +106,3 @@ const cleanForm = () => {
         );
     });
 })();
-
-console.log('hasoodasdasd asjfn')

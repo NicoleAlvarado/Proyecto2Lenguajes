@@ -11,9 +11,9 @@ export const loginUser = async (req, res) => {
         if (!user || !(await validatePassword(password, user.password)))
             return res.status(401).json({ message: "Invalid email or password" });
 
-        return generateAuthTokens(user);
+        return generateAuthTokens(user, res);
     } catch (error) {
-        return res.status(500).json({ message: "Cannot create token", error: error.message });
+        return res.status(500).json({ error: error.message });
     }
 };
 
@@ -35,7 +35,7 @@ export const logoutUser = (req, res) => {
     try {
         res.clearCookie("access_token");
         res.clearCookie("refresh_token");
-        
+
         return res.status(200).json({ message: "El usuario ha cerrado sesión" });
     } catch (error) {
         return res.status(500).json({ message: "Error al cerrar sesión", error: error.message });

@@ -18,7 +18,7 @@ export const verifyToken = (token, secret) => {
     }
 };
 
-export const generateAuthTokens = (user) => {
+export const generateAuthTokens = (user, res) => {
     try {
         const payload = { id: user._id, username: user.username };
 
