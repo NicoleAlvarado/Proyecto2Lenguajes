@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { SECRET_KEY, REFRESH_SECRET_KEY, NODE_ENV } from "../utility/environment.js";
 import { User } from "../models/User.js";
-import { generateTokens } from "../utility/user.generate-token.js";
+import { getTokenSettings, generateTokens } from "../utility/user.generate-token.js";
 import { validatePassword } from "../utility/user.validation.js";
 
 const loginUser = async (req, res) => {
@@ -10,9 +10,8 @@ const loginUser = async (req, res) => {
         if (!email || !password) return res.status(400).json({ message: "Email and password are required" });
         const user = await User.findOne({ email });
 
-        if (!user || !(await validatePassword(password, user.password))) {
+        if (!user || !(await validatePassword(password, user.password)))
             return res.status(401).json({ message: "Invalid email or password" });
-        }
 
         return generateTokens(user, res);
     } catch (error) {
@@ -31,18 +30,9 @@ const refreshAccessToken = async (req, res) => {
             const user = await User.findById(decoded.id);
             if (!user) return res.status(404).json({ message: "User not found" });
 
-            const accessToken = jwt.sign(
-                { id: user.id, username: user.username },
-                SECRET_KEY,
-                { expiresIn: "5m" } // Access token expira en 5 minutos
-            );
+            const accessToken = jwt.sign({ id: user.id, username: user.username }, SECRET_KEY, { expiresIn: "5m" });
 
-            res.cookie("access_token", accessToken, {
-                httpOnly: true,
-                secure: NODE_ENV === "production",
-                sameSite: "lax",
-                maxAge: 1000 * 60 * 5, // 5 minutos
-            });
+            res.cookie("access_token", accessToken, getTokenSettings(5));
 
             return res.status(200).json({ accessToken });
         });

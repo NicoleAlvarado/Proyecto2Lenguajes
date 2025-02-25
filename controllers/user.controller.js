@@ -79,7 +79,6 @@ export const getUser = async (req, res) => {
     }
 };
 
-// Registrar una nueva compra
 export const registerPurchase = async (req, res) => {
     try {
         const { username } = req.params;
@@ -117,7 +116,6 @@ export const registerPurchase = async (req, res) => {
     }
 };
 
-// Obtener la lista de compras por usuario
 export const getPurchasesByUser = async (req, res) => {
     try {
         const { username } = req.params;

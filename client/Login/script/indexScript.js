@@ -10,18 +10,16 @@ window.addEventListener("DOMContentLoaded", async function () {
     }
 });
 
-async function fetchSession() {
+const fetchSession = async () => {
     try {
         const response = await fetchWithAuth("/users/login/session");
-        if (response) {
-            window.location.href = "/Home/home.html";
-        }
+        if (response) window.location.href = "/Home/home.html";
     } catch (error) {
         console.error("Error fetching session:", error);
     }
-}
+};
 
-function rememberMe() {
+const rememberMe = () => {
     const checkBox = document.getElementById("rememberMe");
     const email = document.getElementById("email");
     const password = document.getElementById("password");
@@ -33,9 +31,9 @@ function rememberMe() {
         localStorage.removeItem("email");
         localStorage.removeItem("password");
     }
-}
+};
 
-async function requestLogin(email, password) {
+const requestLogin = async (email, password) => {
     try {
         const response = await fetchWithAuth("/users/login", {
             method: "POST",
@@ -54,7 +52,7 @@ async function requestLogin(email, password) {
         console.error("Login request failed:", error);
         return false;
     }
-}
+};
 
 async function login(event) {
     event.preventDefault();
@@ -83,7 +81,7 @@ async function login(event) {
     }
 }
 
-async function refreshAccessToken() {
+const refreshAccessToken = async () => {
     try {
         const response = await fetch("/users/refresh-token", {
             method: "POST",
@@ -91,19 +89,16 @@ async function refreshAccessToken() {
             headers: { "Content-Type": "application/json" },
         });
 
-        if (!response.ok) {
-            throw new Error("Failed to refresh access token");
-        }
+        if (!response.ok) throw new Error("Failed to refresh access token");
 
         const data = await response.json();
         console.log("Access token refreshed:", data.accessToken);
     } catch (error) {
         console.error("Error refreshing access token:", error);
     }
-}
+};
 
-// 🔥 Nueva función fetchWithAuth() para manejar la expiración del token automáticamente
-async function fetchWithAuth(url, options = {}) {
+const fetchWithAuth = async (url, options = {}) => {
     try {
         let response = await fetch(url, {
             ...options,
@@ -126,10 +121,10 @@ async function fetchWithAuth(url, options = {}) {
         console.error("Error en la solicitud:", error);
         return null;
     }
-}
+};
 
 // Llamar a la función de refresco del token cada 4 minutos y 30 segundos
-setInterval(refreshAccessToken, 1000 * 60 * 4.5);
+setInterval(refreshAccessToken, 1000 * 60 * 1);
 
 function cleanForm() {
     document.getElementById("email").value = "";
@@ -157,3 +152,5 @@ function cleanForm() {
         );
     });
 })();
+
+console.log("indexScript.js loaded");

@@ -1,33 +1,20 @@
 import jwt from "jsonwebtoken";
 import { SECRET_KEY, REFRESH_SECRET_KEY, NODE_ENV } from "./environment.js";
 
-export const generateTokens = async (user, res) => {
+export const getTokenSettings = (maxAge) => ({
+    httpOnly: true,
+    secure: NODE_ENV === "production",
+    sameSite: "strict",
+    maxAge: 1000 * 60 * maxAge,
+});
+
+export const generateTokens = async ({ id, username }, res) => {
     try {
-        const accessToken = jwt.sign(
-            { id: user.id, username: user.username },
-            SECRET_KEY,
-            { expiresIn: "5m" } // Access token expira en 5 minutos
-        );
+        const accessToken = jwt.sign({ id, username }, SECRET_KEY, { expiresIn: "5m" });
+        const refreshToken = jwt.sign({ id, username }, REFRESH_SECRET_KEY, { expiresIn: "7d" });
 
-        const refreshToken = jwt.sign(
-            { id: user.id, username: user.username },
-            REFRESH_SECRET_KEY,
-            { expiresIn: "7d" } // Refresh token expira en 7 días
-        );
-
-        res.cookie("access_token", accessToken, {
-            httpOnly: true,
-            secure: NODE_ENV === "production",
-            sameSite: "strict",
-            maxAge: 1000 * 60 * 5, // 5 minutos
-        });
-
-        res.cookie("refresh_token", refreshToken, {
-            httpOnly: true,
-            secure: NODE_ENV === "production",
-            sameSite: "strict",
-            maxAge: 1000 * 60 * 60 * 24 * 7, // 7 días
-        });
+        res.cookie("access_token", accessToken, getTokenSettings(5));
+        res.cookie("refresh_token", refreshToken, getTokenSettings(60 * 24 * 7));
 
         return res.status(200).json({ accessToken, refreshToken });
     } catch (error) {
