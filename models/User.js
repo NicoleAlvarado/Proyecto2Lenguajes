@@ -11,7 +11,7 @@ const UserSchema = new Schema({
     avatar: { type: String, required: true },
     pages: [Page.schema],
     posts: [Post.schema],
-    friends: [{ type: String }], // Lista de usernames de amigos
+    friends: [{ type: String }], // Lista de usernames de *Email* de amigos
     friendRequests: [{ type: String }], // Lista de usernames de solicitudes pendientes
     followedPages: [{ type: String }], // GUARDAR EL ID DE LA PAGINAS, CUANDO SE LE DA A SEGUIR (FELIPE)
 });

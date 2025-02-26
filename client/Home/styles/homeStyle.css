@@ -1,4 +1,4 @@
-/* Estilo general */
+
 body {
     font-family: 'Poppins', sans-serif;
     background-color: #f8f9fa;
@@ -67,7 +67,6 @@ body {
 
 /* Fondo con overlay */
 .overlay {
-    background: url('/Home/assets/background.jpg') no-repeat center center/cover;
     position: fixed;
     top: 0;
     left: 0;
