@@ -29,7 +29,7 @@ const createUserRouter = () => {
     router.get("/getUsers", getUsers);
     router.post("/sendFriendRequest", sendFriendRequest);
     router.post("/respondFriendRequest", respondFriendRequest);
-    router.get("/getFriendRequests/:username", getFriendRequests);
+    router.get("/getFriendRequests/:email", getFriendRequests);
     router.get("/getRecommendedPosts/:email", getRecommendedPosts);
     router.get("/getFriends/:email", getFriends);
     router.post("/removeFriend", removeFriend);
