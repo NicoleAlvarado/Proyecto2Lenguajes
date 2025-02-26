@@ -1,7 +1,7 @@
 const { Router } = require("express");
 const {
     insertPage,
-    insertPostInPage,
+    addPostToPage,
     insertUserPage,
     updateUserPage,
     deleteUserPage,
@@ -14,7 +14,7 @@ const createPageRouter = () => {
 
     //agregar una validacion en el middleware para que solo los usuarios logueados puedan acceder a las rutas
     router.post("/insertPage", insertPage);
-    router.post("/insertPostInPage/:pageId", insertPostInPage);
+    router.post("/addPostToPage/:email/:pageId", addPostToPage);
     router.post("/insertUserPage/:username", insertUserPage);
     router.put("/updateUserPage/:username/:pageId", updateUserPage);
     router.delete("/deleteUserPage/:username/:pageId", deleteUserPage);

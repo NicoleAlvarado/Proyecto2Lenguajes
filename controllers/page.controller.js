@@ -21,15 +21,16 @@ const insertPage = async (req, res) => {
     }
 };
 
-const insertPostInPage = async (req, res) => {
+const addPostToPage = async (req, res) => {
     try {
-        const { pageId } = req.params;
+        const { email, pageId } = req.params;
         const { content } = req.body;
 
-        const page = await Page.findBypageId(pageId);
+        const user = await User.findOne({ email });
+        const page = user.pages.id(pageId);
         page.posts.push(new Post({ content }));
 
-        res.status(201).json(await page.save());
+        res.status(201).json(await user.save());
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -118,7 +119,7 @@ const getRamdomPage = async (req, res) => {
 
 module.exports = {
     insertPage,
-    insertPostInPage,
+    addPostToPage,
     insertUserPage,
     updateUserPage,
     deleteUserPage,

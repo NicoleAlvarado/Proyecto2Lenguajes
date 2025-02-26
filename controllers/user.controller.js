@@ -36,6 +36,47 @@ const insertUserPost = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+const likeUserPost = async (req, res) => {
+    try {
+        const { userEmailPostLiked, postId } = req.params;
+        const { userEmail } = req.body;
+
+        const user = await User.findOne({ email: userEmailPostLiked });
+        const post = user.posts.id(postId);
+        const likeIndex = post.likes.indexOf(userEmail);
+
+        likeIndex === -1 ? post.likes.push(userEmail) : post.likes.splice(likeIndex, 1);
+
+        res.status(200).json(await user.save());
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+const likePagePost = async (req, res) => {
+    try {
+        const { pageId, postId } = req.params;
+        const { userEmail } = req.body;
+
+        let page = await Page.findById(pageId);
+
+        if (!page) {
+            const userWithPage = await User.findOne({ "pages._id": pageId });
+            page = userWithPage.pages.id(pageId);
+        }
+
+        const post = page.posts.id(postId);
+        const likeIndex = post.likes.indexOf(userEmail);
+
+        likeIndex === -1 ? post.likes.push(userEmail) : post.likes.splice(likeIndex, 1);
+
+        res.status(200).json(page.parent() ? await page?.parent().save() : page.save());
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 const deleteUser = async (req, res) => {
     try {
         const { email } = req.params;
@@ -48,10 +89,7 @@ const deleteUser = async (req, res) => {
         console.log("userDelete", userDelete);
 
         // Eliminar el email del usuario de las listas de amigos de otros usuarios
-        await User.updateMany(
-            { friends: email },
-            { $pull: { friends: email } }
-        );
+        await User.updateMany({ friends: email }, { $pull: { friends: email } });
 
         // Eliminar el usuario
         await User.findByIdAndDelete(userDelete._id);
@@ -314,13 +352,11 @@ const getFriends = async (req, res) => {
         const friendsList = await Promise.all(
             user.friends.map(async (friendEmail) => {
                 const friend = await User.findOne({ email: friendEmail });
-                return friend
-                    ? { email: friend.email, username: friend.username, avatar: friend.avatar }
-                    : null;
+                return friend ? { email: friend.email, username: friend.username, avatar: friend.avatar } : null;
             })
         );
 
-        return res.status(200).json(friendsList.filter(friend => friend !== null));
+        return res.status(200).json(friendsList.filter((friend) => friend !== null));
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }
@@ -342,8 +378,8 @@ const removeFriend = async (req, res) => {
         }
 
         // Remover el amigo de ambas listas
-        user.friends = user.friends.filter(email => email !== friendEmail);
-        friend.friends = friend.friends.filter(email => email !== userEmail);
+        user.friends = user.friends.filter((email) => email !== friendEmail);
+        friend.friends = friend.friends.filter((email) => email !== userEmail);
 
         await user.save();
         await friend.save();
@@ -354,13 +390,11 @@ const removeFriend = async (req, res) => {
     }
 };
 
-
-
-
-
 module.exports = {
     createUser,
     insertUserPost,
+    likeUserPost,
+    likePagePost,
     deleteUser,
     updateUser,
     getUser,

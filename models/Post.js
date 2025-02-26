@@ -7,7 +7,7 @@ const PostSchema = new Schema({
         type: String,
         required: true,
     },
-    likes: [{ Type: String }], // Array de emails
+    likes: [{ type: String }], // Array de emails
     comments: [Comment.schema],
     date: {
         type: Date,
