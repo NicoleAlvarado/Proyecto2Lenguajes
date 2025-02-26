@@ -13,64 +13,71 @@
     </head>
 
     <body>
+<!-- Botón para ir a Home -->
+<div class="container d-flex justify-content-center my-3">
+    <a href="/home" class="btn btn-primary btn-lg">Go to Home</a>
+</div>
+
+
+        <!-- Formulario de edición de perfil -->
         <div class="container d-flex justify-content-center align-items-center min-vh-100">
             <div class="form-container">
                 <div class="form-header text-center mb-4">
-                    <h2 class="mb-2">Editar Perfil</h2>
-                    <p class="text-muted">Actualiza tu información personal</p>
+                    <h2 class="mb-2">Edit Profile</h2>
+                    <p class="text-muted">Update your information</p>
                 </div>
                 <form id="editProfileForm" class="needs-validation" novalidate>
                     <div class="mb-3">
-                        <label for="username" class="form-label">Nombre de Usuario</label>
+                        <label for="username" class="form-label">Username</label>
                         <input
                             type="text"
                             class="form-control form-control-lg"
                             id="username"
                             name="username"
                             required
-                            placeholder="Ingrese su nombre de usuario"
+                            placeholder="Enter your username"
                         />
-                        <div class="invalid-feedback">Por favor ingrese un nombre de usuario válido.</div>
+                        <div class="invalid-feedback">Please enter a valid username</div>
                     </div>
 
                     <div class="mb-3">
-                        <label for="email" class="form-label">Correo Electrónico</label>
+                        <label for="email" class="form-label">Email</label>
                         <input
                             type="email"
                             class="form-control form-control-lg"
                             id="email"
                             name="email"
                             required
-                            placeholder="Ingrese su correo electrónico"
+                            placeholder="Enter your email"
                         />
-                        <div class="invalid-feedback">Por favor ingrese un correo electrónico válido.</div>
+                        <div class="invalid-feedback">Please enter a valid email</div>
                     </div>
 
                     <div class="mb-3">
-                        <label for="password" class="form-label">Contraseña</label>
+                        <label for="password" class="form-label">Password</label>
                         <input
                             type="password"
                             class="form-control form-control-lg"
                             id="password"
                             name="password"
                             required
-                            placeholder="Ingrese su contraseña"
+                            placeholder="Enter your password"
                         />
-                        <div class="invalid-feedback">Por favor ingrese una contraseña válida.</div>
+                        <div class="invalid-feedback">Please enter a valid password</div>
                     </div>
 
                     <div class="mb-3">
-                        <label for="bio" class="form-label">Biografía</label>
+                        <label for="bio" class="form-label">Biography</label>
                         <textarea
                             class="form-control form-control-lg"
                             id="bio"
                             name="bio"
-                            placeholder="Cuéntanos algo sobre ti"
+                            placeholder="Tell us about you"
                         ></textarea>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Elige un Avatar</label>
+                        <label class="form-label">Choose an avatar</label>
                         <div class="d-flex flex-wrap">
                             <div class="avatar-option">
                                 <input type="radio" name="avatar" id="avatar1" value="avatar1.png" required />
@@ -84,49 +91,14 @@
                                     <img src="../CreateUser/avatars/avatar2.png" alt="Avatar 2" class="img-thumbnail" />
                                 </label>
                             </div>
-                            <div class="avatar-option">
-                                <input type="radio" name="avatar" id="avatar3" value="avatar3.png" required />
-                                <label for="avatar3">
-                                    <img src="../CreateUser/avatars/avatar3.png" alt="Avatar 3" class="img-thumbnail" />
-                                </label>
-                            </div>
-                            <div class="avatar-option">
-                                <input type="radio" name="avatar" id="avatar4" value="avatar4.png" required />
-                                <label for="avatar4">
-                                    <img src="../CreateUser/avatars/avatar4.png" alt="Avatar 4" class="img-thumbnail" />
-                                </label>
-                            </div>
-                            <div class="avatar-option">
-                                <input type="radio" name="avatar" id="avatar5" value="avatar5.png" required />
-                                <label for="avatar5">
-                                    <img src="../CreateUser/avatars/avatar5.png" alt="Avatar 5" class="img-thumbnail" />
-                                </label>
-                            </div>
-                            <div class="avatar-option">
-                                <input type="radio" name="avatar" id="avatar6" value="avatar6.png" required />
-                                <label for="avatar6">
-                                    <img src="../CreateUser/avatars/avatar6.png" alt="Avatar 6" class="img-thumbnail" />
-                                </label>
-                            </div>
-                            <div class="avatar-option">
-                                <input type="radio" name="avatar" id="avatar7" value="avatar7.png" required />
-                                <label for="avatar7">
-                                    <img src="../CreateUser/avatars/avatar7.png" alt="Avatar 7" class="img-thumbnail" />
-                                </label>
-                            </div>
-                            <div class="avatar-option">
-                                <input type="radio" name="avatar" id="avatar8" value="avatar8.png" required />
-                                <label for="avatar8">
-                                    <img src="/CreateUser/avatars/avatar8.png" alt="Avatar 8" class="img-thumbnail" />
-                                </label>
-                            </div>
+                            <!-- Agrega más opciones de avatar aquí -->
                         </div>
-                        <div class="invalid-feedback">Por favor elija un avatar.</div>
+                        <div class="invalid-feedback">Please choose an avatar</div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary btn-lg w-100 mt-3">Guardar Cambios</button>
+                    <button type="submit" class="btn btn-primary btn-lg w-100 mt-3">Save changes</button>
                     <button type="button" id="deleteProfileBtn" class="btn btn-danger btn-lg w-100 mt-3">
-                        Eliminar Perfil
+                        Delete profile
                     </button>
                 </form>
             </div>
