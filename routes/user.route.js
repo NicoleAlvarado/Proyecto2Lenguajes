@@ -8,8 +8,8 @@ const createUserRouter = () => {
     router.post("/createUser", createUser);
     router.post("/loginUser", loginUser);
     router.post("/refreshToken", refreshToken);
-    router.put("/updateUser/:username", updateUser);
-    router.delete("/deleteUser/:username", deleteUser);
+    router.put("/updateUser/:useremail", updateUser);
+    router.delete("/deleteUser/:email", deleteUser);
     router.get("/getUser/:username", getUser);
     router.get("/login/logout", logoutUser);
     router.get("/getUsers", getUsers);
