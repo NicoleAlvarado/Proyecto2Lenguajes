@@ -8,10 +8,22 @@ const searchFriend = async () => {
     }
 
     try {
-        const response = await fetch(`/api/users/getUser/${username}`);
+        const response = await fetch(`/api/users/getUser/${username}`);  // Busca por username
         if (!response.ok) throw new Error("Usuario no encontrado");
 
         const user = await response.json();
+
+        // Obtener el correo del usuario en sesión desde el localStorage
+        const currentUserEmail = localStorage.getItem("userEmail");
+
+        let friendRequestButton = "";
+        if (currentUserEmail && currentUserEmail !== user.email) {
+            friendRequestButton = `
+                <button class="btn btn-success mt-2" onclick="sendFriendRequest('${user.email}')">
+                    Enviar solicitud de amistad
+                </button>
+            `;
+        }
 
         resultContainer.innerHTML = `
             <div class="card mx-auto" style="width: 18rem;">
@@ -20,7 +32,7 @@ const searchFriend = async () => {
                     <h5 class="card-title">@${user.username}</h5>
                     <p class="card-text">${user.bio || "Sin biografía"}</p>
                     <p class="text-muted">${user.email}</p>
-                    <button class="btn btn-success mt-2" onclick="sendFriendRequest('${user.username}')">Enviar solicitud</button>
+                    ${friendRequestButton}
                 </div>
             </div>
         `;
@@ -33,10 +45,12 @@ const searchFriend = async () => {
 
 
 
-const sendFriendRequest = async (receiverUsername) => {
-    const senderUsername = localStorage.getItem("username"); // Se obtiene el username en sesión
-    if (!senderUsername) {
-        alert("Debes iniciar sesión.");
+
+const sendFriendRequest = async (receiverEmail) => {
+    const senderEmail = localStorage.getItem("userEmail");
+
+    if (!senderEmail) {
+        alert("Debe iniciar sesión para enviar solicitudes de amistad.");
         return;
     }
 
@@ -44,11 +58,15 @@ const sendFriendRequest = async (receiverUsername) => {
         const response = await fetch("/api/users/sendFriendRequest", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ senderUsername, receiverUsername }),
+            body: JSON.stringify({ senderEmail, receiverEmail })
         });
 
-        const data = await response.json();
-        alert(data.message);
+        const result = await response.json();
+        if (response.ok) {
+            alert("Solicitud de amistad enviada con éxito.");
+        } else {
+            alert(`Error: ${result.message}`);
+        }
     } catch (error) {
         alert("Error al enviar la solicitud de amistad.");
     }

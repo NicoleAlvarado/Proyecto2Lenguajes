@@ -97,88 +97,95 @@ const getUsers = async (req, res) => {
 
 const sendFriendRequest = async (req, res) => {
     try {
-        const { senderUsername, receiverUsername } = req.body;
+        const { senderEmail, receiverEmail } = req.body;
 
-        if (!senderUsername || !receiverUsername) {
-            return res.status(400).json({ message: "Ambos usernames son requeridos." });
+        if (!senderEmail || !receiverEmail) {
+            return res.status(400).json({ message: "Both senderEmail and receiverEmail are required" });
         }
 
-        const sender = await User.findOne({ username: senderUsername });
-        const receiver = await User.findOne({ username: receiverUsername });
+        const sender = await User.findOne({ email: senderEmail });
+        const receiver = await User.findOne({ email: receiverEmail });
 
         if (!sender || !receiver) {
-            return res.status(404).json({ message: "Uno o ambos usuarios no existen." });
+            return res.status(404).json({ message: "User not found" });
         }
 
-        if (receiver.friendRequests.includes(senderUsername)) {
-            return res.status(400).json({ message: "Ya has enviado una solicitud a este usuario." });
+        // Verificar si la solicitud ya ha sido enviada
+        if (receiver.friendRequests.includes(sender.email)) {
+            return res.status(400).json({ message: "Friend request already sent" });
         }
 
-        receiver.friendRequests.push(senderUsername);
+        // Agregar la solicitud de amistad
+        receiver.friendRequests.push(sender.email);
         await receiver.save();
 
-        return res.status(200).json({ message: "Solicitud de amistad enviada." });
+        return res.status(200).json({ message: "Friend request sent successfully" });
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }
 };
+
 
 
 
 const respondFriendRequest = async (req, res) => {
     try {
-        const { receiverUsername, senderUsername, action } = req.body; // action: "accept" o "reject"
+        const { userEmail, senderEmail, action } = req.body; // action: "accept" o "reject"
 
-        if (!receiverUsername || !senderUsername) {
-            return res.status(400).json({ message: "Ambos usernames son requeridos." });
+        if (!userEmail || !senderEmail) {
+            return res.status(400).json({ message: "Both userEmail and senderEmail are required" });
         }
 
-        const receiver = await User.findOne({ username: receiverUsername });
-        const sender = await User.findOne({ username: senderUsername });
+        const user = await User.findOne({ email: userEmail });
+        const sender = await User.findOne({ email: senderEmail });
 
-        if (!receiver || !sender) {
-            return res.status(404).json({ message: "Uno o ambos usuarios no existen." });
+        if (!user || !sender) {
+            return res.status(404).json({ message: "User not found" });
         }
 
-        // Si la solicitud no existe, retornar error
-        if (!receiver.friendRequests.includes(senderUsername)) {
-            return res.status(400).json({ message: "No se encontró la solicitud de amistad." });
+        // Verificar si la solicitud existe
+        if (!user.friendRequests.includes(sender.email)) {
+            return res.status(400).json({ message: "No friend request found" });
         }
 
         // Si el usuario acepta la solicitud
         if (action === "accept") {
-            receiver.friends.push(senderUsername);
-            sender.friends.push(receiverUsername);
+            user.friends.push(sender.email);
+            sender.friends.push(user.email);
         }
 
         // Eliminar la solicitud de la lista
-        receiver.friendRequests = receiver.friendRequests.filter(username => username !== senderUsername);
-        
-        await receiver.save();
+        user.friendRequests = user.friendRequests.filter(email => email !== sender.email);
+        await user.save();
         await sender.save();
 
-        return res.status(200).json({ message: `Solicitud de amistad ${action}ada correctamente.` });
+        return res.status(200).json({ message: `Friend request ${action}ed successfully` });
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }
 };
+
 
 
 
 const getFriendRequests = async (req, res) => {
     try {
-        const { username } = req.params;
-        const user = await User.findById(userId).populate("friendRequests", "username avatar");
+        const { email } = req.params;
+        if (!email) {
+            return res.status(400).json({ message: "User email is required" });
+        }
 
+        const user = await User.findOne({ email }).populate("friendRequests", "email avatar");
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
 
-        return res.status(200).json({ friendRequests: user.friendRequests });
+        return res.status(200).json(user.friendRequests);
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }
 };
+
 
 
 
