@@ -23,7 +23,7 @@ async function registeredUser(event) {
     } else {
         document.getElementById("name").classList.remove("is-invalid");
     }
-    //Validar el campo email    
+    //Validar el campo email
     //Si es invalido agrega la clase al html, si es valido quita la clase del html
     if (!user.email || !/^\S+@\S+\.\S+$/.test(user.email)) {
         document.getElementById("email").classList.add("is-invalid");
@@ -57,7 +57,7 @@ async function registeredUser(event) {
     // Limpiar mensajes de error anteriores
     cleanMessages();
 
-    // Enviar la solicitud de registro 
+    // Enviar la solicitud de registro
     //Si el registro es exitoso envia un mensaje de exito y limpia el formulario
     if (await requestRegistUser(user)) {
         document.getElementById("loginForm").classList.add("is-valid");
@@ -65,7 +65,7 @@ async function registeredUser(event) {
         document.getElementById("successMessage").style.display = "block"; // Mostrar mensaje de éxito
         cleanForm(); // Limpiar el formulario
 
-    //Si el registro no es exitoso envia un mensaje de error y remueve la clases de validacion
+        //Si el registro no es exitoso envia un mensaje de error y remueve la clases de validacion
     } else {
         document.getElementById("loginForm").classList.remove("is-valid");
         document.getElementById("loginForm").classList.add("is-invalid");
@@ -73,7 +73,7 @@ async function registeredUser(event) {
     }
 }
 
-//Funcion para limpiar los campos del formulario 
+//Funcion para limpiar los campos del formulario
 function cleanForm() {
     document.getElementById("name").value = "";
     document.getElementById("email").value = "";
