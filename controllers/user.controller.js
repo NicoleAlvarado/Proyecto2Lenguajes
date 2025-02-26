@@ -38,17 +38,19 @@ const deleteUser = async (req, res) => {
 
 const updateUser = async (req, res) => {
     try {
-        const { name } = req.params;
-        if (!name) return res.status(204).json("Username is required");
+        const { username } = req.params; // Cambiado de name a username
 
-        const { username, password } = req.body;
-        validateUserData(username, password);
+        if (!username) return res.status(204).json("Username is required");
 
-        const user = await User.findOne({ username: name });
-        if (!user) return res.status(404).json(`User ${name} to update not found`);
+        const { newUsername, email, password, bio, avatar } = req.body; // Cambiado de username a newUsername
+        validateUserData(newUsername, email, password, avatar);
+        console.log(username, newUsername, email, password, bio, avatar);
 
-        if (user.username !== username) {
-            await validateUserName(username);
+        const user = await User.findOne({ username });
+        if (!user) return res.status(404).json(`User ${username} to update not found`);
+
+        if (user.username !== newUsername) {
+            await validateUserName(newUsername, email);
         }
 
         let modifyPassword = user.password;
@@ -58,7 +60,13 @@ const updateUser = async (req, res) => {
 
         const updatedUser = await User.findByIdAndUpdate(
             user.id,
-            { username, password: modifyPassword },
+            { 
+                username: newUsername, 
+                email: email,
+                password: modifyPassword,
+                bio: bio,
+                avatar: avatar
+            },
             { new: true, runValidators: true }
         );
         return res.status(200).json({ user: updatedUser });
