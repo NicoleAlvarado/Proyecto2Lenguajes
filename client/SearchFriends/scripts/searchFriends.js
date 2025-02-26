@@ -66,6 +66,7 @@ const sendFriendRequest = async (receiverEmail) => {
             alert("Solicitud de amistad enviada con éxito.");
         } else {
             alert(`Error: ${result.message}`);
+            
         }
     } catch (error) {
         alert("Error al enviar la solicitud de amistad.");

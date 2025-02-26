@@ -39,14 +39,14 @@ const insertUserPost = async (req, res) => {
 
 const deleteUser = async (req, res) => {
     try {
-        const { username } = req.params;
-        if (!username) return res.status(204).json("Username is required");
-
-        const userDelete = await User.findOne({ username });
-        if (!userDelete) return res.status(404).json(`User ${username} to delete not found`);
+        const { email } = req.params;
+        if (!email) return res.status(204).json("Email is required");
+        console.log('email', email);
+        const userDelete = await User.findOne({ email });
+        if (!userDelete) return res.status(404).json(`User with email ${email} to delete not found`);
 
         await User.findByIdAndDelete(userDelete.id);
-        return res.status(200).json(`User ${username} deleted`);
+        return res.status(200).json(`User with email ${email} deleted`);
     } catch (error) {
         return res.status(500).json(`Error: ${error.message}`);
     }
@@ -54,18 +54,18 @@ const deleteUser = async (req, res) => {
 
 const updateUser = async (req, res) => {
     try {
-        const { username } = req.params; // Cambiado de name a username
-
-        if (!username) return res.status(204).json("Username is required");
+        const { useremail } = req.params; // Cambiado de name a useremail
+        console.log('useremail', useremail);
+        if (!useremail) return res.status(204).json("useremail is required");
 
         const { newUsername, email, password, bio, avatar } = req.body; // Cambiado de username a newUsername
         validateUserData(newUsername, email, password, avatar);
-        console.log(username, newUsername, email, password, bio, avatar);
+        console.log(useremail, newUsername, email, password, bio, avatar);
 
-        const user = await User.findOne({ username });
-        if (!user) return res.status(404).json(`User ${username} to update not found`);
+        const user = await User.findOne({ email: useremail });
+        if (!user) return res.status(404).json(`User with email ${useremail} to update not found`);
 
-        if (user.username !== newUsername) {
+        if (user.email !== email) {
             await validateUserName(newUsername, email);
         }
 
@@ -76,6 +76,8 @@ const updateUser = async (req, res) => {
 
         const updatedUser = await User.findByIdAndUpdate(
             user.id,
+            {
+                username: newUsername,
             {
                 username: newUsername,
                 email: email,
@@ -126,9 +128,14 @@ const sendFriendRequest = async (req, res) => {
             return res.status(404).json({ message: "User not found" });
         }
 
+        // Verificar si ya son amigos
+        if (sender.friends.includes(receiverEmail) || receiver.friends.includes(senderEmail)) {
+            return res.status(400).json({ message: "You are already friends with this user", status: "already_friends" });
+        }
+
         // Verificar si la solicitud ya ha sido enviada
         if (receiver.friendRequests.includes(sender.email)) {
-            return res.status(400).json({ message: "Friend request already sent" });
+            return res.status(400).json({ message: "Friend request already sent", status: "already_sent" });
         }
 
         // Agregar la solicitud de amistad
@@ -185,12 +192,23 @@ const getFriendRequests = async (req, res) => {
             return res.status(400).json({ message: "User email is required" });
         }
 
-        const user = await User.findOne({ email }).populate("friendRequests", "email avatar");
+        const user = await User.findOne({ email }).populate("friendRequests");
+
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
 
-        return res.status(200).json(user.friendRequests);
+        // Agregar el nombre de usuario y avatar de las solicitudes de amistad
+        const requestsWithDetails = await Promise.all(user.friendRequests.map(async (requestEmail) => {
+            const sender = await User.findOne({ email: requestEmail });
+            return {
+                email: sender.email,
+                username: sender.username,
+                avatar: sender.avatar,
+            };
+        }));
+
+        return res.status(200).json(requestsWithDetails);
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }
