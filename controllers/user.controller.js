@@ -36,16 +36,26 @@ const insertUserPost = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
-
 const deleteUser = async (req, res) => {
     try {
         const { email } = req.params;
-        if (!email) return res.status(204).json("Email is required");
+        if (!email) return res.status(400).json("Email is required");
+
         console.log("email", email);
         const userDelete = await User.findOne({ email });
         if (!userDelete) return res.status(404).json(`User with email ${email} to delete not found`);
 
-        await User.findByIdAndDelete(userDelete.id);
+        console.log("userDelete", userDelete);
+
+        // Eliminar el email del usuario de las listas de amigos de otros usuarios
+        await User.updateMany(
+            { friends: email },
+            { $pull: { friends: email } }
+        );
+
+        // Eliminar el usuario
+        await User.findByIdAndDelete(userDelete._id);
+
         return res.status(200).json(`User with email ${email} deleted`);
     } catch (error) {
         return res.status(500).json(`Error: ${error.message}`);
