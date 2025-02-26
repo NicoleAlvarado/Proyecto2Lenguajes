@@ -1,8 +1,12 @@
+//Se dispara cuando el DOM se carga completamente
 window.addEventListener("DOMContentLoaded", () => {
+    //Obtiene el formulario de login
     const form = document.getElementById("login-form");
+    //Agrega un escuchador de eventos al formulario
     form.addEventListener("submit", login);
 });
 
+//Funcion para manejar el recordar usuario
 const handleRememberMe = (email, password, rememberMe) => {
     if (rememberMe == "on") {
         localStorage.setItem("email", email);
