@@ -164,7 +164,7 @@ const respondFriendRequest = async (req, res) => {
 
 const getFriendRequests = async (req, res) => {
     try {
-        const { userId } = req.params;
+        const { username } = req.params;
         const user = await User.findById(userId).populate("friendRequests", "username avatar");
 
         if (!user) {
