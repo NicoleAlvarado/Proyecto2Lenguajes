@@ -1,6 +1,7 @@
 const getInicialPosts = async () => {
     try {
-        const response = await fetch("/api/pages/getRandomPostsForPage");
+        const userEmail = localStorage.getItem("userEmail");
+        const response = await fetch(`/api/users/getRecommendedPosts/${userEmail}`);
         const posts = await response.json();
         console.log(posts);
     } catch (error) {

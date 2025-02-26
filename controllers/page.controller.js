@@ -107,27 +107,6 @@ const getPages = async (req, res) => {
     }
 };
 
-const getRandomPostsForPage = async (req, res) => {
-    try {
-        const randomPages = await Page.aggregate([
-            { $match: { "posts.0": { $exists: true } } },
-            { $sample: { size: 50 } },
-            {
-                $project: {
-                    title: 1,
-                    randomPost: {
-                        $arrayElemAt: ["$posts", { $floor: { $multiply: [{ $rand: {} }, { $size: "$posts" }] } }],
-                    },
-                },
-            },
-        ]);
-
-        res.status(200).json(randomPages);
-    } catch (error) {
-        res.status(404).json({ message: error.message });
-    }
-};
-
 const getRamdomPage = async (req, res) => {
     try {
         const [randomPage] = await Page.aggregate([{ $sample: { size: 1 } }]);
@@ -144,6 +123,5 @@ module.exports = {
     updateUserPage,
     deleteUserPage,
     getPages,
-    getRandomPostsForPage,
     getRamdomPage,
 };

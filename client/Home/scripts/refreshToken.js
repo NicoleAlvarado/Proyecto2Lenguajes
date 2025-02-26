@@ -10,11 +10,11 @@ const refreshAccessToken = async () => {
         if (!response.ok) throw new Error("Error al refrescar token de acceso");
 
         const { accessToken } = await response.json();
-        const oldAccessToken = localStorage.getItem("accessToken");
-        console.log({ newAccessToke: accessToken, oldAccessToken });
-        console.log(accessToken == oldAccessToken);
+        // const oldAccessToken = localStorage.getItem("accessToken");
+        // console.log({ newAccessToke: accessToken, oldAccessToken });
+        // console.log(accessToken == oldAccessToken);
         //Guarda el nuevo token en el local storage
-        localStorage.setItem("accessToken", accessToken);
+        // localStorage.setItem("accessToken", accessToken);
     } catch (error) {
         console.error("Error al refrescar token:", error);
     }

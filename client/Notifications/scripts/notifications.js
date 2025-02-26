@@ -1,4 +1,4 @@
-window.onload = async function() {
+window.onload = async function () {
     // Obtener el correo del usuario en sesión desde localStorage
     const userEmail = localStorage.getItem("userEmail");
 
@@ -22,7 +22,7 @@ window.onload = async function() {
         return;
     }
 
-    friendRequests.forEach(request => {
+    friendRequests.forEach((request) => {
         const requestDiv = document.createElement("div");
         requestDiv.classList.add("card", "mb-3");
         requestDiv.innerHTML = `
@@ -36,7 +36,6 @@ window.onload = async function() {
         `;
         container.appendChild(requestDiv);
     });
-    
 };
 
 const respondToRequest = async (senderEmail, action) => {
@@ -48,8 +47,8 @@ const respondToRequest = async (senderEmail, action) => {
         body: JSON.stringify({
             userEmail,
             senderEmail,
-            action
-        })
+            action,
+        }),
     });
 
     const result = await response.json();

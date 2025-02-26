@@ -10,7 +10,7 @@ html {
 /*Tamanio de los avatar*/
 
 .avatar-option img {
-    width: 75px; 
+    width: 75px;
     height: 75px; /* Ajusta el tamaño según sea necesario */
 }
 
