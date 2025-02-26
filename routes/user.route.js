@@ -1,5 +1,5 @@
 const { Router } = require("express");
-const { loginUser, refreshToken, logoutUser } = require("../controllers/login.controller");
+const { loginUser, refreshToken, logoutUser} = require("../controllers/login.controller");
 const {
     createUser,
     insertUserPost,
@@ -11,6 +11,8 @@ const {
     respondFriendRequest,
     getFriendRequests,
     getRecommendedPosts,
+    getFriends, 
+    removeFriend
 } = require("../controllers/user.controller");
 
 const createUserRouter = () => {
@@ -29,6 +31,11 @@ const createUserRouter = () => {
     router.post("/respondFriendRequest", respondFriendRequest);
     router.get("/getFriendRequests/:username", getFriendRequests);
     router.get("/getRecommendedPosts/:email", getRecommendedPosts);
+    router.get("/getFriends/:email", getFriends);
+    router.post("/removeFriend", removeFriend);
+
+    
+
 
     return router;
 };
