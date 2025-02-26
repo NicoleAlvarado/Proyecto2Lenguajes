@@ -8,7 +8,7 @@ const searchFriend = async () => {
     }
 
     try {
-        const response = await fetch(`/api/users/getUser/${username}`);  // Busca por username
+        const response = await fetch(`/api/users/getUser/${username}`); // Busca por username
         if (!response.ok) throw new Error("Usuario no encontrado");
 
         const user = await response.json();
@@ -41,11 +41,6 @@ const searchFriend = async () => {
     }
 };
 
-
-
-
-
-
 const sendFriendRequest = async (receiverEmail) => {
     const senderEmail = localStorage.getItem("userEmail");
 
@@ -58,7 +53,7 @@ const sendFriendRequest = async (receiverEmail) => {
         const response = await fetch("/api/users/sendFriendRequest", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ senderEmail, receiverEmail })
+            body: JSON.stringify({ senderEmail, receiverEmail }),
         });
 
         const result = await response.json();
@@ -66,12 +61,8 @@ const sendFriendRequest = async (receiverEmail) => {
             alert("Solicitud de amistad enviada con éxito.");
         } else {
             alert(`Error: ${result.message}`);
-            
         }
     } catch (error) {
         alert("Error al enviar la solicitud de amistad.");
     }
 };
-
-
-

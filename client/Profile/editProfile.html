@@ -1,198 +1,218 @@
 <!DOCTYPE html>
 <html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Editar Perfil</title>
+        <!-- Bootstrap CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+        <!-- Bootstrap Icons -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+        <!-- Reutilizando el archivo de estilos de la página de Crear Cuenta -->
+        <link rel="stylesheet" href="/CreateUser/style/create.css" />
+    </head>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editar Perfil</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
-    <!-- Reutilizando el archivo de estilos de la página de Crear Cuenta -->
-    <link rel="stylesheet" href="/CreateUser/style/create.css" />
-</head>
-
-<body>
-    <div class="container d-flex justify-content-center align-items-center min-vh-100">
-        <div class="form-container">
-            <div class="form-header text-center mb-4">
-                <h2 class="mb-2">Editar Perfil</h2>
-                <p class="text-muted">Actualiza tu información personal</p>
-            </div>
-            <form id="editProfileForm" class="needs-validation" novalidate>
-                <div class="mb-3">
-                    <label for="username" class="form-label">Nombre de Usuario</label>
-                    <input type="text" class="form-control form-control-lg" id="username" name="username" required
-                        placeholder="Ingrese su nombre de usuario">
-                    <div class="invalid-feedback">Por favor ingrese un nombre de usuario válido.</div>
+    <body>
+        <div class="container d-flex justify-content-center align-items-center min-vh-100">
+            <div class="form-container">
+                <div class="form-header text-center mb-4">
+                    <h2 class="mb-2">Editar Perfil</h2>
+                    <p class="text-muted">Actualiza tu información personal</p>
                 </div>
-
-                <div class="mb-3">
-                    <label for="email" class="form-label">Correo Electrónico</label>
-                    <input type="email" class="form-control form-control-lg" id="email" name="email" required
-                        placeholder="Ingrese su correo electrónico">
-                    <div class="invalid-feedback">Por favor ingrese un correo electrónico válido.</div>
-                </div>
-
-                <div class="mb-3">
-                    <label for="password" class="form-label">Contraseña</label>
-                    <input type="password" class="form-control form-control-lg" id="password" name="password" required
-                        placeholder="Ingrese su contraseña">
-                    <div class="invalid-feedback">Por favor ingrese una contraseña válida.</div>
-                </div>
-
-                <div class="mb-3">
-                    <label for="bio" class="form-label">Biografía</label>
-                    <textarea class="form-control form-control-lg" id="bio" name="bio"
-                        placeholder="Cuéntanos algo sobre ti"></textarea>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Elige un Avatar</label>
-                    <div class="d-flex flex-wrap">
-                        <div class="avatar-option">
-                            <input type="radio" name="avatar" id="avatar1" value="avatar1.png" required>
-                            <label for="avatar1">
-                                <img src="../CreateUser/avatars/avatar1.png" alt="Avatar 1" class="img-thumbnail">
-                            </label>
-                        </div>
-                        <div class="avatar-option">
-                            <input type="radio" name="avatar" id="avatar2" value="avatar2.png" required>
-                            <label for="avatar2">
-                                <img src="../CreateUser/avatars/avatar2.png" alt="Avatar 2" class="img-thumbnail">
-                            </label>
-                        </div>
-                        <div class="avatar-option">
-                            <input type="radio" name="avatar" id="avatar3" value="avatar3.png" required>
-                            <label for="avatar3">
-                                <img src="../CreateUser/avatars/avatar3.png" alt="Avatar 3" class="img-thumbnail">
-                            </label>
-                        </div>
-                        <div class="avatar-option">
-                            <input type="radio" name="avatar" id="avatar4" value="avatar4.png" required>
-                            <label for="avatar4">
-                                <img src="../CreateUser/avatars/avatar4.png" alt="Avatar 4" class="img-thumbnail">
-                            </label>
-                        </div>
-                        <div class="avatar-option">
-                            <input type="radio" name="avatar" id="avatar5" value="avatar5.png" required />
-                            <label for="avatar5">
-                                <img src="../CreateUser/avatars/avatar5.png" alt="Avatar 5" class="img-thumbnail" />
-                            </label>
-                        </div>
-                        <div class="avatar-option">
-                            <input type="radio" name="avatar" id="avatar6" value="avatar6.png" required />
-                            <label for="avatar6">
-                                <img src="../CreateUser/avatars/avatar6.png" alt="Avatar 6" class="img-thumbnail" />
-                            </label>
-                        </div>
-                        <div class="avatar-option">
-                            <input type="radio" name="avatar" id="avatar7" value="avatar7.png" required />
-                            <label for="avatar7">
-                                <img src="../CreateUser/avatars/avatar7.png" alt="Avatar 7" class="img-thumbnail" />
-                            </label>
-                        </div>
-                        <div class="avatar-option">
-                            <input type="radio" name="avatar" id="avatar8" value="avatar8.png" required />
-                            <label for="avatar8">
-                                <img src="/CreateUser/avatars/avatar8.png" alt="Avatar 8" class="img-thumbnail" />
-                            </label>
-                        </div>
+                <form id="editProfileForm" class="needs-validation" novalidate>
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Nombre de Usuario</label>
+                        <input
+                            type="text"
+                            class="form-control form-control-lg"
+                            id="username"
+                            name="username"
+                            required
+                            placeholder="Ingrese su nombre de usuario"
+                        />
+                        <div class="invalid-feedback">Por favor ingrese un nombre de usuario válido.</div>
                     </div>
-                    <div class="invalid-feedback">Por favor elija un avatar.</div>
-                </div>
 
-                <button type="submit" class="btn btn-primary btn-lg w-100 mt-3">Guardar Cambios</button>
-                <button type="button" id="deleteProfileBtn" class="btn btn-danger btn-lg w-100 mt-3">Eliminar Perfil</button>
-            </form>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Correo Electrónico</label>
+                        <input
+                            type="email"
+                            class="form-control form-control-lg"
+                            id="email"
+                            name="email"
+                            required
+                            placeholder="Ingrese su correo electrónico"
+                        />
+                        <div class="invalid-feedback">Por favor ingrese un correo electrónico válido.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Contraseña</label>
+                        <input
+                            type="password"
+                            class="form-control form-control-lg"
+                            id="password"
+                            name="password"
+                            required
+                            placeholder="Ingrese su contraseña"
+                        />
+                        <div class="invalid-feedback">Por favor ingrese una contraseña válida.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="bio" class="form-label">Biografía</label>
+                        <textarea
+                            class="form-control form-control-lg"
+                            id="bio"
+                            name="bio"
+                            placeholder="Cuéntanos algo sobre ti"
+                        ></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Elige un Avatar</label>
+                        <div class="d-flex flex-wrap">
+                            <div class="avatar-option">
+                                <input type="radio" name="avatar" id="avatar1" value="avatar1.png" required />
+                                <label for="avatar1">
+                                    <img src="../CreateUser/avatars/avatar1.png" alt="Avatar 1" class="img-thumbnail" />
+                                </label>
+                            </div>
+                            <div class="avatar-option">
+                                <input type="radio" name="avatar" id="avatar2" value="avatar2.png" required />
+                                <label for="avatar2">
+                                    <img src="../CreateUser/avatars/avatar2.png" alt="Avatar 2" class="img-thumbnail" />
+                                </label>
+                            </div>
+                            <div class="avatar-option">
+                                <input type="radio" name="avatar" id="avatar3" value="avatar3.png" required />
+                                <label for="avatar3">
+                                    <img src="../CreateUser/avatars/avatar3.png" alt="Avatar 3" class="img-thumbnail" />
+                                </label>
+                            </div>
+                            <div class="avatar-option">
+                                <input type="radio" name="avatar" id="avatar4" value="avatar4.png" required />
+                                <label for="avatar4">
+                                    <img src="../CreateUser/avatars/avatar4.png" alt="Avatar 4" class="img-thumbnail" />
+                                </label>
+                            </div>
+                            <div class="avatar-option">
+                                <input type="radio" name="avatar" id="avatar5" value="avatar5.png" required />
+                                <label for="avatar5">
+                                    <img src="../CreateUser/avatars/avatar5.png" alt="Avatar 5" class="img-thumbnail" />
+                                </label>
+                            </div>
+                            <div class="avatar-option">
+                                <input type="radio" name="avatar" id="avatar6" value="avatar6.png" required />
+                                <label for="avatar6">
+                                    <img src="../CreateUser/avatars/avatar6.png" alt="Avatar 6" class="img-thumbnail" />
+                                </label>
+                            </div>
+                            <div class="avatar-option">
+                                <input type="radio" name="avatar" id="avatar7" value="avatar7.png" required />
+                                <label for="avatar7">
+                                    <img src="../CreateUser/avatars/avatar7.png" alt="Avatar 7" class="img-thumbnail" />
+                                </label>
+                            </div>
+                            <div class="avatar-option">
+                                <input type="radio" name="avatar" id="avatar8" value="avatar8.png" required />
+                                <label for="avatar8">
+                                    <img src="/CreateUser/avatars/avatar8.png" alt="Avatar 8" class="img-thumbnail" />
+                                </label>
+                            </div>
+                        </div>
+                        <div class="invalid-feedback">Por favor elija un avatar.</div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg w-100 mt-3">Guardar Cambios</button>
+                    <button type="button" id="deleteProfileBtn" class="btn btn-danger btn-lg w-100 mt-3">
+                        Eliminar Perfil
+                    </button>
+                </form>
+            </div>
         </div>
-    </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  
-</body>
+        <!-- Bootstrap JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    </body>
 
-<!-- Añadir al final del body del HTML -->
-<script>
-    document.getElementById('editProfileForm').addEventListener('submit', async function(event) {
-        event.preventDefault(); // Evitar la recarga de la página
+    <!-- Añadir al final del body del HTML -->
+    <script>
+        document.getElementById("editProfileForm").addEventListener("submit", async function (event) {
+            event.preventDefault(); // Evitar la recarga de la página
 
-        const username = document.getElementById('username').value;
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        const bio = document.getElementById('bio').value;
-        const avatar = document.querySelector('input[name="avatar"]:checked')?.value;
+            const username = document.getElementById("username").value;
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            const bio = document.getElementById("bio").value;
+            const avatar = document.querySelector('input[name="avatar"]:checked')?.value;
 
-        // Verificar que el avatar esté seleccionado
-        if (!avatar) {
-            alert('Por favor selecciona un avatar.');
-            return;
-        }
-
-        const emailStorage = localStorage.getItem('userEmail');
-        console.log('Email del localStorage:', emailStorage); // Para depuración
-
-        try {
-            const response = await fetch(`http://localhost:3000/api/users/updateUser/${emailStorage}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    newUsername: username,
-                    email: email,
-                    password: password,
-                    bio: bio,
-                    avatar: avatar
-                })
-            });
-
-            const result = await response.json();
-            console.log('Respuesta del servidor:', result); // Para depuración
-
-            if (response.ok) {
-                localStorage.setItem('userEmail', email); // Actualizar el email en el localStorage
-                alert('Perfil actualizado correctamente');
-            } else {
-                alert('Error al actualizar el perfil: ' + (result.message || 'Error desconocido'));
+            // Verificar que el avatar esté seleccionado
+            if (!avatar) {
+                alert("Por favor selecciona un avatar.");
+                return;
             }
-        } catch (error) {
-            console.error('Error en la solicitud:', error);
-            alert('Error de red o servidor.');
-        }
-    });
 
-    document.getElementById('deleteProfileBtn').addEventListener('click', async function() {
-        const emailStorage = localStorage.getItem('userEmail');
-        if (confirm('¿Estás seguro de que deseas eliminar tu perfil? Esta acción no se puede deshacer.')) {
+            const emailStorage = localStorage.getItem("userEmail");
+            console.log("Email del localStorage:", emailStorage); // Para depuración
+
             try {
-                const response = await fetch(`http://localhost:3000/api/users/deleteUser/${emailStorage}`, {
-                    method: 'DELETE',
+                const response = await fetch(`http://localhost:3000/api/users/updateUser/${emailStorage}`, {
+                    method: "PUT",
                     headers: {
-                        'Content-Type': 'application/json'
-                    }
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        newUsername: username,
+                        email: email,
+                        password: password,
+                        bio: bio,
+                        avatar: avatar,
+                    }),
                 });
 
                 const result = await response.json();
-                console.log('Respuesta del servidor:', result); // Para depuración
+                console.log("Respuesta del servidor:", result); // Para depuración
 
                 if (response.ok) {
-                    localStorage.removeItem('userEmail'); // Eliminar el email del localStorage
-                    alert('Perfil eliminado correctamente');
-                    window.location.href = "/CreateUser/create.html"; // Redirigir a la página de inicio
+                    localStorage.setItem("userEmail", email); // Actualizar el email en el localStorage
+                    alert("Perfil actualizado correctamente");
                 } else {
-                    window.location.href = "/CreateUser/create.html"; // Redirigir a la página de inicio
-                    alert('Error al eliminar el perfil: ' + (result.message || 'Error desconocido'));
+                    alert("Error al actualizar el perfil: " + (result.message || "Error desconocido"));
                 }
             } catch (error) {
-                console.error('Error en la solicitud:', error);
-                alert('Error de red o servidor.');
+                console.error("Error en la solicitud:", error);
+                alert("Error de red o servidor.");
             }
-        }
-    });
-</script>
+        });
 
+        document.getElementById("deleteProfileBtn").addEventListener("click", async function () {
+            const emailStorage = localStorage.getItem("userEmail");
+            if (confirm("¿Estás seguro de que deseas eliminar tu perfil? Esta acción no se puede deshacer.")) {
+                try {
+                    const response = await fetch(`http://localhost:3000/api/users/deleteUser/${emailStorage}`, {
+                        method: "DELETE",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                    });
 
+                    const result = await response.json();
+                    console.log("Respuesta del servidor:", result); // Para depuración
+
+                    if (response.ok) {
+                        localStorage.removeItem("userEmail"); // Eliminar el email del localStorage
+                        alert("Perfil eliminado correctamente");
+                        window.location.href = "/CreateUser/create.html"; // Redirigir a la página de inicio
+                    } else {
+                        window.location.href = "/CreateUser/create.html"; // Redirigir a la página de inicio
+                        alert("Error al eliminar el perfil: " + (result.message || "Error desconocido"));
+                    }
+                } catch (error) {
+                    console.error("Error en la solicitud:", error);
+                    alert("Error de red o servidor.");
+                }
+            }
+        });
+    </script>
 </html>

@@ -41,7 +41,7 @@ const deleteUser = async (req, res) => {
     try {
         const { email } = req.params;
         if (!email) return res.status(204).json("Email is required");
-        console.log('email', email);
+        console.log("email", email);
         const userDelete = await User.findOne({ email });
         if (!userDelete) return res.status(404).json(`User with email ${email} to delete not found`);
 
@@ -55,7 +55,7 @@ const deleteUser = async (req, res) => {
 const updateUser = async (req, res) => {
     try {
         const { useremail } = req.params; // Cambiado de name a useremail
-        console.log('useremail', useremail);
+        console.log("useremail", useremail);
         if (!useremail) return res.status(204).json("useremail is required");
 
         const { newUsername, email, password, bio, avatar } = req.body; // Cambiado de username a newUsername
@@ -76,8 +76,6 @@ const updateUser = async (req, res) => {
 
         const updatedUser = await User.findByIdAndUpdate(
             user.id,
-            {
-                username: newUsername,
             {
                 username: newUsername,
                 email: email,
@@ -130,7 +128,9 @@ const sendFriendRequest = async (req, res) => {
 
         // Verificar si ya son amigos
         if (sender.friends.includes(receiverEmail) || receiver.friends.includes(senderEmail)) {
-            return res.status(400).json({ message: "You are already friends with this user", status: "already_friends" });
+            return res
+                .status(400)
+                .json({ message: "You are already friends with this user", status: "already_friends" });
         }
 
         // Verificar si la solicitud ya ha sido enviada
@@ -199,14 +199,16 @@ const getFriendRequests = async (req, res) => {
         }
 
         // Agregar el nombre de usuario y avatar de las solicitudes de amistad
-        const requestsWithDetails = await Promise.all(user.friendRequests.map(async (requestEmail) => {
-            const sender = await User.findOne({ email: requestEmail });
-            return {
-                email: sender.email,
-                username: sender.username,
-                avatar: sender.avatar,
-            };
-        }));
+        const requestsWithDetails = await Promise.all(
+            user.friendRequests.map(async (requestEmail) => {
+                const sender = await User.findOne({ email: requestEmail });
+                return {
+                    email: sender.email,
+                    username: sender.username,
+                    avatar: sender.avatar,
+                };
+            })
+        );
 
         return res.status(200).json(requestsWithDetails);
     } catch (error) {
