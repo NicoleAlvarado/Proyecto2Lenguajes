@@ -27,3 +27,20 @@ const searchFriend = async () => {
         resultContainer.innerHTML = `<p class="text-danger">Usuario no encontrado.</p>`;
     }
 };
+
+
+
+
+const sendFriendRequest = async (receiverId) => {
+    const senderId = localStorage.getItem("userId"); // El ID del usuario autenticado
+
+    const response = await fetch("/sendFriendRequest", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ senderId, receiverId }),
+    });
+
+    const data = await response.json();
+    alert(data.message);
+};
+
