@@ -175,16 +175,28 @@ const getFriendRequests = async (req, res) => {
             return res.status(400).json({ message: "User email is required" });
         }
 
-        const user = await User.findOne({ email }).populate("friendRequests", "email avatar");
+        const user = await User.findOne({ email }).populate("friendRequests");
+
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
 
-        return res.status(200).json(user.friendRequests);
+        // Agregar el nombre de usuario y avatar de las solicitudes de amistad
+        const requestsWithDetails = await Promise.all(user.friendRequests.map(async (requestEmail) => {
+            const sender = await User.findOne({ email: requestEmail });
+            return {
+                email: sender.email,
+                username: sender.username,
+                avatar: sender.avatar,
+            };
+        }));
+
+        return res.status(200).json(requestsWithDetails);
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }
 };
+
 
 
 

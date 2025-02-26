@@ -11,8 +11,8 @@ const UserSchema = new Schema({
     avatar: { type: String, required: true },
     pages: [Page.schema],
     posts: [Post.schema],
-    friends: [{ type: String }], // Lista de usernames de amigos
-    friendRequests: [{ type: String }], // Lista de usernames de solicitudes pendientes
+    friends: [{ type: String }], 
+    friendRequests: [{ type: String }], 
 });
 
 
