@@ -6,7 +6,7 @@ const insertPage = async (req, res) => {
     try {
         const { title, description, phone, email, address, posts } = req.body;
 
-        const page = new Page({
+        const page = await Page.create({
             title,
             description,
             phone,
@@ -15,7 +15,7 @@ const insertPage = async (req, res) => {
             posts,
         });
 
-        res.status(201).json(await page.save());
+        res.status(201).json(page);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -86,7 +86,11 @@ const deleteUserPage = async (req, res) => {
     try {
         const { username, pageId } = req.params;
 
-        const user = await User.findOneAndUpdate({ username }, { $pull: { pages: { _id: pageId } } }, { new: true });
+        const user = await User.findOneAndUpdate(
+            { username },
+            { $pull: { pages: { _id: pageId } } },
+            { new: true, runValidators: true }
+        );
 
         res.status(200).json(user);
     } catch (error) {

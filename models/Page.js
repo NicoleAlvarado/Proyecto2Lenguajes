@@ -5,7 +5,6 @@ const Post = require("./Post");
 const PageSchema = new Schema({
     title: {
         type: String,
-        unique: true,
         required: true,
     },
     description: {
@@ -26,5 +25,7 @@ const PageSchema = new Schema({
     },
     posts: [Post.schema],
 });
+
+PageSchema.index({ title: 1 }, { unique: true });
 
 module.exports = model("Page", PageSchema);
