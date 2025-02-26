@@ -3,15 +3,23 @@ body {
     background-color: #f8f9fa;
 }
 
-.container {
+.card {
     max-width: 600px;
+    margin: auto;
+    border-radius: 10px;
 }
 
 .search-container {
     display: flex;
-    justify-content: center;
+    gap: 10px;
 }
 
-.card {
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+#searchInput {
+    max-width: 400px;
+}
+
+.btn-primary {
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
