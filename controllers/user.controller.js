@@ -110,9 +110,14 @@ const sendFriendRequest = async (req, res) => {
             return res.status(404).json({ message: "User not found" });
         }
 
+        // Verificar si ya son amigos
+        if (sender.friends.includes(receiverEmail) || receiver.friends.includes(senderEmail)) {
+            return res.status(400).json({ message: "You are already friends with this user", status: "already_friends" });
+        }
+
         // Verificar si la solicitud ya ha sido enviada
         if (receiver.friendRequests.includes(sender.email)) {
-            return res.status(400).json({ message: "Friend request already sent" });
+            return res.status(400).json({ message: "Friend request already sent", status: "already_sent" });
         }
 
         // Agregar la solicitud de amistad
@@ -124,6 +129,8 @@ const sendFriendRequest = async (req, res) => {
         return res.status(500).json({ message: error.message });
     }
 };
+
+
 
 
 
