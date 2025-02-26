@@ -20,6 +20,7 @@ const searchFriend = async () => {
                     <h5 class="card-title">@${user.username}</h5>
                     <p class="card-text">${user.bio || "Sin biografía"}</p>
                     <p class="text-muted">${user.email}</p>
+                    <button class="btn btn-success mt-2" onclick="sendFriendRequest('${user.username}')">Enviar solicitud</button>
                 </div>
             </div>
         `;
@@ -31,16 +32,27 @@ const searchFriend = async () => {
 
 
 
-const sendFriendRequest = async (receiverId) => {
-    const senderId = localStorage.getItem("userId"); // El ID del usuario autenticado
 
-    const response = await fetch("/sendFriendRequest", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ senderId, receiverId }),
-    });
+const sendFriendRequest = async (receiverUsername) => {
+    const senderUsername = localStorage.getItem("username"); // Se obtiene el username en sesión
+    if (!senderUsername) {
+        alert("Debes iniciar sesión.");
+        return;
+    }
 
-    const data = await response.json();
-    alert(data.message);
+    try {
+        const response = await fetch("/api/users/sendFriendRequest", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ senderUsername, receiverUsername }),
+        });
+
+        const data = await response.json();
+        alert(data.message);
+    } catch (error) {
+        alert("Error al enviar la solicitud de amistad.");
+    }
 };
+
+
 
