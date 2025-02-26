@@ -299,4 +299,3 @@ module.exports = {
     getFriendRequests,
     getRecommendedPosts,
 };
-
