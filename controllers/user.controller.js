@@ -1,6 +1,8 @@
 const User = require("../models/User");
 const Page = require("../models/Page");
 const Post = require("../models/Post");
+const mongoose = require('mongoose');
+
 const {
     validateUserData,
     validateUserName,
@@ -248,7 +250,7 @@ const getFriendPosts = async (friends) =>
 // NO ES FUNCION PARA EXPORTAR
 const getFollowedPagePosts = async (followedPages) =>
     await Page.aggregate([
-        { $match: { _id: { $in: followedPages.map((id) => mongoose.Types.ObjectId(id)) } } },
+        { $match: { _id: { $in: followedPages } } },
         { $match: { "posts.0": { $exists: true } } },
         { $sample: { size: 25 } },
         {
@@ -354,6 +356,46 @@ const removeFriend = async (req, res) => {
     }
 };
 
+const followPage = async (req, res) => {
+    try {
+        const { userEmail, pageId } = req.body;
+
+        if (!userEmail || !pageId) {
+            return res.status(400).json({ message: "User email and Page ID are required" });
+        }
+
+        // Verificar si el pageId es un formato válido de MongoDB
+        if (!mongoose.Types.ObjectId.isValid(pageId)) {
+            return res.status(400).json({ message: "Invalid Page ID" });
+        }
+
+        const user = await User.findOne({ email: userEmail });
+        const page = await Page.findById(pageId);
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        if (!page) {
+            return res.status(404).json({ message: "Page not found" });
+        }
+
+        // Verificar si ya sigue la página
+        if (user.followedPages.includes(pageId)) {
+            return res.status(400).json({ message: "You already follow this page" });
+        }
+
+        // Agregar la página a la lista de seguidas
+        user.followedPages.push(pageId);
+        await user.save();
+
+        return res.status(200).json({ message: "Page followed successfully", followedPages: user.followedPages });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
+
 
 
 
@@ -371,4 +413,5 @@ module.exports = {
     getRecommendedPosts,
     getFriends,
     removeFriend,
+    followPage,
 };
