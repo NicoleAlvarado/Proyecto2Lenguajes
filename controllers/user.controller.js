@@ -23,14 +23,14 @@ const createUser = async (req, res) => {
 
 const deleteUser = async (req, res) => {
     try {
-        const { username } = req.params;
-        if (!username) return res.status(204).json("Username is required");
-
-        const userDelete = await User.findOne({ username });
-        if (!userDelete) return res.status(404).json(`User ${username} to delete not found`);
+        const { email } = req.params;
+        if (!email) return res.status(204).json("Email is required");
+        console.log('email', email);
+        const userDelete = await User.findOne({ email });
+        if (!userDelete) return res.status(404).json(`User with email ${email} to delete not found`);
 
         await User.findByIdAndDelete(userDelete.id);
-        return res.status(200).json(`User ${username} deleted`);
+        return res.status(200).json(`User with email ${email} deleted`);
     } catch (error) {
         return res.status(500).json(`Error: ${error.message}`);
     }
@@ -38,18 +38,18 @@ const deleteUser = async (req, res) => {
 
 const updateUser = async (req, res) => {
     try {
-        const { username } = req.params; // Cambiado de name a username
-
-        if (!username) return res.status(204).json("Username is required");
+        const { useremail } = req.params; // Cambiado de name a useremail
+        console.log('useremail', useremail);
+        if (!useremail) return res.status(204).json("useremail is required");
 
         const { newUsername, email, password, bio, avatar } = req.body; // Cambiado de username a newUsername
         validateUserData(newUsername, email, password, avatar);
-        console.log(username, newUsername, email, password, bio, avatar);
+        console.log(useremail, newUsername, email, password, bio, avatar);
 
-        const user = await User.findOne({ username });
-        if (!user) return res.status(404).json(`User ${username} to update not found`);
+        const user = await User.findOne({ email: useremail });
+        if (!user) return res.status(404).json(`User with email ${useremail} to update not found`);
 
-        if (user.username !== newUsername) {
+        if (user.email !== email) {
             await validateUserName(newUsername, email);
         }
 
@@ -60,8 +60,8 @@ const updateUser = async (req, res) => {
 
         const updatedUser = await User.findByIdAndUpdate(
             user.id,
-            { 
-                username: newUsername, 
+            {
+                username: newUsername,
                 email: email,
                 password: modifyPassword,
                 bio: bio,
@@ -123,7 +123,6 @@ const sendFriendRequest = async (req, res) => {
     }
 };
 
-
 const respondFriendRequest = async (req, res) => {
     try {
         const { userId, senderId, action } = req.body; // action: "accept" o "reject"
@@ -161,7 +160,6 @@ const respondFriendRequest = async (req, res) => {
     }
 };
 
-
 const getFriendRequests = async (req, res) => {
     try {
         const { username } = req.params;
@@ -176,8 +174,6 @@ const getFriendRequests = async (req, res) => {
         return res.status(500).json({ message: error.message });
     }
 };
-
-
 
 module.exports = {
     createUser,
