@@ -196,6 +196,63 @@ const getFriendRequests = async (req, res) => {
     }
 };
 
+const removeFriend = async (req, res) => {
+    try {
+        const { userEmail, friendEmail } = req.body;
+
+        if (!userEmail || !friendEmail) {
+            return res.status(400).json({ message: "Both userEmail and friendEmail are required" });
+        }
+
+        const user = await User.findOne({ email: userEmail });
+        const friend = await User.findOne({ email: friendEmail });
+
+        if (!user || !friend) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Remover el amigo de ambas listas
+        user.friends = user.friends.filter(email => email !== friendEmail);
+        friend.friends = friend.friends.filter(email => email !== userEmail);
+
+        await user.save();
+        await friend.save();
+
+        return res.status(200).json({ message: "Friend removed successfully" });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
+const getFriends = async (req, res) => {
+    try {
+        const { email } = req.params;
+        if (!email) {
+            return res.status(400).json({ message: "User email is required" });
+        }
+
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Obtener información de los amigos (nombre, avatar, email)
+        const friendsList = await Promise.all(
+            user.friends.map(async (friendEmail) => {
+                const friend = await User.findOne({ email: friendEmail });
+                return friend
+                    ? { email: friend.email, username: friend.username, avatar: friend.avatar }
+                    : null;
+            })
+        );
+
+        return res.status(200).json(friendsList.filter(friend => friend !== null));
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = {
     createUser,
     deleteUser,
@@ -205,4 +262,7 @@ module.exports = {
     sendFriendRequest,
     respondFriendRequest,
     getFriendRequests,
+    getFriends, 
+    removeFriend,
 };
+

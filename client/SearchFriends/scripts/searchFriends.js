@@ -73,5 +73,76 @@ const sendFriendRequest = async (receiverEmail) => {
     }
 };
 
+const getFriends = async () => {
+    const userEmail = localStorage.getItem("userEmail");
+    const resultContainer = document.getElementById("resultContainer");
+
+    if (!userEmail) {
+        resultContainer.innerHTML = `<p class="text-danger">Debe iniciar sesión para ver sus amigos.</p>`;
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/users/getFriends/${userEmail}`);
+        if (!response.ok) throw new Error("No se pudieron obtener los amigos.");
+
+        const friends = await response.json();
+
+        if (friends.length === 0) {
+            resultContainer.innerHTML = `<p class="text-muted">No tienes amigos agregados.</p>`;
+            return;
+        }
+
+        let friendsHTML = `<h3>Lista de Amigos</h3><div class="list-group">`;
+        friends.forEach(friend => {
+            friendsHTML += `
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <img src="/CreateUser/avatars/${friend.avatar}" class="rounded-circle" width="40" height="40">
+                        <strong>@${friend.username}</strong> (${friend.email})
+                    </div>
+                    <button class="btn btn-danger btn-sm" onclick="removeFriend('${friend.email}')">
+                        Eliminar
+                    </button>
+                </div>
+            `;
+        });
+        friendsHTML += `</div>`;
+
+        resultContainer.innerHTML = friendsHTML;
+    } catch (error) {
+        resultContainer.innerHTML = `<p class="text-danger">Error: ${error.message}</p>`;
+    }
+};
+
+const removeFriend = async (friendEmail) => {
+    const userEmail = localStorage.getItem("userEmail");
+
+    if (!userEmail) {
+        alert("Debe iniciar sesión para eliminar amigos.");
+        return;
+    }
+
+    try {
+        const response = await fetch("/api/users/removeFriend", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userEmail, friendEmail })
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+            alert("Amigo eliminado con éxito.");
+            getFriends(); // Refrescar la lista
+        } else {
+            alert(`Error: ${result.message}`);
+        }
+    } catch (error) {
+        alert("Error al eliminar al amigo.");
+    }
+};
+
+
+
 
 
