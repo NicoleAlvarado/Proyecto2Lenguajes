@@ -1,4 +1,6 @@
 const User = require("../models/User");
+const Page = require("../models/Page");
+const Post = require("../models/Post");
 const {
     validateUserData,
     validateUserName,
@@ -18,6 +20,20 @@ const createUser = async (req, res) => {
         return res.status(201).json(user);
     } catch (error) {
         return res.status(500).json(`${error}`);
+    }
+};
+
+const insertUserPost = async (req, res) => {
+    try {
+        const { email } = req.params;
+        const { content } = req.body;
+
+        const user = await User.findOne({ email });
+        user.posts.push(new Post({ content }));
+
+        res.status(201).json(await user.save());
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 };
 
@@ -60,12 +76,12 @@ const updateUser = async (req, res) => {
 
         const updatedUser = await User.findByIdAndUpdate(
             user.id,
-            { 
-                username: newUsername, 
+            {
+                username: newUsername,
                 email: email,
                 password: modifyPassword,
                 bio: bio,
-                avatar: avatar
+                avatar: avatar,
             },
             { new: true, runValidators: true }
         );
@@ -125,9 +141,6 @@ const sendFriendRequest = async (req, res) => {
     }
 };
 
-
-
-
 const respondFriendRequest = async (req, res) => {
     try {
         const { userEmail, senderEmail, action } = req.body; // action: "accept" o "reject"
@@ -155,7 +168,7 @@ const respondFriendRequest = async (req, res) => {
         }
 
         // Eliminar la solicitud de la lista
-        user.friendRequests = user.friendRequests.filter(email => email !== sender.email);
+        user.friendRequests = user.friendRequests.filter((email) => email !== sender.email);
         await user.save();
         await sender.save();
 
@@ -164,9 +177,6 @@ const respondFriendRequest = async (req, res) => {
         return res.status(500).json({ message: error.message });
     }
 };
-
-
-
 
 const getFriendRequests = async (req, res) => {
     try {
@@ -186,11 +196,80 @@ const getFriendRequests = async (req, res) => {
     }
 };
 
+// NO ES FUNCION PARA EXPORTAR
+const getFriendPosts = async (friends) =>
+    await User.aggregate([
+        { $match: { email: { $in: friends } } },
+        { $match: { "posts.0": { $exists: true } } },
+        { $sample: { size: 25 } },
+        {
+            $project: {
+                username: 1,
+                email: 1,
+                avatar: 1,
+                isPage: { $literal: false },
+                randomPost: {
+                    $arrayElemAt: ["$posts", { $floor: { $multiply: [{ $rand: {} }, { $size: "$posts" }] } }],
+                },
+            },
+        },
+    ]);
 
+// NO ES FUNCION PARA EXPORTAR
+const getFollowedPagePosts = async (followedPages) =>
+    await Page.aggregate([
+        { $match: { _id: { $in: followedPages.map((id) => mongoose.Types.ObjectId(id)) } } },
+        { $match: { "posts.0": { $exists: true } } },
+        { $sample: { size: 25 } },
+        {
+            $project: {
+                title: 1,
+                isPage: { $literal: true },
+                randomPost: {
+                    $arrayElemAt: ["$posts", { $floor: { $multiply: [{ $rand: {} }, { $size: "$posts" }] } }],
+                },
+            },
+        },
+    ]);
 
+// NO ES FUNCION PARA EXPORTAR
+const getInitialPosts = async () =>
+    await Page.aggregate([
+        { $match: { "posts.0": { $exists: true } } },
+        { $sample: { size: 50 } },
+        {
+            $project: {
+                title: 1,
+                isPage: { $literal: true },
+                randomPost: {
+                    $arrayElemAt: ["$posts", { $floor: { $multiply: [{ $rand: {} }, { $size: "$posts" }] } }],
+                },
+            },
+        },
+    ]);
+
+const getRecommendedPosts = async (req, res) => {
+    try {
+        const { email } = req.params;
+
+        const { friends, followedPages } = await User.findOne({ email });
+
+        if (friends.length === 0 && followedPages.length === 0) return res.status(200).json(await getInitialPosts());
+
+        const [friendPostsResult, pagePostsResult] = await Promise.all([
+            friends.length > 0 ? getFriendPosts(friends) : [],
+            followedPages.length > 0 ? getFollowedPagePosts(followedPages) : [],
+        ]);
+
+        return res.status(200).json([...friendPostsResult, ...pagePostsResult]);
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
 
 module.exports = {
     createUser,
+    insertUserPost,
     deleteUser,
     updateUser,
     getUser,
@@ -198,4 +277,5 @@ module.exports = {
     sendFriendRequest,
     respondFriendRequest,
     getFriendRequests,
+    getRecommendedPosts,
 };

@@ -59,7 +59,7 @@ const login = async (e) => {
         return;
     }
 
-    localStorage.setItem("accessToken", response.accessToken);
+    // localStorage.setItem("accessToken", response.accessToken);
     localStorage.setItem("userEmail", email); // Guardar el email en el localStorage
     handleRememberMe(email, password, rememberMe);
     window.location.href = "/Home/index.html";
