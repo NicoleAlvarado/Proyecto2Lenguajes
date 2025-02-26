@@ -4,30 +4,16 @@ const Page = require("./Page");
 const Post = require("./Post");
 
 const UserSchema = new Schema({
-    username: {
-        type: String,
-        required: true,
-        unique: true,
-    },
-    email: {
-        type: String,
-        required: true,
-        unique: true,
-    },
-    password: {
-        type: String,
-        required: true,
-    },
-    bio: {
-        type: String,
-        default: "",
-    },
-    avatar: {
-        type: String,
-        required: true,
-    },
+    username: { type: String, required: true, unique: true },
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    bio: { type: String, default: "" },
+    avatar: { type: String, required: true },
     pages: [Page.schema],
     posts: [Post.schema],
+    friends: [{ type: String }], // Lista de usernames de amigos
+    friendRequests: [{ type: String }], // Lista de usernames de solicitudes pendientes
 });
+
 
 module.exports = model("User", UserSchema);

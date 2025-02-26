@@ -38,17 +38,19 @@ const deleteUser = async (req, res) => {
 
 const updateUser = async (req, res) => {
     try {
-        const { name } = req.params;
-        if (!name) return res.status(204).json("Username is required");
+        const { username } = req.params; // Cambiado de name a username
 
-        const { username, password } = req.body;
-        validateUserData(username, password);
+        if (!username) return res.status(204).json("Username is required");
 
-        const user = await User.findOne({ username: name });
-        if (!user) return res.status(404).json(`User ${name} to update not found`);
+        const { newUsername, email, password, bio, avatar } = req.body; // Cambiado de username a newUsername
+        validateUserData(newUsername, email, password, avatar);
+        console.log(username, newUsername, email, password, bio, avatar);
 
-        if (user.username !== username) {
-            await validateUserName(username);
+        const user = await User.findOne({ username });
+        if (!user) return res.status(404).json(`User ${username} to update not found`);
+
+        if (user.username !== newUsername) {
+            await validateUserName(newUsername, email);
         }
 
         let modifyPassword = user.password;
@@ -58,7 +60,13 @@ const updateUser = async (req, res) => {
 
         const updatedUser = await User.findByIdAndUpdate(
             user.id,
-            { username, password: modifyPassword },
+            { 
+                username: newUsername, 
+                email: email,
+                password: modifyPassword,
+                bio: bio,
+                avatar: avatar
+            },
             { new: true, runValidators: true }
         );
         return res.status(200).json({ user: updatedUser });
@@ -87,10 +95,107 @@ const getUsers = async (req, res) => {
     }
 };
 
+const sendFriendRequest = async (req, res) => {
+    try {
+        const { senderEmail, receiverEmail } = req.body;
+
+        if (!senderEmail || !receiverEmail) {
+            return res.status(400).json({ message: "Both senderEmail and receiverEmail are required" });
+        }
+
+        const sender = await User.findOne({ email: senderEmail });
+        const receiver = await User.findOne({ email: receiverEmail });
+
+        if (!sender || !receiver) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Verificar si la solicitud ya ha sido enviada
+        if (receiver.friendRequests.includes(sender.email)) {
+            return res.status(400).json({ message: "Friend request already sent" });
+        }
+
+        // Agregar la solicitud de amistad
+        receiver.friendRequests.push(sender.email);
+        await receiver.save();
+
+        return res.status(200).json({ message: "Friend request sent successfully" });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
+
+
+
+const respondFriendRequest = async (req, res) => {
+    try {
+        const { userEmail, senderEmail, action } = req.body; // action: "accept" o "reject"
+
+        if (!userEmail || !senderEmail) {
+            return res.status(400).json({ message: "Both userEmail and senderEmail are required" });
+        }
+
+        const user = await User.findOne({ email: userEmail });
+        const sender = await User.findOne({ email: senderEmail });
+
+        if (!user || !sender) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Verificar si la solicitud existe
+        if (!user.friendRequests.includes(sender.email)) {
+            return res.status(400).json({ message: "No friend request found" });
+        }
+
+        // Si el usuario acepta la solicitud
+        if (action === "accept") {
+            user.friends.push(sender.email);
+            sender.friends.push(user.email);
+        }
+
+        // Eliminar la solicitud de la lista
+        user.friendRequests = user.friendRequests.filter(email => email !== sender.email);
+        await user.save();
+        await sender.save();
+
+        return res.status(200).json({ message: `Friend request ${action}ed successfully` });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
+
+
+
+const getFriendRequests = async (req, res) => {
+    try {
+        const { email } = req.params;
+        if (!email) {
+            return res.status(400).json({ message: "User email is required" });
+        }
+
+        const user = await User.findOne({ email }).populate("friendRequests", "email avatar");
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        return res.status(200).json(user.friendRequests);
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
+
+
+
 module.exports = {
     createUser,
     deleteUser,
     updateUser,
     getUser,
     getUsers,
+    sendFriendRequest,
+    respondFriendRequest,
+    getFriendRequests,
 };
