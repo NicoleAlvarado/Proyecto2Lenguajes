@@ -130,14 +130,6 @@ const sendFriendRequest = async (req, res) => {
     }
 };
 
-<<<<<<< HEAD
-
-
-
-
-
-=======
->>>>>>> 811122c59d2b1157f9e657b52018e856abce0744
 const respondFriendRequest = async (req, res) => {
     try {
         const { userEmail, senderEmail, action } = req.body; // action: "accept" o "reject"
