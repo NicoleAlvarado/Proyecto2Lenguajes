@@ -1,50 +1,46 @@
-let products = [];
-//const userID = localStorage.getItem('currentUser');
-
-document.addEventListener('DOMContentLoaded', async () => {
-    // Show overlay and spinner on start
-    document.querySelector('.overlay').style.display = 'block';
-    document.querySelector('#loading').classList.remove('d-none');
-
-   
-
-    setTimeout(async () => {
-        // Hide overlay and spinner after loading
-        document.querySelector('.overlay').style.display = 'none';
-        document.querySelector('#loading').classList.add('d-none');
-
-    }, 2000); // Simulate loading (2 seconds)
-
-   
-
-    // Añadir evento para redirigir al perfil
-    document.getElementById('profileLink').addEventListener('click', () => {
-        window.location.href = '/Profile/profile.html';
-    });
-});
-
-
-
-async function logout() {
+const getInicialPosts = async () => {
     try {
-        const response = await fetch('/api/users/login/logout');
-        if (response.ok) {
-            window.location.href = '/Login/index.html';
-        }
+        const response = await fetch("/api/pages/getRandomPostsForPage");
+        const posts = await response.json();
+        console.log(posts);
     } catch (error) {
         console.error(`Error: ${error}`);
     }
-}
+};
 
+getInicialPosts();
 
+document.addEventListener("DOMContentLoaded", async () => {
+    const overlay = document.querySelector(".overlay");
+    const loading = document.querySelector("#loading");
 
+    overlay.style.display = "block";
+    loading.classList.remove("d-none");
 
+    setTimeout(() => {
+        overlay.style.display = "none";
+        loading.classList.add("d-none");
+    }, 2000);
 
+    document
+        .getElementById("profileLink")
+        .addEventListener("click", () => (window.location.href = "/Profile/profile.html"));
+});
 
+const logout = async () => {
+    try {
+        const response = await fetch("/api/users/login/logout");
+        response.ok && (window.location.href = "/Login/index.html");
+    } catch (error) {
+        console.error(`Error: ${error}`);
+    }
+};
+
+// NO SE USA EL SHOW_ALERT
 function showAlert(message, type) {
-    const alertContainer = document.createElement('div');
+    const alertContainer = document.createElement("div");
     alertContainer.className = `alert alert-${type} alert-dismissible fade show`;
-    alertContainer.role = 'alert';
+    alertContainer.role = "alert";
     alertContainer.innerHTML = `
         ${message}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -52,8 +48,8 @@ function showAlert(message, type) {
     document.body.prepend(alertContainer);
 
     setTimeout(() => {
-        alertContainer.classList.remove('show');
-        alertContainer.classList.add('hide');
+        alertContainer.classList.remove("show");
+        alertContainer.classList.add("hide");
         setTimeout(() => alertContainer.remove(), 500);
     }, 3000);
 }

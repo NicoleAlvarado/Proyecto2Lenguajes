@@ -35,7 +35,7 @@ const generateAuthTokens = (user, res) => {
 };
 
 const refreshAccessToken = (refreshToken) => {
-    const decoded = verifyToken(refreshToken, REFRESH_SECRET_KEY);
+    const {decoded} = verifyToken(refreshToken, REFRESH_SECRET_KEY);
     if (!decoded) return null;
 
     const payload = { id: decoded.id, username: decoded.username };
