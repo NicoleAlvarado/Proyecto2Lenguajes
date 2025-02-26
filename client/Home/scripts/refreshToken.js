@@ -21,4 +21,4 @@ const refreshAccessToken = async () => {
 };
 
 //Refresca el token de acceso cada 4:30 minuto
-setInterval(refreshAccessToken, 1000 * 60 * 0.5);
+setInterval(refreshAccessToken, 1000 * 60 * 0.15);
