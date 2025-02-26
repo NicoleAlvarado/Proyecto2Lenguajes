@@ -97,24 +97,26 @@ const getUsers = async (req, res) => {
 
 const sendFriendRequest = async (req, res) => {
     try {
-        const { senderId, receiverId } = req.body;
+        const { senderEmail, receiverEmail } = req.body;
 
-        if (!senderId || !receiverId) {
-            return res.status(400).json({ message: "Both sender and receiver are required" });
+        if (!senderEmail || !receiverEmail) {
+            return res.status(400).json({ message: "Both senderEmail and receiverEmail are required" });
         }
 
-        const sender = await User.findById(senderId);
-        const receiver = await User.findById(receiverId);
+        const sender = await User.findOne({ email: senderEmail });
+        const receiver = await User.findOne({ email: receiverEmail });
 
         if (!sender || !receiver) {
             return res.status(404).json({ message: "User not found" });
         }
 
-        if (receiver.friendRequests.includes(senderId)) {
+        // Verificar si la solicitud ya ha sido enviada
+        if (receiver.friendRequests.includes(sender.email)) {
             return res.status(400).json({ message: "Friend request already sent" });
         }
 
-        receiver.friendRequests.push(senderId);
+        // Agregar la solicitud de amistad
+        receiver.friendRequests.push(sender.email);
         await receiver.save();
 
         return res.status(200).json({ message: "Friend request sent successfully" });
@@ -123,34 +125,40 @@ const sendFriendRequest = async (req, res) => {
     }
 };
 
+<<<<<<< HEAD
+=======
+
+
+
+>>>>>>> 9eccc90e2e25883578f69b243c831aa32d4f88ca
 const respondFriendRequest = async (req, res) => {
     try {
-        const { userId, senderId, action } = req.body; // action: "accept" o "reject"
+        const { userEmail, senderEmail, action } = req.body; // action: "accept" o "reject"
 
-        if (!userId || !senderId) {
-            return res.status(400).json({ message: "Both userId and senderId are required" });
+        if (!userEmail || !senderEmail) {
+            return res.status(400).json({ message: "Both userEmail and senderEmail are required" });
         }
 
-        const user = await User.findById(userId);
-        const sender = await User.findById(senderId);
+        const user = await User.findOne({ email: userEmail });
+        const sender = await User.findOne({ email: senderEmail });
 
         if (!user || !sender) {
             return res.status(404).json({ message: "User not found" });
         }
 
-        // Si la solicitud no existe, retornar error
-        if (!user.friendRequests.includes(senderId)) {
+        // Verificar si la solicitud existe
+        if (!user.friendRequests.includes(sender.email)) {
             return res.status(400).json({ message: "No friend request found" });
         }
 
         // Si el usuario acepta la solicitud
         if (action === "accept") {
-            user.friends.push(senderId);
-            sender.friends.push(userId);
+            user.friends.push(sender.email);
+            sender.friends.push(user.email);
         }
 
         // Eliminar la solicitud de la lista
-        user.friendRequests = user.friendRequests.filter(id => id.toString() !== senderId);
+        user.friendRequests = user.friendRequests.filter(email => email !== sender.email);
         await user.save();
         await sender.save();
 
@@ -160,21 +168,36 @@ const respondFriendRequest = async (req, res) => {
     }
 };
 
+<<<<<<< HEAD
+=======
+
+
+
+>>>>>>> 9eccc90e2e25883578f69b243c831aa32d4f88ca
 const getFriendRequests = async (req, res) => {
     try {
-        const { username } = req.params;
-        const user = await User.findById(userId).populate("friendRequests", "username avatar");
+        const { email } = req.params;
+        if (!email) {
+            return res.status(400).json({ message: "User email is required" });
+        }
 
+        const user = await User.findOne({ email }).populate("friendRequests", "email avatar");
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
 
-        return res.status(200).json({ friendRequests: user.friendRequests });
+        return res.status(200).json(user.friendRequests);
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }
 };
 
+<<<<<<< HEAD
+=======
+
+
+
+>>>>>>> 9eccc90e2e25883578f69b243c831aa32d4f88ca
 module.exports = {
     createUser,
     deleteUser,

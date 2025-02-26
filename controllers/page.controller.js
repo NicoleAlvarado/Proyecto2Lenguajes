@@ -100,7 +100,29 @@ const deleteUserPage = async (req, res) => {
 
 const getPages = async (req, res) => {
     try {
-        res.status(200).json(await Page.find());
+        const pages = await Page.find();
+        res.status(200).json(pages);
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+};
+
+const getRandomPostsForPage = async (req, res) => {
+    try {
+        const randomPages = await Page.aggregate([
+            { $match: { "posts.0": { $exists: true } } },
+            { $sample: { size: 50 } },
+            {
+                $project: {
+                    title: 1,
+                    randomPost: {
+                        $arrayElemAt: ["$posts", { $floor: { $multiply: [{ $rand: {} }, { $size: "$posts" }] } }],
+                    },
+                },
+            },
+        ]);
+
+        res.status(200).json(randomPages);
     } catch (error) {
         res.status(404).json({ message: error.message });
     }
@@ -122,5 +144,6 @@ module.exports = {
     updateUserPage,
     deleteUserPage,
     getPages,
+    getRandomPostsForPage,
     getRamdomPage,
 };
