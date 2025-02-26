@@ -125,12 +125,6 @@ const sendFriendRequest = async (req, res) => {
     }
 };
 
-<<<<<<< HEAD
-=======
-
-
-
->>>>>>> 9eccc90e2e25883578f69b243c831aa32d4f88ca
 const respondFriendRequest = async (req, res) => {
     try {
         const { userEmail, senderEmail, action } = req.body; // action: "accept" o "reject"
@@ -168,12 +162,6 @@ const respondFriendRequest = async (req, res) => {
     }
 };
 
-<<<<<<< HEAD
-=======
-
-
-
->>>>>>> 9eccc90e2e25883578f69b243c831aa32d4f88ca
 const getFriendRequests = async (req, res) => {
     try {
         const { email } = req.params;
@@ -192,12 +180,6 @@ const getFriendRequests = async (req, res) => {
     }
 };
 
-<<<<<<< HEAD
-=======
-
-
-
->>>>>>> 9eccc90e2e25883578f69b243c831aa32d4f88ca
 module.exports = {
     createUser,
     deleteUser,
