@@ -102,7 +102,7 @@ const likeUserPost = async (req, res) => {
 
         likeIndex === -1 ? post.likes.push(userEmail) : post.likes.splice(likeIndex, 1);
 
-        // await addNotification(likedPostUserEmail, "like", `A tu publicación le han dado like`);
+        //await addNotification(likedPostUserEmail, "like", `A tu publicación le han dado like`);
 
         // sendEmail(likedPostUserEmail, "Notificación de Like", message);
 

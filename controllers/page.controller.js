@@ -27,10 +27,20 @@ const addPostToPage = async (req, res) => {
         const { content } = req.body;
 
         const user = await User.findOne({ email });
-        const page = user.pages.id(pageId);
-        page.posts.push(new Post({ content }));
+        if (!user) {
+            return res.status(404).json({ message: "Usuario no encontrado" });
+        }
 
-        res.status(201).json(await user.save());
+        const page = user.pages.id(pageId);
+        if (!page) {
+            return res.status(404).json({ message: "Página no encontrada" });
+        }
+
+        const newPost = new Post({ content });
+        page.posts.push(newPost);
+
+        await user.save();
+        res.status(201).json({ message: "Post añadido correctamente", post: newPost });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -60,28 +70,33 @@ const insertUserPage = async (req, res) => {
 
 const updateUserPage = async (req, res) => {
     try {
-        const { username, pageId } = req.params;
-        const { title, description, phone, email, address } = req.body;
+        const { email, pageId } = req.params;
+        const { title, description, phone, email: pageEmail, address } = req.body;
 
         const user = await User.findOneAndUpdate(
-            { username, "pages._id": pageId },
+            { email, "pages._id": pageId },
             {
                 $set: {
                     "pages.$.title": title,
                     "pages.$.description": description,
                     "pages.$.phone": phone,
-                    "pages.$.email": email,
+                    "pages.$.email": pageEmail,
                     "pages.$.address": address,
                 },
             },
             { new: true }
         );
 
+        if (!user) {
+            return res.status(404).json({ message: "Usuario o página no encontrada" });
+        }
+
         res.status(200).json(user);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
+
 
 const deleteUserPage = async (req, res) => {
     try {
@@ -103,15 +118,16 @@ const getUserPages = async (req, res) => {
     try {
         const { email } = req.params;
 
-        const users = await User.find({
-            email,
-            "pages.0": { $exists: true },
-        });
-        const userPages = users.flatMap(({ pages }) => pages);
+        const user = await User.findOne({ email }, "pages");
 
-        res.status(200).json(userPages);
+        if (!user || user.pages.length === 0) {
+            return res.status(404).json({ message: "No se encontraron páginas para este usuario." });
+        }
+
+        res.status(200).json(user.pages);
     } catch (error) {
-        res.status(404).json({ message: error.message });
+        console.error("Error en getUserPages:", error);
+        res.status(500).json({ message: "Error interno del servidor." });
     }
 };
 

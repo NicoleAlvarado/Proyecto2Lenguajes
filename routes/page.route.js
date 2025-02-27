@@ -17,7 +17,7 @@ const createPageRouter = () => {
     router.post("/insertPage", insertPage);
     router.post("/addPostToPage/:email/:pageId", addPostToPage);
     router.post("/insertUserPage/:email", insertUserPage);
-    router.put("/updateUserPage/:username/:pageId", updateUserPage);
+    router.put("/updateUserPage/:email/:pageId", updateUserPage);
     router.delete("/deleteUserPage/:username/:pageId", deleteUserPage);
     router.get("/getUserPages/:email", getUserPages);
     router.get("/getRecommendedPages/:email", getRecommendedPages);
