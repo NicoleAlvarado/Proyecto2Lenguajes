@@ -43,7 +43,7 @@ const createUserRouter = () => {
     router.put("/blockUser/:email", blockUser);
     router.put("/rejectUser/:email", rejectUser);
     router.delete("/deleteUser/:email", deleteUser);
-    router.get("/getUser/:username", getUser);
+    router.get("/getUser/:email", getUser);
     router.get("/login/logout", logoutUser);
     router.get("/getUsers", getUsers);
     router.get("/getFriendRequests/:email", getFriendRequests);

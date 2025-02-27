@@ -199,9 +199,9 @@ const updateUser = async (req, res) => {
 
 const getUser = async (req, res) => {
     try {
-        const { username } = req.params;
-        if (!username) return res.status(204).json("Username is required");
-        const user = await User.findOne({ username });
+        const { email } = req.params;
+        if (!email) return res.status(204).json("Username is required");
+        const user = await User.findOne({ email });
         if (!user) return res.status(400).json("User not found");
         return res.status(200).json(user);
     } catch (error) {

@@ -1,3 +1,31 @@
+
+
+document.addEventListener("DOMContentLoaded", async function () {
+    const emailStorage = localStorage.getItem("userEmail");
+    
+    try {
+        // Solicitar los datos del usuario
+        const response = await fetch(`http://localhost:3000/api/users/getUser/${emailStorage}`);
+        const userData = await response.json();
+
+        if (response.ok) {
+            // Rellenar los campos del formulario con la información del usuario
+            document.getElementById("username").value = userData.username || '';
+            document.getElementById("email").value = userData.email || '';
+            document.getElementById("bio").value = userData.bio || '';
+            
+            // Rellenar el avatar (si tiene uno seleccionado)
+            if (userData.avatar) {
+                document.querySelector(`input[name="avatar"][value="${userData.avatar}"]`).checked = true;
+            }
+        } else {
+            alert("Error al cargar los datos del perfil: " + (userData.message || "Error desconocido"));
+        }
+    } catch (error) {
+        console.error("Error al obtener los datos del perfil:", error);
+        alert("Error al cargar los datos del perfil.");
+    }
+});
 document.getElementById("editProfileForm").addEventListener("submit", async function (event) {
     event.preventDefault(); // Evitar la recarga de la página
 
