@@ -8,35 +8,61 @@ window.onload = async function () {
         return;
     }
 
-    const response = await fetch(`/api/users/getFriendRequests/${userEmail}`);
-    if (!response.ok) {
-        document.getElementById("friendRequestsContainer").innerHTML = "<p>You Don't have Friend Requests.</p>";
-        return;
+    // Obtener solicitudes de amistad
+    const friendRequestsResponse = await fetch(`/api/users/getFriendRequests/${userEmail}`);
+    const friendRequestsContainer = document.getElementById("friendRequestsContainer");
+
+    if (!friendRequestsResponse.ok) {
+        friendRequestsContainer.innerHTML = "<p>You don't have friend requests.</p>";
+    } else {
+        const friendRequests = await friendRequestsResponse.json();
+
+        if (friendRequests.length === 0) {
+            friendRequestsContainer.innerHTML = "<p>You don't have friend requests.</p>";
+        } else {
+            friendRequests.forEach((request) => {
+                const requestDiv = document.createElement("div");
+                requestDiv.classList.add("card", "mb-3");
+                requestDiv.innerHTML = `
+                    <div class="card-body">
+                        <h5 class="card-title">${request.username}</h5>
+                        <img src="/CreateUser/avatars/${request.avatar}" alt="Avatar" class="avatar-thumbnail">
+                        <p class="card-text">${request.email}</p>
+                        <button class="btn btn-success" onclick="respondToRequest('${request.email}', 'accept', this)">Accept</button>
+                        <button class="btn btn-danger" onclick="putReject('${request.email}', this)">Reject</button>
+                        <button class="btn btn-secondary" onclick="putBlock('${request.email}', this)">Block</button>
+                    </div>
+                `;
+                    friendRequestsContainer.appendChild(requestDiv);
+            });
+        }
     }
 
-    const friendRequests = await response.json();
-    const container = document.getElementById("friendRequestsContainer");
+    // Obtener notificaciones
+    const notificationsResponse = await fetch(`/api/users/getNotifications/${userEmail}`);
+    const notificationsContainer = document.getElementById("notificationsContainer");
 
-    if (friendRequests.length === 0) {
-        container.innerHTML = "<p>You Don't have Friend Requests.</p>";
-        return;
+    if (!notificationsResponse.ok) {
+        notificationsContainer.innerHTML = "<p>No notifications found.</p>";
+    } else {
+        const notifications = await notificationsResponse.json();
+
+        if (notifications.length === 0) {
+            notificationsContainer.innerHTML = "<p>No notifications found.</p>";
+        } else {
+            notifications.forEach((notification) => {
+                const notificationDiv = document.createElement("div");
+                notificationDiv.classList.add("card", "mb-3");
+                notificationDiv.innerHTML = `
+                    <div class="card-body">
+                        <p class="card-text">${notification.message}</p>
+                        <small class="text-muted">${new Date(notification.timestamp).toLocaleString()}</small>
+                    </div>
+                `;
+                notificationsContainer.appendChild(notificationDiv);
+            });
+        }
     }
-
-    friendRequests.forEach((request) => {
-        const requestDiv = document.createElement("div");
-        requestDiv.classList.add("card", "mb-3");
-        requestDiv.innerHTML = `
-            <div class="card-body">
-                <h5 class="card-title">${request.username}</h5>
-                <img src="/CreateUser/avatars/${request.avatar}" alt="Avatar" class="avatar-thumbnail">
-                <p class="card-text">${request.email}</p>
-                <button class="btn btn-success" onclick="respondToRequest('${request.email}', 'accept', this)">Accept</button>
-                <button class="btn btn-danger" onclick="putReject('${request.email}', this)">Reject</button>
-                <button class="btn btn-secondary" onclick="putBlock('${request.email}', this)">Block</button>
-            </div>
-        `;
-        container.appendChild(requestDiv);
-    });
 };
 
 const respondToRequest = async (senderEmail, action, button) => {
