@@ -15,7 +15,7 @@ const createPageRouter = () => {
     //agregar una validacion en el middleware para que solo los usuarios logueados puedan acceder a las rutas
     router.post("/insertPage", insertPage);
     router.post("/addPostToPage/:email/:pageId", addPostToPage);
-    router.post("/insertUserPage/:username", insertUserPage);
+    router.post("/insertUserPage/:email", insertUserPage);
     router.put("/updateUserPage/:username/:pageId", updateUserPage);
     router.delete("/deleteUserPage/:username/:pageId", deleteUserPage);
     router.get("/getPages", getPages);

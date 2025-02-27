@@ -38,18 +38,18 @@ const addPostToPage = async (req, res) => {
 
 const insertUserPage = async (req, res) => {
     try {
-        const { username } = req.params;
-        const { title, description, phone, email, address } = req.body;
+        const { email } = req.params;
+        const { title, description, phone, pageEmail, address } = req.body;
 
         const page = new Page({
             title,
             description,
             phone,
-            email,
+            email: pageEmail,
             address,
         });
 
-        const user = await User.findOne({ username }).populate("pages");
+        const user = await User.findOne({ email }).populate("pages");
         user.pages.push(page);
 
         res.status(201).json(await user.save());
@@ -57,6 +57,7 @@ const insertUserPage = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
 
 const updateUserPage = async (req, res) => {
     try {
