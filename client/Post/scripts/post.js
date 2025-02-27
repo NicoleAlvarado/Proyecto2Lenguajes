@@ -25,8 +25,6 @@ const createPost = async (event) => {
         if (response.ok) {
             const data = await response.json();
             alert("Post creado con éxito.");
-            // Opcionalmente, redirigir a una página con los posts
-            window.location.href = "/home.html";  // Redirige a la página de inicio (ajusta según corresponda)
         } else {
             const error = await response.json();
             alert(`Error: ${error.message}`);
