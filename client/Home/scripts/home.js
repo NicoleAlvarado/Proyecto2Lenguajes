@@ -170,22 +170,32 @@ const showComments = (comments) => {
 };
 
 const followPage = async (pageId) => {
+    const userEmail = localStorage.getItem("userEmail"); // Obtener el email del usuario almacenado
+
+    if (!userEmail) {
+        showAlert("Debes iniciar sesión para seguir una página.", "warning");
+        return;
+    }
+
     try {
-        const response = await fetch(`/api/users/followPage`, {
+        const response = await fetch("/api/users/followPage", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ userEmail, pageId }), // Cambiar pageEmail a pageId
+            body: JSON.stringify({ userEmail, pageId }),
         });
 
+        const result = await response.json(); // Obtener la respuesta JSON
+
         if (response.ok) {
-            showAlert("Página seguida con éxito", "success");
+            showAlert(result.message, "success");
         } else {
-            throw new Error("Error al seguir la página");
+            showAlert(result.message, "danger"); // Mensaje de error desde el backend
         }
     } catch (error) {
-        showAlert("Ya sigues esta página", "danger");
+        console.error("Error al seguir la página:", error);
+        showAlert("Hubo un problema al intentar seguir la página.", "danger");
     }
 };
 
