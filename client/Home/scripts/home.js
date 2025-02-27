@@ -3,6 +3,7 @@ const getInicialPosts = async () => {
         const userEmail = localStorage.getItem("userEmail");
         const response = await fetch(`/api/users/getRecommendedPosts/${userEmail}`);
         const posts = await response.json();
+        console.log(posts);
 
         // Obtener el contenedor donde se mostrarán las publicaciones
         const postsContainer = document.getElementById("posts-container");
@@ -23,6 +24,7 @@ const getInicialPosts = async () => {
                     <div class="card-body">
                         <h5 class="card-title">${post.title}</h5>
                         <p class="card-text">${post.randomPost.content}</p>
+                        <button class="btn btn-success" onclick="followPage('${post._id}')">Seguir página</button> <!-- Cambiar a pageId -->
                     </div>
                     <div class="card-footer text-muted">
                         Página recomendada
@@ -52,7 +54,46 @@ const getInicialPosts = async () => {
     }
 };
 
+// Función para seguir una página
+const followPage = async (pageId) => {
+    try {
+        const userEmail = localStorage.getItem("userEmail");
+        const response = await fetch(`/api/users/followPage`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ userEmail, pageId }) // Cambiar pageEmail a pageId
+        });
 
+        if (response.ok) {
+            showAlert('Página seguida con éxito', 'success');
+        } else {
+            throw new Error('Error al seguir la página');
+        }
+    } catch (error) {
+        console.error(`Error: ${error}`);
+        showAlert('Error al seguir la página', 'danger');
+    }
+};
+
+// Función para mostrar alertas
+function showAlert(message, type) {
+    const alertContainer = document.createElement("div");
+    alertContainer.className = `alert alert-${type} alert-dismissible fade show`;
+    alertContainer.role = "alert";
+    alertContainer.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+    document.body.prepend(alertContainer);
+
+    setTimeout(() => {
+        alertContainer.classList.remove("show");
+        alertContainer.classList.add("hide");
+        setTimeout(() => alertContainer.remove(), 500);
+    }, 3000);
+}
 
 // Llamar la función para cargar las publicaciones al cargar la página
 getInicialPosts();
@@ -84,21 +125,3 @@ const logout = async () => {
         showAlert('Error al cerrar sesión', 'danger');
     }
 };
-
-// Función para mostrar alertas
-function showAlert(message, type) {
-    const alertContainer = document.createElement("div");
-    alertContainer.className = `alert alert-${type} alert-dismissible fade show`;
-    alertContainer.role = "alert";
-    alertContainer.innerHTML = `
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    `;
-    document.body.prepend(alertContainer);
-
-    setTimeout(() => {
-        alertContainer.classList.remove("show");
-        alertContainer.classList.add("hide");
-        setTimeout(() => alertContainer.remove(), 500);
-    }, 3000);
-}

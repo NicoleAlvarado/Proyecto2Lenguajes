@@ -1,6 +1,8 @@
 const User = require("../models/User");
 const Page = require("../models/Page");
 const Post = require("../models/Post");
+const mongoose = require("mongoose");
+
 const {
     validateUserData,
     validateUserName,
@@ -36,6 +38,47 @@ const insertUserPost = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+const likeUserPost = async (req, res) => {
+    try {
+        const { userEmailPostLiked, postId } = req.params;
+        const { userEmail } = req.body;
+
+        const user = await User.findOne({ email: userEmailPostLiked });
+        const post = user.posts.id(postId);
+        const likeIndex = post.likes.indexOf(userEmail);
+
+        likeIndex === -1 ? post.likes.push(userEmail) : post.likes.splice(likeIndex, 1);
+
+        res.status(200).json(await user.save());
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+const likePagePost = async (req, res) => {
+    try {
+        const { pageId, postId } = req.params;
+        const { userEmail } = req.body;
+
+        let page = await Page.findById(pageId);
+
+        if (!page) {
+            const userWithPage = await User.findOne({ "pages._id": pageId });
+            page = userWithPage.pages.id(pageId);
+        }
+
+        const post = page.posts.id(postId);
+        const likeIndex = post.likes.indexOf(userEmail);
+
+        likeIndex === -1 ? post.likes.push(userEmail) : post.likes.splice(likeIndex, 1);
+
+        res.status(200).json(page.parent() ? await page?.parent().save() : page.save());
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 const deleteUser = async (req, res) => {
     try {
         const { email } = req.params;
@@ -48,10 +91,7 @@ const deleteUser = async (req, res) => {
         console.log("userDelete", userDelete);
 
         // Eliminar el email del usuario de las listas de amigos de otros usuarios
-        await User.updateMany(
-            { friends: email },
-            { $pull: { friends: email } }
-        );
+        await User.updateMany({ friends: email }, { $pull: { friends: email } });
 
         // Eliminar el usuario
         await User.findByIdAndDelete(userDelete._id);
@@ -226,72 +266,77 @@ const getFriendRequests = async (req, res) => {
     }
 };
 
-// NO ES FUNCION PARA EXPORTAR
-const getFriendPosts = async (friends) =>
-    await User.aggregate([
-        { $match: { email: { $in: friends } } },
-        { $match: { "posts.0": { $exists: true } } },
-        { $sample: { size: 25 } },
-        {
-            $project: {
-                username: 1,
-                email: 1,
-                avatar: 1,
-                isPage: { $literal: false },
-                randomPost: {
-                    $arrayElemAt: ["$posts", { $floor: { $multiply: [{ $rand: {} }, { $size: "$posts" }] } }],
-                },
-            },
-        },
-    ]);
+const getFriendPosts = async (friends) => {
+    const users = await User.find({ email: { $in: friends }, "posts.0": { $exists: true } }).limit(25);
 
-// NO ES FUNCION PARA EXPORTAR
-const getFollowedPagePosts = async (followedPages) =>
-    await Page.aggregate([
-        { $match: { _id: { $in: followedPages.map((id) => mongoose.Types.ObjectId(id)) } } },
-        { $match: { "posts.0": { $exists: true } } },
-        { $sample: { size: 25 } },
-        {
-            $project: {
-                title: 1,
-                isPage: { $literal: true },
-                randomPost: {
-                    $arrayElemAt: ["$posts", { $floor: { $multiply: [{ $rand: {} }, { $size: "$posts" }] } }],
-                },
-            },
-        },
-    ]);
+    return users.map(({ username, email, avatar, posts }) => ({
+        username,
+        email,
+        avatar,
+        isPage: false,
+        randomPost: posts[Math.floor(Math.random() * posts.length)],
+    }));
+};
 
-// NO ES FUNCION PARA EXPORTAR
-const getInitialPosts = async () =>
-    await Page.aggregate([
-        { $match: { "posts.0": { $exists: true } } },
-        { $sample: { size: 50 } },
-        {
-            $project: {
-                title: 1,
-                isPage: { $literal: true },
-                randomPost: {
-                    $arrayElemAt: ["$posts", { $floor: { $multiply: [{ $rand: {} }, { $size: "$posts" }] } }],
-                },
-            },
-        },
-    ]);
+const getFollowedIndependentPagesPosts = async (pageIds) => {
+    const pages = await Page.find({ _id: { $in: pageIds }, "posts.0": { $exists: true } }).limit(25);
+
+    return pages.map(({ _id, title, posts }) => ({
+        _id,
+        title,
+        isPage: true,
+        randomPost: posts[Math.floor(Math.random() * posts.length)],
+    }));
+};
+
+const getFollowedUserPagesPosts = async (pageIds) => {
+    const users = await User.find({ "pages._id": { $in: pageIds }, "pages.posts.0": { $exists: true } }).limit(25);
+
+    return users.flatMap((user) =>
+        user.pages
+            .filter((page) => pageIds.some((id) => id.toString() === page._id.toString()) && page.posts.length > 0)
+            .map(({ title, email, posts }) => ({
+                title,
+                email,
+                isPage: true,
+                randomPost: posts[Math.floor(Math.random() * posts.length)],
+            }))
+    );
+};
+
+const getInitialPosts = async () => {
+    const pages = await Page.find({ "posts.0": { $exists: true } }).limit(25);
+
+    return pages.map(({ _id, title, posts }) => ({
+        _id,
+        title,
+        isPage: true,
+        randomPost: posts[Math.floor(Math.random() * posts.length)],
+    }));
+};
 
 const getRecommendedPosts = async (req, res) => {
     try {
         const { email } = req.params;
 
-        const { friends, followedPages } = await User.findOne({ email });
+        const user = await User.findOne({ email });
+        if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
+
+        const { friends, followedPages } = user;
+        const pagesIds = followedPages.map((id) => new mongoose.Types.ObjectId(id));
 
         if (friends.length === 0 && followedPages.length === 0) return res.status(200).json(await getInitialPosts());
 
-        const [friendPostsResult, pagePostsResult] = await Promise.all([
+        const [friendPostsResult, independentPagesResult, userPagesResult] = await Promise.all([
             friends.length > 0 ? getFriendPosts(friends) : [],
-            followedPages.length > 0 ? getFollowedPagePosts(followedPages) : [],
+            followedPages.length > 0 ? getFollowedIndependentPagesPosts(pagesIds) : [],
+            followedPages.length > 0 ? getFollowedUserPagesPosts(pagesIds) : [],
         ]);
 
-        return res.status(200).json([...friendPostsResult, ...pagePostsResult]);
+        const combinedResults = [...friendPostsResult, ...independentPagesResult, ...userPagesResult];
+        const shuffledResults = combinedResults.sort(() => Math.random() - 0.5);
+
+        return res.status(200).json(shuffledResults);
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }
@@ -314,13 +359,11 @@ const getFriends = async (req, res) => {
         const friendsList = await Promise.all(
             user.friends.map(async (friendEmail) => {
                 const friend = await User.findOne({ email: friendEmail });
-                return friend
-                    ? { email: friend.email, username: friend.username, avatar: friend.avatar }
-                    : null;
+                return friend ? { email: friend.email, username: friend.username, avatar: friend.avatar } : null;
             })
         );
 
-        return res.status(200).json(friendsList.filter(friend => friend !== null));
+        return res.status(200).json(friendsList.filter((friend) => friend !== null));
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }
@@ -342,8 +385,8 @@ const removeFriend = async (req, res) => {
         }
 
         // Remover el amigo de ambas listas
-        user.friends = user.friends.filter(email => email !== friendEmail);
-        friend.friends = friend.friends.filter(email => email !== userEmail);
+        user.friends = user.friends.filter((email) => email !== friendEmail);
+        friend.friends = friend.friends.filter((email) => email !== userEmail);
 
         await user.save();
         await friend.save();
@@ -354,7 +397,11 @@ const removeFriend = async (req, res) => {
     }
 };
 
+const followPage = async (req, res) => {
+    try {
+        const { userEmail, pageId } = req.body;
 
+<<<<<<< HEAD
 const blockUser = async (req, res) => {
     try {
         const { email } = req.params;
@@ -406,12 +453,49 @@ const rejectUser = async (req, res) => {
         return res.status(500).json({ message: error.message });
     }
 }
+=======
+        if (!userEmail || !pageId) {
+            return res.status(400).json({ message: "User email and Page ID are required" });
+        }
+>>>>>>> 422c36dc18c8dedcf629e19367db279fc18370ea
 
+        // Verificar si el pageId es un formato válido de MongoDB
+        if (!mongoose.Types.ObjectId.isValid(pageId)) {
+            return res.status(400).json({ message: "Invalid Page ID" });
+        }
 
+        const user = await User.findOne({ email: userEmail });
+        const page = await Page.findById(pageId);
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        if (!page) {
+            return res.status(404).json({ message: "Page not found" });
+        }
+
+        // Verificar si ya sigue la página
+        if (user.followedPages.includes(pageId)) {
+            return res.status(400).json({ message: "You already follow this page" });
+        }
+
+        // Agregar la página a la lista de seguidas
+        user.followedPages.push(pageId);
+        await user.save();
+
+        return res.status(200).json({ message: "Page followed successfully", followedPages: user.followedPages });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
 
 module.exports = {
     createUser,
     insertUserPost,
+    likeUserPost,
+    likePagePost,
     deleteUser,
     updateUser,
     getUser,
@@ -422,6 +506,11 @@ module.exports = {
     getRecommendedPosts,
     getFriends,
     removeFriend,
+<<<<<<< HEAD
     blockUser,
     rejectUser
 };
+=======
+    followPage,
+};
+>>>>>>> 422c36dc18c8dedcf629e19367db279fc18370ea
