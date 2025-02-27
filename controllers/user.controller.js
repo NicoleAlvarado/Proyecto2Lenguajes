@@ -1,7 +1,7 @@
 const User = require("../models/User");
 const Page = require("../models/Page");
 const Post = require("../models/Post");
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const {
     validateUserData,
@@ -266,11 +266,9 @@ const getFriendRequests = async (req, res) => {
     }
 };
 
-// NO ES FUNCION PARA EXPORTAR
 const getFriendPosts = async (friends) =>
     await User.aggregate([
-        { $match: { email: { $in: friends } } },
-        { $match: { "posts.0": { $exists: true } } },
+        { $match: { email: { $in: friends }, "posts.0": { $exists: true } } },
         { $sample: { size: 25 } },
         {
             $project: {
@@ -285,11 +283,14 @@ const getFriendPosts = async (friends) =>
         },
     ]);
 
-// NO ES FUNCION PARA EXPORTAR
-const getFollowedPagePosts = async (followedPages) =>
+const getFollowedIndependentPagesPosts = async (pageIds) =>
     await Page.aggregate([
-        { $match: { _id: { $in: followedPages } } },
-        { $match: { "posts.0": { $exists: true } } },
+        {
+            $match: {
+                _id: { $in: pageIds },
+                "posts.0": { $exists: true },
+            },
+        },
         { $sample: { size: 25 } },
         {
             $project: {
@@ -302,7 +303,26 @@ const getFollowedPagePosts = async (followedPages) =>
         },
     ]);
 
-// NO ES FUNCION PARA EXPORTAR
+const getFollowedUserPagesPosts = async (pageIds) =>
+    await User.aggregate([
+        { $match: { "pages._id": { $in: pageIds } } },
+        { $unwind: "$pages" },
+        { $match: { "pages._id": { $in: pageIds }, "pages.posts.0": { $exists: true } } },
+        { $sample: { size: 25 } },
+        {
+            $project: {
+                title: "$pages.title",
+                isPage: { $literal: true },
+                randomPost: {
+                    $arrayElemAt: [
+                        "$pages.posts",
+                        { $floor: { $multiply: [{ $rand: {} }, { $size: "$pages.posts" }] } },
+                    ],
+                },
+            },
+        },
+    ]);
+
 const getInitialPosts = async () =>
     await Page.aggregate([
         { $match: { "posts.0": { $exists: true } } },
@@ -322,16 +342,28 @@ const getRecommendedPosts = async (req, res) => {
     try {
         const { email } = req.params;
 
-        const { friends, followedPages } = await User.findOne({ email });
+        const user = await User.findOne({ email });
+        if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
+
+        const { friends, followedPages } = user;
+        const pagesIds = followedPages.map((id) => new mongoose.Types.ObjectId(id));
 
         if (friends.length === 0 && followedPages.length === 0) return res.status(200).json(await getInitialPosts());
 
-        const [friendPostsResult, pagePostsResult] = await Promise.all([
-            friends.length > 0 ? getFriendPosts(friends) : [],
-            followedPages.length > 0 ? getFollowedPagePosts(followedPages) : [],
-        ]);
+        console.log({ friends, followedPages });
 
-        return res.status(200).json([...friendPostsResult, ...pagePostsResult]);
+        const [friendPostsResult, independentPagesResult, userPagesResult] = await Promise.all([
+            friends.length > 0 ? getFriendPosts(friends) : [],
+            followedPages.length > 0 ? getFollowedIndependentPagesPosts(pagesIds) : [],
+            followedPages.length > 0 ? getFollowedUserPagesPosts(pagesIds) : [],
+        ]);
+        console.log(independentPagesResult);
+
+        const combinedResults = [...friendPostsResult, ...independentPagesResult, ...userPagesResult];
+        console.log(combinedResults);
+        const shuffledResults = combinedResults.sort(() => Math.random() - 0.5);
+
+        return res.status(200).json(shuffledResults);
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }
@@ -431,10 +463,6 @@ const followPage = async (req, res) => {
         return res.status(500).json({ message: "Internal server error" });
     }
 };
-
-
-
-
 
 module.exports = {
     createUser,
