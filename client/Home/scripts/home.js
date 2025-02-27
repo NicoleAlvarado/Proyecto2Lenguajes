@@ -165,7 +165,8 @@ const renderCommentFooter = (isPage, email, pageId, postId, comments) => {
         e.preventDefault();
         const comment = textarea.value.trim();
         if (comment) {
-            await addCommentToPost(isPage, email, pageId, postId, comment, comments);
+            const response = await addCommentToPost(isPage, email, pageId, postId, comment, comments);
+            response && (textarea.value = "");
         }
     });
 
@@ -204,9 +205,8 @@ const likePost = async (e, pageId, postId, isPage, likedPostUserEmail, likes) =>
 
         if (!response.ok) throw new Error("Error al dar like al post");
 
-        const { likeIndex } = await response.json();
-
-        likeIndex === -1 ? likes.push(userEmail) : likes.splice(likeIndex, 1);
+        const emailIndex = likes.indexOf(userEmail);
+        emailIndex === -1 ? likes.push(userEmail) : likes.splice(emailIndex, 1);
 
         button.classList.toggle("btn-outline-primary");
         button.classList.toggle("btn-primary");
@@ -233,8 +233,11 @@ const addCommentToPost = async (isPage, commentPostUserEmail, pageId, postId, co
 
         comments.push({ userEmail, comment, date: new Date() });
         modalBody.innerHTML = renderCommentCard(comments);
+
+        return true;
     } catch (error) {
         console.error(error);
+        return false;
     }
 };
 
