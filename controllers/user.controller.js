@@ -46,11 +46,11 @@ const addCommentToUserPost = async (req, res) => {
 
         res.status(200).json(await user.save());
 
-        // Agregar notificación de comentario
-        await addNotification(commentPostUserEmail, "comment", `Han comentado en tu publicación`);
+        // // Agregar notificación de comentario
+        // await addNotification(commentPostUserEmail, "comment", `Han comentado en tu publicación`);
 
-        // Enviar correo electrónico de notificación
-        sendEmail(commentPostUserEmail, "Notificación de Comentario", message);
+        // // Enviar correo electrónico de notificación
+        // sendEmail(commentPostUserEmail, "Notificación de Comentario", message);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -106,7 +106,7 @@ const likeUserPost = async (req, res) => {
 
         // sendEmail(likedPostUserEmail, "Notificación de Like", message);
 
-        res.status(200).json(await user.save());
+        res.status(200).json({ object: await user.save(), likeIndex });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -129,7 +129,7 @@ const likePagePost = async (req, res) => {
 
         likeIndex === -1 ? post.likes.push(userEmail) : post.likes.splice(likeIndex, 1);
 
-        res.status(201).json(page.parent() ? await page.parent().save() : page.save());
+        res.status(201).json({ object: page.parent() ? await page.parent().save() : page.save(), likeIndex });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -490,7 +490,7 @@ const followPage = async (req, res) => {
         }
 
         // Verificar si el usuario ya sigue la página
-        if (user.followedPages.some(id => id.equals(pageId))) {
+        if (user.followedPages.some((id) => id.equals(pageId))) {
             return res.status(400).json({ message: "Ya sigues esta página." });
         }
 
@@ -500,14 +500,13 @@ const followPage = async (req, res) => {
 
         return res.status(200).json({
             message: "Página seguida con éxito.",
-            followedPages: user.followedPages
+            followedPages: user.followedPages,
         });
     } catch (error) {
         console.error("Error en followPage:", error);
         return res.status(500).json({ message: "Error interno del servidor." });
     }
 };
-
 
 const rejectUser = async (req, res) => {
     try {
