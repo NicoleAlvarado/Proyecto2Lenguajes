@@ -17,8 +17,7 @@ const {
     removeFriend,
     blockUser, 
     rejectUser,
-    getFriends,
-    removeFriend,
+    
     followPage,
 } = require("../controllers/user.controller");
 

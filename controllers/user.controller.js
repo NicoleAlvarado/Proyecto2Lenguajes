@@ -401,63 +401,10 @@ const followPage = async (req, res) => {
     try {
         const { userEmail, pageId } = req.body;
 
-<<<<<<< HEAD
-const blockUser = async (req, res) => {
-    try {
-        const { email } = req.params;
-        const { emailToBlock } = req.body;
-        if (!email || !emailToBlock) {
-            return res.status(400).json({ message: "Both email and emailToBlock are required" });
-        }
 
-        const user = await User.findOne({ email });
-        const userToBlock = await User.findOne({ email: emailToBlock });
-
-        if (!user || !userToBlock) {
-            return res.status(404).json({ message: "User not found" });
-        }
-
-        // Remover el amigo de ambas listas
-        user.Usersblocked.push(emailToBlock);
-        await user.save();
-
-        return res.status(200).json({ message: "User blocked successfully" });
-    } catch (error) {
-        return res.status(500).json({ message: error.message });
-    }
-}
-
-
-
-const rejectUser = async (req, res) => {
-    try {
-        const { email } = req.params;
-        const { emailToReject } = req.body;
-        if (!email || !emailToReject) {
-            return res.status(400).json({ message: "Both email and emailToReject are required" });
-        }
-
-        const user = await User.findOne({ email });
-        const userToBlock = await User.findOne({ email: emailToReject });
-
-        if (!user || !userToBlock) {
-            return res.status(404).json({ message: "User not found" });
-        }
-
-        // Remover el amigo de ambas listas
-        user.rejectedUsers.push(emailToReject);
-        await user.save();
-
-        return res.status(200).json({ message: "User rejected successfully" });
-    } catch (error) {
-        return res.status(500).json({ message: error.message });
-    }
-}
-=======
         if (!userEmail || !pageId) {
             return res.status(400).json({ message: "User email and Page ID are required" });
         }
->>>>>>> 422c36dc18c8dedcf629e19367db279fc18370ea
 
         // Verificar si el pageId es un formato válido de MongoDB
         if (!mongoose.Types.ObjectId.isValid(pageId)) {
@@ -489,7 +436,59 @@ const rejectUser = async (req, res) => {
         console.error(error);
         return res.status(500).json({ message: "Internal server error" });
     }
-};
+}
+
+
+const rejectUser = async (req, res) => {
+    try {
+        const { email } = req.params;
+        const { emailToReject } = req.body;
+        if (!email || !emailToReject) {
+            return res.status(400).json({ message: "Both email and emailToReject are required" });
+        }
+
+        const user = await User.findOne({ email });
+        const userToBlock = await User.findOne({ email: emailToReject });
+
+        if (!user || !userToBlock) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Remover el amigo de ambas listas
+        user.rejectedUsers.push(emailToReject);
+        await user.save();
+
+        return res.status(200).json({ message: "User rejected successfully" });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+
+    };
+}
+const blockUser = async (req, res) => {
+    try {
+        const { email } = req.params;
+        const { emailToBlock } = req.body;
+        if (!email || !emailToBlock) {
+            return res.status(400).json({ message: "Both email and emailToBlock are required" });
+        }
+
+        const user = await User.findOne({ email });
+        const userToBlock = await User.findOne({ email: emailToBlock });
+
+        if (!user || !userToBlock) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Remover el amigo de ambas listas
+        user.Usersblocked.push(emailToBlock);
+        await user.save();
+
+        return res.status(200).json({ message: "User blocked successfully" });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+}
+
 
 module.exports = {
     createUser,
@@ -506,11 +505,8 @@ module.exports = {
     getRecommendedPosts,
     getFriends,
     removeFriend,
-<<<<<<< HEAD
     blockUser,
-    rejectUser
+    rejectUser,
+    followPage
+
 };
-=======
-    followPage,
-};
->>>>>>> 422c36dc18c8dedcf629e19367db279fc18370ea
