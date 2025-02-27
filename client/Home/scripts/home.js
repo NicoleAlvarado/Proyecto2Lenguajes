@@ -99,8 +99,7 @@ const followPage = async (pageId) => {
             throw new Error("Error al seguir la página");
         }
     } catch (error) {
-        console.error(`Error: ${error}`);
-        showAlert("Error al seguir la página", "danger");
+        showAlert("Ya sigues esta página", "danger");
     }
 };
 
