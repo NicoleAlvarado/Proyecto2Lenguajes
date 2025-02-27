@@ -54,7 +54,7 @@ const getInicialPosts = async () => {
         const likeButton = createOptionPostBtn(
             isLiked ? ["btn", "btn-sm", "btn-primary"] : ["btn", "btn-outline-primary", "btn-sm"],
             `<i class="bi ${isLiked ? "bi-hand-thumbs-up-fill" : "bi-hand-thumbs-up"}"></i> Like`,
-            likePost(pageId, postId, isPage, email)
+            (e) => likePost(e, pageId, postId, isPage, email)
         );
 
         const commentButton = createOptionPostBtn(
@@ -75,7 +75,7 @@ const getInicialPosts = async () => {
         const commentsButton = createOptionPostBtn(
             ["btn", "btn-outline-info", "btn-sm"],
             '<i class="bi bi-chat-left-text"></i> Ver Comentarios',
-            null
+            showComments(comments)
         );
 
         commentsButton.setAttribute("data-bs-toggle", "modal");
@@ -164,7 +164,10 @@ const showLikes = (likes) => {
     console.log(likes);
 };
 
-const showCommets = () => {};
+const showComments = (comments) => {
+    modalHeaderTitle.textContent = "Comentarios";
+    console.log(comments);
+};
 
 const followPage = async (pageId) => {
     try {

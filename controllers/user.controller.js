@@ -11,7 +11,7 @@ const {
     validatePassword,
 } = require("../utility/user.validation");
 
-const sendEmail = require("../utility/emailservice");
+const sendEmail = require("../utility/emailService");
 
 const createUser = async (req, res) => {
     try {
