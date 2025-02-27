@@ -266,77 +266,54 @@ const getFriendRequests = async (req, res) => {
     }
 };
 
-const getFriendPosts = async (friends) =>
-    await User.aggregate([
-        { $match: { email: { $in: friends }, "posts.0": { $exists: true } } },
-        { $sample: { size: 25 } },
-        {
-            $project: {
-                username: 1,
-                email: 1,
-                avatar: 1,
-                isPage: { $literal: false },
-                randomPost: {
-                    $arrayElemAt: ["$posts", { $floor: { $multiply: [{ $rand: {} }, { $size: "$posts" }] } }],
-                },
-            },
-        },
-    ]);
+const getFriendPosts = async (friends) => {
+    const users = await User.find({ email: { $in: friends }, "posts.0": { $exists: true } }).limit(25);
 
-const getFollowedIndependentPagesPosts = async (pageIds) =>
-    await Page.aggregate([
-        {
-            $match: {
-                _id: { $in: pageIds },
-                "posts.0": { $exists: true },
-            },
-        },
-        { $sample: { size: 25 } },
-        {
-            $project: {
-                title: 1,
-                isPage: { $literal: true },
-                randomPost: {
-                    $arrayElemAt: ["$posts", { $floor: { $multiply: [{ $rand: {} }, { $size: "$posts" }] } }],
-                },
-            },
-        },
-    ]);
+    return users.map(({ username, email, avatar, posts }) => ({
+        username,
+        email,
+        avatar,
+        isPage: false,
+        randomPost: posts[Math.floor(Math.random() * posts.length)],
+    }));
+};
 
-const getFollowedUserPagesPosts = async (pageIds) =>
-    await User.aggregate([
-        { $match: { "pages._id": { $in: pageIds } } },
-        { $unwind: "$pages" },
-        { $match: { "pages._id": { $in: pageIds }, "pages.posts.0": { $exists: true } } },
-        { $sample: { size: 25 } },
-        {
-            $project: {
-                title: "$pages.title",
-                isPage: { $literal: true },
-                randomPost: {
-                    $arrayElemAt: [
-                        "$pages.posts",
-                        { $floor: { $multiply: [{ $rand: {} }, { $size: "$pages.posts" }] } },
-                    ],
-                },
-            },
-        },
-    ]);
+const getFollowedIndependentPagesPosts = async (pageIds) => {
+    const pages = await Page.find({ _id: { $in: pageIds }, "posts.0": { $exists: true } }).limit(25);
 
-const getInitialPosts = async () =>
-    await Page.aggregate([
-        { $match: { "posts.0": { $exists: true } } },
-        { $sample: { size: 50 } },
-        {
-            $project: {
-                title: 1,
-                isPage: { $literal: true },
-                randomPost: {
-                    $arrayElemAt: ["$posts", { $floor: { $multiply: [{ $rand: {} }, { $size: "$posts" }] } }],
-                },
-            },
-        },
-    ]);
+    return pages.map(({ _id, title, posts }) => ({
+        _id,
+        title,
+        isPage: true,
+        randomPost: posts[Math.floor(Math.random() * posts.length)],
+    }));
+};
+
+const getFollowedUserPagesPosts = async (pageIds) => {
+    const users = await User.find({ "pages._id": { $in: pageIds }, "pages.posts.0": { $exists: true } }).limit(25);
+
+    return users.flatMap((user) =>
+        user.pages
+            .filter((page) => pageIds.some((id) => id.toString() === page._id.toString()) && page.posts.length > 0)
+            .map(({ title, email, posts }) => ({
+                title,
+                email,
+                isPage: true,
+                randomPost: posts[Math.floor(Math.random() * posts.length)],
+            }))
+    );
+};
+
+const getInitialPosts = async () => {
+    const pages = await Page.find({ "posts.0": { $exists: true } }).limit(25);
+
+    return pages.map(({ _id, title, posts }) => ({
+        _id,
+        title,
+        isPage: true,
+        randomPost: posts[Math.floor(Math.random() * posts.length)],
+    }));
+};
 
 const getRecommendedPosts = async (req, res) => {
     try {
@@ -350,17 +327,13 @@ const getRecommendedPosts = async (req, res) => {
 
         if (friends.length === 0 && followedPages.length === 0) return res.status(200).json(await getInitialPosts());
 
-        console.log({ friends, followedPages });
-
         const [friendPostsResult, independentPagesResult, userPagesResult] = await Promise.all([
             friends.length > 0 ? getFriendPosts(friends) : [],
             followedPages.length > 0 ? getFollowedIndependentPagesPosts(pagesIds) : [],
             followedPages.length > 0 ? getFollowedUserPagesPosts(pagesIds) : [],
         ]);
-        console.log(independentPagesResult);
 
         const combinedResults = [...friendPostsResult, ...independentPagesResult, ...userPagesResult];
-        console.log(combinedResults);
         const shuffledResults = combinedResults.sort(() => Math.random() - 0.5);
 
         return res.status(200).json(shuffledResults);
