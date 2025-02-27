@@ -471,40 +471,43 @@ const followPage = async (req, res) => {
         const { userEmail, pageId } = req.body;
 
         if (!userEmail || !pageId) {
-            return res.status(400).json({ message: "User email and Page ID are required" });
+            return res.status(400).json({ message: "El correo del usuario y el ID de la página son obligatorios." });
         }
 
-        // Verificar si el pageId es un formato válido de MongoDB
+        // Validar que pageId sea un ObjectId válido
         if (!mongoose.Types.ObjectId.isValid(pageId)) {
-            return res.status(400).json({ message: "Invalid Page ID" });
+            return res.status(400).json({ message: "El ID de la página no es válido." });
         }
 
         const user = await User.findOne({ email: userEmail });
-        const page = await Page.findById(pageId);
-
         if (!user) {
-            return res.status(404).json({ message: "User not found" });
+            return res.status(404).json({ message: "Usuario no encontrado." });
         }
 
+        const page = await Page.findById(pageId);
         if (!page) {
-            return res.status(404).json({ message: "Page not found" });
+            return res.status(404).json({ message: "Página no encontrada." });
         }
 
-        // Verificar si ya sigue la página
-        if (user.followedPages.includes(pageId)) {
-            return res.status(400).json({ message: "You already follow this page" });
+        // Verificar si el usuario ya sigue la página
+        if (user.followedPages.some(id => id.equals(pageId))) {
+            return res.status(400).json({ message: "Ya sigues esta página." });
         }
 
-        // Agregar la página a la lista de seguidas
-        user.followedPages.push(pageId);
+        // Agregar la página a la lista de páginas seguidas
+        user.followedPages.push(new mongoose.Types.ObjectId(pageId));
         await user.save();
 
-        return res.status(200).json({ message: "Page followed successfully", followedPages: user.followedPages });
+        return res.status(200).json({
+            message: "Página seguida con éxito.",
+            followedPages: user.followedPages
+        });
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({ message: "Internal server error" });
+        console.error("Error en followPage:", error);
+        return res.status(500).json({ message: "Error interno del servidor." });
     }
 };
+
 
 const rejectUser = async (req, res) => {
     try {
