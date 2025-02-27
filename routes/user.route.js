@@ -15,8 +15,11 @@ const {
     respondFriendRequest,
     getFriendRequests,
     getRecommendedPosts,
-    getFriends,
+    getFriends, 
     removeFriend,
+    blockUser, 
+    rejectUser,
+    
     followPage,
 } = require("../controllers/user.controller");
 
@@ -42,6 +45,11 @@ const createUserRouter = () => {
     router.get("/getRecommendedPosts/:email", getRecommendedPosts);
     router.get("/getFriends/:email", getFriends);
     router.post("/removeFriend", removeFriend);
+    router.put("/blockUser/:email", blockUser);
+    router.put("/rejectUser/:email", rejectUser);
+
+    
+
     router.post("/followPage", followPage);
 
     return router;
