@@ -2,110 +2,73 @@ const userEmail = localStorage.getItem("userEmail");
 const modal = document.getElementById("modal");
 const modalHeaderTitle = modal.querySelector("#modal-header > h1");
 const modalBody = modal.querySelector("#modal-body");
+const modalFooter = modal.querySelector("#modal-footer");
 
 const getInicialPosts = async () => {
-    // try {
-    const response = await fetch(`/api/users/getRecommendedPosts/${userEmail}`);
-    const posts = await response.json();
+    try {
+        const response = await fetch(`/api/users/getRecommendedPosts/${userEmail}`);
+        const posts = await response.json();
 
-    const postsContainer = document.getElementById("posts-container");
-    postsContainer.innerHTML = "";
+        const postsContainer = document.getElementById("posts-container");
+        postsContainer.innerHTML = "";
 
-    posts.forEach((post) => {
-        const { pageId, isPage, email, randomPost } = post;
-        const { _id: postId, content, likes, comments } = randomPost;
-        const isLiked = likes.includes(userEmail);
+        posts.forEach((post) => {
+            const { pageId, isPage, email, randomPost } = post;
+            const { _id: postId, likes, comments } = randomPost;
+            const isLiked = likes.includes(userEmail);
 
-        const postElement = document.createElement("div");
-        postElement.classList.add("col-12", "col-md-6", "col-lg-4", "mb-4");
+            const postElement = document.createElement("div");
+            postElement.classList.add("col-12", "col-md-6", "col-lg-4", "mb-4");
 
-        // Crear la tarjeta de la publicación
-        const cardElement = document.createElement("div");
-        cardElement.classList.add("card", "shadow-sm", "border-0", "h-100");
+            const cardElement = document.createElement("div");
+            cardElement.classList.add("card", "shadow-sm", "border-0", "h-100");
 
-        // Contenido de la publicación
-        const postContentHTML = isPage ? getPageContent(post) : getFriendContent(post);
+            const postContentHTML = isPage ? renderPageContent(post) : renderFriendContent(post);
 
-        console.log(likes);
+            const buttonContainer = document.createElement("div");
+            buttonContainer.classList.add("d-flex", "gap-2", "p-2");
 
-        const buttonContainer = document.createElement("div");
-        buttonContainer.classList.add("d-flex", "gap-2", "p-2");
+            const likeButton = createOptionPostBtn(
+                isLiked ? ["btn", "btn-sm", "btn-primary"] : ["btn", "btn-outline-primary", "btn-sm"],
+                `<i class="bi ${isLiked ? "bi-hand-thumbs-up-fill" : "bi-hand-thumbs-up"}"></i> Like`,
+                (e) => likePost(e, pageId, postId, isPage, email, likes)
+            );
 
-        // postContent += `
-        //     <div class="d-flex gap-2 p-2">
-        //         <button
-        //             class="${isLiked ? "btn btn-sm btn-primary" : "btn btn-outline-primary btn-sm"}"
-        //             onclick="likePost(event, '${pageId}', '${postId}', ${isPage}, '${email}')"
-        //         >
-        //             <i class="${isLiked ? "bi bi-hand-thumbs-up-fill" : "bi bi-hand-thumbs-up"}"></i> Like
-        //         </button>
-        //         <button class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#modal">
-        //             <i class="bi bi-chat-dots"></i> Comentar
-        //         </button>
-        //         <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#modal" onclick="showLikes(${likes})")>
-        //             <i class="bi bi-people"></i> Ver Likes
-        //         </button>
-        //         <button class="btn btn-outline-info btn-sm" data-bs-toggle="modal" data-bs-target="#modal">
-        //             <i class="bi bi-chat-left-text"></i> Ver Comentarios
-        //         </button>
-        //     </div>
-        // `;
+            const likesButton = createOptionPostBtn(
+                ["btn", "btn-outline-secondary", "btn-sm"],
+                '<i class="bi bi-people"></i> Ver Likes',
+                () => showLikes(likes)
+            );
 
-        const likeButton = createOptionPostBtn(
-            isLiked ? ["btn", "btn-sm", "btn-primary"] : ["btn", "btn-outline-primary", "btn-sm"],
-            `<i class="bi ${isLiked ? "bi-hand-thumbs-up-fill" : "bi-hand-thumbs-up"}"></i> Like`,
-            (e) => likePost(e, pageId, postId, isPage, email)
-        );
+            likesButton.setAttribute("data-bs-toggle", "modal");
+            likesButton.setAttribute("data-bs-target", "#modal");
 
-        const commentButton = createOptionPostBtn(
-            ["btn", "btn-outline-success", "btn-sm"],
-            '<i class="bi bi-chat-dots"></i> Comentar',
-            null,
-        );
+            const commentsButton = createOptionPostBtn(
+                ["btn", "btn-outline-info", "btn-sm"],
+                '<i class="bi bi-chat-left-text"></i> Ver Comentarios',
+                () => showComments(comments, isPage, email, pageId, postId)
+            );
 
-        const likesButton = createOptionPostBtn(
-            ["btn", "btn-outline-secondary", "btn-sm"],
-            '<i class="bi bi-people"></i> Ver Likes',
-            showLikes(likes)
-        );
+            commentsButton.setAttribute("data-bs-toggle", "modal");
+            commentsButton.setAttribute("data-bs-target", "#modal");
 
-        likesButton.setAttribute("data-bs-toggle", "modal");
-        likesButton.setAttribute("data-bs-target", "#modal");
+            buttonContainer.appendChild(likeButton);
+            buttonContainer.appendChild(likesButton);
+            buttonContainer.appendChild(commentsButton);
 
-        const commentsButton = createOptionPostBtn(
-            ["btn", "btn-outline-info", "btn-sm"],
-            '<i class="bi bi-chat-left-text"></i> Ver Comentarios',
-            showComments(comments)
-        );
+            cardElement.innerHTML = postContentHTML;
 
-        commentsButton.setAttribute("data-bs-toggle", "modal");
-        commentsButton.setAttribute("data-bs-target", "#modal");
-
-        // Añadir todos los botones al contenedor
-        buttonContainer.appendChild(likeButton);
-        buttonContainer.appendChild(commentButton);
-        buttonContainer.appendChild(likesButton);
-        buttonContainer.appendChild(commentsButton);
-
-        // Establecer el contenido de la tarjeta
-        cardElement.innerHTML = postContentHTML;
-
-        // Añadir el contenedor de botones a la tarjeta
-        cardElement.appendChild(buttonContainer);
-
-        // Añadir la tarjeta al elemento del post
-        postElement.appendChild(cardElement);
-
-        // Añadir el elemento del post al contenedor de posts
-        postsContainer.appendChild(postElement);
-    });
-    // } catch (error) {
-    //     console.error(`Error: ${error}`);
-    //     showAlert("Error al cargar las publicaciones", "danger");
-    // }
+            cardElement.appendChild(buttonContainer);
+            postElement.appendChild(cardElement);
+            postsContainer.appendChild(postElement);
+        });
+    } catch (error) {
+        console.error(`Error: ${error}`);
+        showAlert("Error al cargar las publicaciones", "danger");
+    }
 };
 
-const getPageContent = ({ pageId, title, randomPost }) => `
+const renderPageContent = ({ pageId, title, randomPost }) => `
     <div class="card-body">
         <h5 class="card-title">${title}</h5>
         <p class="card-text">${randomPost.content}</p>
@@ -116,7 +79,7 @@ const getPageContent = ({ pageId, title, randomPost }) => `
     <div class="card-footer text-muted">Página recomendada</div>
 `;
 
-const getFriendContent = ({ avatar, username, randomPost }) => `
+const renderFriendContent = ({ avatar, username, randomPost }) => `
     <div class="card-body">
         <img src="/CreateUser/avatars/${avatar}" alt="${username}'s avatar" class="post-avatar rounded-circle" style="width: 40px; height: 40px;" />
         <h5 class="card-title">${username}</h5>
@@ -133,7 +96,98 @@ const createOptionPostBtn = (classes, innerHTML, onClick) => {
     return button;
 };
 
-const likePost = async (e, pageId, postId, isPage, likedPostUserEmail) => {
+const renderLikesInfo = (likes) => `
+    <div class="likes-container">
+        ${
+            likes.length > 0
+                ? `<ul class="list-group">
+                ${likes
+                    .map(
+                        (email) => `
+                            <li class="list-group-item d-flex align-items-center gap-2">
+                                <i class="bi bi-person-circle fs-5"></i>
+                                <span>${email}</span>
+                            </li>
+                        `
+                    )
+                    .join("")}
+              </ul>`
+                : '<p class="text-center text-muted my-3">Nadie ha dado like todavía</p>'
+        }
+    </div>
+`;
+
+const renderCommentCard = (comments) => `
+    <div class="comments-container">
+        ${
+            comments.length > 0
+                ? comments
+                      .map(
+                          ({ userEmail, comment, date }) => `
+                            <div class="comment-card mb-3">
+                                <div class="card border-0 shadow-sm">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-start gap-2">
+                                            <i class="bi bi-person-circle fs-4"></i>
+                                            <div class="flex-grow-1">
+                                                <h6 class="mb-1 fw-bold">${userEmail}</h6>
+                                                <p class="mb-1">${comment}</p>
+                                                <small class="text-muted">
+                                                    ${new Date(date).toLocaleDateString("es-ES", {
+                                                        year: "numeric",
+                                                        month: "long",
+                                                        day: "numeric",
+                                                        hour: "2-digit",
+                                                        minute: "2-digit",
+                                                    })}
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `
+                      )
+                      .join("")
+                : '<p class="text-center text-muted my-3">No hay comentarios todavía</p>'
+        }
+    </div>
+`;
+
+const renderCommentFooter = (isPage, email, pageId, postId, comments) => {
+    modalFooter.innerHTML = "";
+    modalFooter.classList.remove("d-none");
+
+    const commentForm = document.createElement("form");
+    commentForm.className = "d-flex flex-column gap-2 w-100";
+
+    commentForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const comment = textarea.value.trim();
+        if (comment) {
+            await addCommentToPost(isPage, email, pageId, postId, comment, comments);
+        }
+    });
+
+    const textarea = document.createElement("textarea");
+    textarea.className = "form-control";
+    textarea.placeholder = "Escribe un comentario...";
+    textarea.rows = "2";
+    textarea.required = true;
+
+    const submitButton = createOptionPostBtn(
+        ["btn", "btn-primary", "w-100"],
+        '<i class="bi bi-send"></i> Comentar',
+        null
+    );
+    submitButton.type = "submit";
+
+    commentForm.appendChild(textarea);
+    commentForm.appendChild(submitButton);
+    modalFooter.appendChild(commentForm);
+};
+
+const likePost = async (e, pageId, postId, isPage, likedPostUserEmail, likes) => {
     try {
         const button = e.target;
         const icon = button.querySelector("i");
@@ -150,6 +204,10 @@ const likePost = async (e, pageId, postId, isPage, likedPostUserEmail) => {
 
         if (!response.ok) throw new Error("Error al dar like al post");
 
+        const { likeIndex } = await response.json();
+
+        likeIndex === -1 ? likes.push(userEmail) : likes.splice(likeIndex, 1);
+
         button.classList.toggle("btn-outline-primary");
         button.classList.toggle("btn-primary");
         icon.classList.toggle("bi-hand-thumbs-up");
@@ -159,14 +217,37 @@ const likePost = async (e, pageId, postId, isPage, likedPostUserEmail) => {
     }
 };
 
-const showLikes = (likes) => {
-    modalHeaderTitle.textContent = "Personas que han dado me gusta";
-    console.log(likes);
+const addCommentToPost = async (isPage, commentPostUserEmail, pageId, postId, comment, comments) => {
+    try {
+        const endpoint = isPage
+            ? `/api/users/addCommentToPagePost/${pageId}/${postId}`
+            : `/api/users/addCommentToUserPost/${commentPostUserEmail}/${postId}`;
+
+        const response = await fetch(endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userEmail, comment }),
+        });
+
+        if (!response.ok) throw new Error("Error al comentar");
+
+        comments.push({ userEmail, comment, date: new Date() });
+        modalBody.innerHTML = renderCommentCard(comments);
+    } catch (error) {
+        console.error(error);
+    }
 };
 
-const showComments = (comments) => {
+const showLikes = (likes) => {
+    modalHeaderTitle.textContent = "Personas que han dado me gusta";
+    modalBody.innerHTML = renderLikesInfo(likes);
+    modalFooter.classList.add("d-none");
+};
+
+const showComments = (comments, isPage, email, pageId, postId) => {
     modalHeaderTitle.textContent = "Comentarios";
-    console.log(comments);
+    modalBody.innerHTML = renderCommentCard(comments);
+    renderCommentFooter(isPage, email, pageId, postId, comments);
 };
 
 const followPage = async (pageId) => {
