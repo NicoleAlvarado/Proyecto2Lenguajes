@@ -99,10 +99,36 @@ const deleteUserPage = async (req, res) => {
     }
 };
 
-const getPages = async (req, res) => {
+const getUserPages = async (req, res) => {
     try {
-        const pages = await Page.find();
-        res.status(200).json(pages);
+        const { email } = req.params;
+
+        const users = await User.find({
+            email,
+            "pages.0": { $exists: true },
+        });
+        const userPages = users.flatMap(({ pages }) => pages);
+
+        res.status(200).json(userPages);
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+};
+
+const getRecommendedPages = async (req, res) => {
+    try {
+        const { email } = req.params;
+        const { followedPages } = User.findOne({ email });
+
+        const pages = await Page.find({ _id: { $nin: followedPages } });
+        const users = await User.find({
+            email: { $ne: email },
+            "pages.0": { $exists: true },
+            "pages._id": { $nin: followedPages },
+        });
+        const userPages = users.flatMap(({ pages }) => pages);
+
+        res.status(200).json([...pages, ...userPages]);
     } catch (error) {
         res.status(404).json({ message: error.message });
     }
@@ -123,6 +149,7 @@ module.exports = {
     insertUserPage,
     updateUserPage,
     deleteUserPage,
-    getPages,
+    getUserPages,
+    getRecommendedPages,
     getRamdomPage,
 };
