@@ -134,21 +134,34 @@ const getUserPages = async (req, res) => {
 const getRecommendedPages = async (req, res) => {
     try {
         const { email } = req.params;
-        const { followedPages } = User.findOne({ email });
 
+        // Obtener el usuario y sus páginas seguidas
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: "Usuario no encontrado." });
+        }
+
+        const followedPages = user.followedPages || []; // Asegurar que sea un array
+
+        // Obtener las páginas que el usuario no sigue
         const pages = await Page.find({ _id: { $nin: followedPages } });
+
+        // Obtener páginas creadas por otros usuarios que el usuario no sigue
         const users = await User.find({
             email: { $ne: email },
-            "pages.0": { $exists: true },
-            "pages._id": { $nin: followedPages },
+            "pages.0": { $exists: true }, // Usuarios que tienen al menos una página
         });
-        const userPages = users.flatMap(({ pages }) => pages);
+
+        const userPages = users.flatMap(({ pages }) =>
+            pages.filter((page) => !followedPages.includes(page._id.toString()))
+        );
 
         res.status(200).json([...pages, ...userPages]);
     } catch (error) {
-        res.status(404).json({ message: error.message });
+        res.status(500).json({ message: "Error interno del servidor." });
     }
 };
+
 
 const getRamdomPage = async (req, res) => {
     try {
