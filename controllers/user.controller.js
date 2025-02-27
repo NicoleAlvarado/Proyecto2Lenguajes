@@ -1,6 +1,7 @@
 const User = require("../models/User");
 const Page = require("../models/Page");
 const Post = require("../models/Post");
+const Comment = require("../models/Comment");
 const mongoose = require("mongoose");
 
 const {
@@ -25,6 +26,42 @@ const createUser = async (req, res) => {
     }
 };
 
+const addCommentToUserPost = async (req, res) => {
+    try {
+        const { commentPostUserEmail, postId } = req.params;
+        const { userEmail, comment } = req.body;
+
+        const user = await User.findOne({ email: commentPostUserEmail });
+        const post = user.posts.id(postId);
+        post.comments.push(new Comment({ userEmail, comment }));
+
+        res.status(200).json(await user.save());
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+const addCommentToPagePost = async (req, res) => {
+    try {
+        const { pageId, postId } = req.params;
+        const { userEmail, comment } = req.body;
+
+        let page = await Page.findById(pageId);
+
+        if (!page) {
+            const userWithPage = await User.findOne({ "pages._id": pageId });
+            page = userWithPage.pages.id(pageId);
+        }
+
+        const post = page.posts.id(postId);
+        post.comments.push(new Comment({ userEmail, comment }));
+
+        res.status(200).json(page.parent() ? await page.parent().save() : page.save());
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 const insertUserPost = async (req, res) => {
     try {
         const { email } = req.params;
@@ -41,11 +78,12 @@ const insertUserPost = async (req, res) => {
 
 const likeUserPost = async (req, res) => {
     try {
-        const { userEmailPostLiked, postId } = req.params;
+        const { likedPostUserEmail, postId } = req.params;
         const { userEmail } = req.body;
 
-        const user = await User.findOne({ email: userEmailPostLiked });
+        const user = await User.findOne({ email: likedPostUserEmail });
         const post = user.posts.id(postId);
+        console.log(post)
         const likeIndex = post.likes.indexOf(userEmail);
 
         likeIndex === -1 ? post.likes.push(userEmail) : post.likes.splice(likeIndex, 1);
@@ -73,7 +111,7 @@ const likePagePost = async (req, res) => {
 
         likeIndex === -1 ? post.likes.push(userEmail) : post.likes.splice(likeIndex, 1);
 
-        res.status(200).json(page.parent() ? await page?.parent().save() : page.save());
+        res.status(200).json(page.parent() ? await page.parent().save() : page.save());
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -439,6 +477,8 @@ const followPage = async (req, res) => {
 
 module.exports = {
     createUser,
+    addCommentToUserPost,
+    addCommentToPagePost,
     insertUserPost,
     likeUserPost,
     likePagePost,

@@ -2,6 +2,8 @@ const { Router } = require("express");
 const { loginUser, refreshToken, logoutUser } = require("../controllers/login.controller");
 const {
     createUser,
+    addCommentToUserPost,
+    addCommentToPagePost,
     insertUserPost,
     likeUserPost,
     likePagePost,
@@ -22,8 +24,10 @@ const createUserRouter = () => {
     const router = Router();
 
     router.post("/createUser", createUser);
+    router.post("/addCommentToUserPost/:commentPostUserEmail/:postId", addCommentToUserPost);
+    router.post("/addCommentToPagePost/:pageId/:postId", addCommentToPagePost);
     router.post("/insertUserPost/:email", insertUserPost);
-    router.post("/likeUserPost/:userEmailPostLiked/:postId", likeUserPost);
+    router.post("/likeUserPost/:likedPostUserEmail/:postId", likeUserPost);
     router.post("/likePagePost/:pageId/:postId", likePagePost);
     router.post("/loginUser", loginUser);
     router.post("/refreshToken", refreshToken);
