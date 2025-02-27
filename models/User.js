@@ -14,6 +14,8 @@ const UserSchema = new Schema({
     friends: [{ type: String }], // Lista de usernames de *Email* de amigos
     friendRequests: [{ type: String }], // Lista de usernames de solicitudes pendientes
     followedPages: [{ type: String }], // GUARDAR EL ID DE LA PAGINAS, CUANDO SE LE DA A SEGUIR (FELIPE)
+    Usersblocked: [{ type: String }],  // Lista de emails de usuarios bloqueados
+    rejectedUsers: [{ type: String }], // Lista de emails de usuarios rechazados
 });
 
 module.exports = model("User", UserSchema);

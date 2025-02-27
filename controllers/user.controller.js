@@ -355,6 +355,57 @@ const removeFriend = async (req, res) => {
 };
 
 
+const blockUser = async (req, res) => {
+    try {
+        const { email } = req.params;
+        const { emailToBlock } = req.body;
+        if (!email || !emailToBlock) {
+            return res.status(400).json({ message: "Both email and emailToBlock are required" });
+        }
+
+        const user = await User.findOne({ email });
+        const userToBlock = await User.findOne({ email: emailToBlock });
+
+        if (!user || !userToBlock) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Remover el amigo de ambas listas
+        user.Usersblocked.push(emailToBlock);
+        await user.save();
+
+        return res.status(200).json({ message: "User blocked successfully" });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+}
+
+
+
+const rejectUser = async (req, res) => {
+    try {
+        const { email } = req.params;
+        const { emailToReject } = req.body;
+        if (!email || !emailToReject) {
+            return res.status(400).json({ message: "Both email and emailToReject are required" });
+        }
+
+        const user = await User.findOne({ email });
+        const userToBlock = await User.findOne({ email: emailToReject });
+
+        if (!user || !userToBlock) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Remover el amigo de ambas listas
+        user.rejectedUsers.push(emailToReject);
+        await user.save();
+
+        return res.status(200).json({ message: "User rejected successfully" });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+}
 
 
 
@@ -371,4 +422,6 @@ module.exports = {
     getRecommendedPosts,
     getFriends,
     removeFriend,
+    blockUser,
+    rejectUser
 };

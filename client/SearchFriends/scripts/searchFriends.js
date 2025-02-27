@@ -16,11 +16,26 @@ const searchFriend = async () => {
         // Obtener el correo del usuario en sesión desde el localStorage
         const currentUserEmail = localStorage.getItem("userEmail");
 
+        // Verificar si el usuario actual está bloqueado
+        if (user.Usersblocked.includes(currentUserEmail)) {
+            resultContainer.innerHTML = `<p class="text-danger">No puedes enviar una solicitud de amistad a este usuario.</p>`;
+            return;
+        }
+
         let friendRequestButton = "";
+        let blockUserButton = "";
         if (currentUserEmail && currentUserEmail !== user.email) {
-            friendRequestButton = `
-                <button class="btn btn-success mt-2" onclick="sendFriendRequest('${user.email}')">
-                    Enviar solicitud de amistad
+            // Verificar si el usuario actual ha sido rechazado
+            if (!user.rejectedUsers.includes(currentUserEmail)) {
+                friendRequestButton = `
+                    <button class="btn btn-success mt-2" onclick="sendFriendRequest('${user.email}')">
+                        Enviar solicitud de amistad
+                    </button>
+                `;
+            }
+            blockUserButton = `
+                <button class="btn btn-secondary mt-2" onclick="blockUser('${user.email}')">
+                    Bloquear Usuario
                 </button>
             `;
         }
@@ -33,6 +48,7 @@ const searchFriend = async () => {
                     <p class="card-text">${user.bio || "Sin biografía"}</p>
                     <p class="text-muted">${user.email}</p>
                     ${friendRequestButton}
+                    ${blockUserButton}
                 </div>
             </div>
         `;
@@ -64,6 +80,32 @@ const sendFriendRequest = async (receiverEmail) => {
         }
     } catch (error) {
         alert("Error al enviar la solicitud de amistad.");
+    }
+};
+
+const blockUser = async (emailToBlock) => {
+    const userEmail = localStorage.getItem("userEmail");
+
+    try {
+        const response = await fetch(`http://localhost:3000/api/users/blockUser/${userEmail}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                emailToBlock: emailToBlock,
+            }),
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+            alert("Usuario bloqueado con éxito");
+            // Opcional: eliminar la tarjeta de usuario bloqueado
+            document.querySelector(`button[onclick="blockUser('${emailToBlock}')"]`).closest(".card").remove();
+        } else {
+            alert(result.message || "Error al bloquear el usuario");
+        }
+    } catch (error) {
+        console.error("Error en la solicitud:", error);
+        alert("Error de red o servidor.");
     }
 };
 
