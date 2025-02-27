@@ -84,7 +84,7 @@ const putReject = async (emailToReject, button) => {
         console.error("Error en la solicitud:", error);
         alert("Error de red o servidor.");
     }
-}
+};
 
 const putBlock = async (emailToBlock, button) => {
     const userEmail = localStorage.getItem("userEmail");
@@ -109,6 +109,4 @@ const putBlock = async (emailToBlock, button) => {
         console.error("Error en la solicitud:", error);
         alert("Error de red o servidor.");
     }
-
-
 };

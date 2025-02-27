@@ -4,7 +4,7 @@ const createPost = async (event) => {
 
     // Obtener el contenido del post desde el formulario
     const content = document.getElementById("content").value;
-    const userEmail = localStorage.getItem("userEmail");  // Obtener el email del usuario desde el localStorage
+    const userEmail = localStorage.getItem("userEmail"); // Obtener el email del usuario desde el localStorage
 
     if (!content) {
         alert("El contenido del post no puede estar vacío.");

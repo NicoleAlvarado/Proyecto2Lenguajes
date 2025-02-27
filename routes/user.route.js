@@ -15,11 +15,10 @@ const {
     respondFriendRequest,
     getFriendRequests,
     getRecommendedPosts,
-    getFriends, 
+    getFriends,
     removeFriend,
-    blockUser, 
+    blockUser,
     rejectUser,
-    
     followPage,
 } = require("../controllers/user.controller");
 
@@ -34,23 +33,20 @@ const createUserRouter = () => {
     router.post("/likePagePost/:pageId/:postId", likePagePost);
     router.post("/loginUser", loginUser);
     router.post("/refreshToken", refreshToken);
+    router.post("/followPage", followPage);
+    router.post("/removeFriend", removeFriend);
+    router.post("/sendFriendRequest", sendFriendRequest);
+    router.post("/respondFriendRequest", respondFriendRequest);
     router.put("/updateUser/:useremail", updateUser);
+    router.put("/blockUser/:email", blockUser);
+    router.put("/rejectUser/:email", rejectUser);
     router.delete("/deleteUser/:email", deleteUser);
     router.get("/getUser/:username", getUser);
     router.get("/login/logout", logoutUser);
     router.get("/getUsers", getUsers);
-    router.post("/sendFriendRequest", sendFriendRequest);
-    router.post("/respondFriendRequest", respondFriendRequest);
     router.get("/getFriendRequests/:email", getFriendRequests);
     router.get("/getRecommendedPosts/:email", getRecommendedPosts);
     router.get("/getFriends/:email", getFriends);
-    router.post("/removeFriend", removeFriend);
-    router.put("/blockUser/:email", blockUser);
-    router.put("/rejectUser/:email", rejectUser);
-
-    
-
-    router.post("/followPage", followPage);
 
     return router;
 };

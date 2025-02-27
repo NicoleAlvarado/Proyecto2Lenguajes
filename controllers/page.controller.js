@@ -58,7 +58,6 @@ const insertUserPage = async (req, res) => {
     }
 };
 
-
 const updateUserPage = async (req, res) => {
     try {
         const { username, pageId } = req.params;

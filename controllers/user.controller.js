@@ -83,12 +83,11 @@ const likeUserPost = async (req, res) => {
 
         const user = await User.findOne({ email: likedPostUserEmail });
         const post = user.posts.id(postId);
-        console.log(post)
         const likeIndex = post.likes.indexOf(userEmail);
 
         likeIndex === -1 ? post.likes.push(userEmail) : post.likes.splice(likeIndex, 1);
 
-        res.status(200).json(await user.save());
+        res.status(201).json(await user.save());
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -111,7 +110,7 @@ const likePagePost = async (req, res) => {
 
         likeIndex === -1 ? post.likes.push(userEmail) : post.likes.splice(likeIndex, 1);
 
-        res.status(200).json(page.parent() ? await page.parent().save() : page.save());
+        res.status(201).json(page.parent() ? await page.parent().save() : page.save());
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -308,6 +307,7 @@ const getFriendPosts = async (friends) => {
     const users = await User.find({ email: { $in: friends }, "posts.0": { $exists: true } }).limit(25);
 
     return users.map(({ username, email, avatar, posts }) => ({
+        pageId: 0,
         username,
         email,
         avatar,
@@ -320,8 +320,9 @@ const getFollowedIndependentPagesPosts = async (pageIds) => {
     const pages = await Page.find({ _id: { $in: pageIds }, "posts.0": { $exists: true } }).limit(25);
 
     return pages.map(({ _id, title, posts }) => ({
-        _id,
+        pageId: _id,
         title,
+        email: "",
         isPage: true,
         randomPost: posts[Math.floor(Math.random() * posts.length)],
     }));
@@ -333,7 +334,8 @@ const getFollowedUserPagesPosts = async (pageIds) => {
     return users.flatMap((user) =>
         user.pages
             .filter((page) => pageIds.some((id) => id.toString() === page._id.toString()) && page.posts.length > 0)
-            .map(({ title, email, posts }) => ({
+            .map(({ _id, title, email, posts }) => ({
+                pageId: _id,
                 title,
                 email,
                 isPage: true,
@@ -346,8 +348,9 @@ const getInitialPosts = async () => {
     const pages = await Page.find({ "posts.0": { $exists: true } }).limit(25);
 
     return pages.map(({ _id, title, posts }) => ({
-        _id,
+        pageId: _id,
         title,
+        email: "",
         isPage: true,
         randomPost: posts[Math.floor(Math.random() * posts.length)],
     }));
@@ -439,7 +442,6 @@ const followPage = async (req, res) => {
     try {
         const { userEmail, pageId } = req.body;
 
-
         if (!userEmail || !pageId) {
             return res.status(400).json({ message: "User email and Page ID are required" });
         }
@@ -474,8 +476,7 @@ const followPage = async (req, res) => {
         console.error(error);
         return res.status(500).json({ message: "Internal server error" });
     }
-}
-
+};
 
 const rejectUser = async (req, res) => {
     try {
@@ -499,9 +500,9 @@ const rejectUser = async (req, res) => {
         return res.status(200).json({ message: "User rejected successfully" });
     } catch (error) {
         return res.status(500).json({ message: error.message });
+    }
+};
 
-    };
-}
 const blockUser = async (req, res) => {
     try {
         const { email } = req.params;
@@ -525,8 +526,7 @@ const blockUser = async (req, res) => {
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }
-}
-
+};
 
 module.exports = {
     createUser,
@@ -547,6 +547,5 @@ module.exports = {
     removeFriend,
     blockUser,
     rejectUser,
-    followPage
-
+    followPage,
 };

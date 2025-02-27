@@ -20,30 +20,29 @@ document.getElementById("createPageForm").addEventListener("submit", async funct
         title,
         description,
         phone,
-        pageEmail, 
+        pageEmail,
         address,
     };
 
     try {
-       const response = await fetch(`/api/pages/insertUserPage/${userEmail}`, {
-           method: "POST",
-           headers: {
-               "Content-Type": "application/json",
-           },
-           body: JSON.stringify(newPage),
-       });
+        const response = await fetch(`/api/pages/insertUserPage/${userEmail}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(newPage),
+        });
 
-       if (response.ok) {
-           const data = await response.json();
-           console.log("Datos de la respuesta:", data); // Verifica lo que recibes del servidor
-           alert("Página creada exitosamente");
-           window.location.href = "home.html";
-       } else {
-           const error = await response.json();
-           console.error("Error:", error); // Revisa el error en la consola
-           alert("Error al crear la página: " + error.message);
-       }
-
+        if (response.ok) {
+            const data = await response.json();
+            console.log("Datos de la respuesta:", data); // Verifica lo que recibes del servidor
+            alert("Página creada exitosamente");
+            window.location.href = "home.html";
+        } else {
+            const error = await response.json();
+            console.error("Error:", error); // Revisa el error en la consola
+            alert("Error al crear la página: " + error.message);
+        }
     } catch (error) {
         console.error("Error:", error);
         alert("Hubo un problema al crear la página");

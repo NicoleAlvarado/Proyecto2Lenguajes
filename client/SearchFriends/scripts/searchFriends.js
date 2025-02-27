@@ -130,7 +130,7 @@ const getFriends = async () => {
         }
 
         let friendsHTML = `<h3>Lista de Amigos</h3><div class="list-group">`;
-        friends.forEach(friend => {
+        friends.forEach((friend) => {
             friendsHTML += `
                 <div class="list-group-item d-flex justify-content-between align-items-center">
                     <div>
@@ -163,7 +163,7 @@ const removeFriend = async (friendEmail) => {
         const response = await fetch("/api/users/removeFriend", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ userEmail, friendEmail })
+            body: JSON.stringify({ userEmail, friendEmail }),
         });
 
         const result = await response.json();
@@ -177,5 +177,3 @@ const removeFriend = async (friendEmail) => {
         alert("Error al eliminar al amigo.");
     }
 };
-
-
