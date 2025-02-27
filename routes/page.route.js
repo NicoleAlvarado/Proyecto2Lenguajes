@@ -5,7 +5,8 @@ const {
     insertUserPage,
     updateUserPage,
     deleteUserPage,
-    getPages,
+    getUserPages,
+    getRecommendedPages,
     getRamdomPage,
 } = require("../controllers/page.controller");
 
@@ -18,7 +19,8 @@ const createPageRouter = () => {
     router.post("/insertUserPage/:email", insertUserPage);
     router.put("/updateUserPage/:username/:pageId", updateUserPage);
     router.delete("/deleteUserPage/:username/:pageId", deleteUserPage);
-    router.get("/getPages", getPages);
+    router.get("/getUserPages/:email", getUserPages);
+    router.get("/getRecommendedPages/:email", getRecommendedPages);
     router.get("/getRamdomPage", getRamdomPage);
 
     return router;
