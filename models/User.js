@@ -3,6 +3,13 @@ const { Schema, model } = mongoose;
 const Page = require("./Page");
 const Post = require("./Post");
 
+const NotificationSchema = new Schema({
+    type: { type: String, required: true },
+    message: { type: String, required: true },
+    timestamp: { type: Date, default: Date.now },
+    status: { type: String, default: "unread" },
+});
+
 const UserSchema = new Schema({
     username: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
@@ -16,6 +23,7 @@ const UserSchema = new Schema({
     followedPages: [{ type: String }], // GUARDAR EL ID DE LA PAGINAS, CUANDO SE LE DA A SEGUIR (FELIPE)
     Usersblocked: [{ type: String }],  // Lista de emails de usuarios bloqueados
     rejectedUsers: [{ type: String }], // Lista de emails de usuarios rechazados
+    notifications: [NotificationSchema], // Lista de notificaciones
 });
 
 module.exports = model("User", UserSchema);

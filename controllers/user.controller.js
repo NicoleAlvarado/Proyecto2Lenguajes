@@ -4,12 +4,15 @@ const Post = require("../models/Post");
 const Comment = require("../models/Comment");
 const mongoose = require("mongoose");
 
+
 const {
     validateUserData,
     validateUserName,
     generateHashPassword,
     validatePassword,
 } = require("../utility/user.validation");
+
+const sendEmail = require("../utility/emailservice");
 
 const createUser = async (req, res) => {
     try {
@@ -20,6 +23,13 @@ const createUser = async (req, res) => {
 
         const user = new User({ username, email, password: hashPassword, bio, avatar });
         await user.save();
+
+        const message = "Bienvenido a la plataforma!";
+        await addNotification(email, "welcome", message);
+
+        // Enviar correo electrónico de bienvenida
+        await sendEmail(email, "Bienvenido a la plataforma", message);
+
         return res.status(201).json(user);
     } catch (error) {
         return res.status(500).json(`${error}`);
@@ -36,6 +46,14 @@ const addCommentToUserPost = async (req, res) => {
         post.comments.push(new Comment({ userEmail, comment }));
 
         res.status(200).json(await user.save());
+
+        // Agregar notificación de comentario
+        await addNotification(commentPostUserEmail, "comment", `Han comentado en tu publicación`);
+
+        // Enviar correo electrónico de notificación
+        sendEmail(commentPostUserEmail, "Notificación de Comentario", message);
+
+
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -89,6 +107,11 @@ const likeUserPost = async (req, res) => {
         likeIndex === -1 ? post.likes.push(userEmail) : post.likes.splice(likeIndex, 1);
 
         res.status(200).json(await user.save());
+        await addNotification(likedPostUserEmail, "like", `A tu publicación le han dado like`);
+
+        // Enviar correo electrónico de notificación
+        sendEmail(likedPostUserEmail, "Notificación de Like", message);
+
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -266,6 +289,11 @@ const respondFriendRequest = async (req, res) => {
         user.friendRequests = user.friendRequests.filter((email) => email !== sender.email);
         await user.save();
         await sender.save();
+
+        // Agregar notificación de aceptación de solicitud de amistad
+        await addNotification(senderEmail, "friend_request_accepted", `Tu solicitud de amistad ha sido aceptada por ${user.username}`);
+        // Enviar correo electrónico de notificación
+        sendEmail(senderEmail, "Notificación de Aceptación de Solicitud de Amistad", message);
 
         return res.status(200).json({ message: `Friend request ${action}ed successfully` });
     } catch (error) {
@@ -527,6 +555,56 @@ const blockUser = async (req, res) => {
     }
 }
 
+const addNotification = async (userEmail, type, message, status) => {
+    try {
+        const user = await User.findOne({ email: userEmail });
+        if (!user) {
+            throw new Error("User not found");
+        }
+
+        user.notifications.push({ type, message, status });
+        await user.save();
+    } catch (error) {
+        console.error("Error adding notification:", error);
+    }
+};
+
+const getNotifications = async (req, res) => {
+    try {
+        const { email } = req.params;
+        if (!email) {
+            return res.status(400).json({ message: "User email is required" });
+        }
+
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: "User not found" })
+        }
+
+        return res.status(200).json(user.notifications);
+
+    } catch (errror) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
+
+
+// const sendEmail = (to, subject, message) => {
+//     const templateParams = {
+//         to_email: to,
+//         subject: subject,
+//         message: message
+//     };
+
+//     emailjs.send('your_service_id', 'your_template_id', templateParams, 'your_user_id')
+//         .then((response) => {
+//             console.log('Email sent successfully:', response.status, response.text);
+//         }, (error) => {
+//             console.error('Failed to send email:', error);
+//         });
+// };
+
 
 module.exports = {
     createUser,
@@ -547,6 +625,7 @@ module.exports = {
     removeFriend,
     blockUser,
     rejectUser,
-    followPage
-
+    followPage,
+    addNotification,
+    getNotifications,
 };

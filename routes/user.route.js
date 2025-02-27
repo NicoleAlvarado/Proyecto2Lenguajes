@@ -19,7 +19,8 @@ const {
     removeFriend,
     blockUser, 
     rejectUser,
-    
+    addNotification,
+    getNotifications,
     followPage,
 } = require("../controllers/user.controller");
 
@@ -47,6 +48,8 @@ const createUserRouter = () => {
     router.post("/removeFriend", removeFriend);
     router.put("/blockUser/:email", blockUser);
     router.put("/rejectUser/:email", rejectUser);
+    router.post("/addNotification/:email", addNotification);
+    router.get("/getNotifications/:email", getNotifications); 
 
     
 
