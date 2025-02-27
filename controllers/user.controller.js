@@ -4,7 +4,6 @@ const Post = require("../models/Post");
 const Comment = require("../models/Comment");
 const mongoose = require("mongoose");
 
-
 const {
     validateUserData,
     validateUserName,
@@ -52,8 +51,6 @@ const addCommentToUserPost = async (req, res) => {
 
         // Enviar correo electrónico de notificación
         sendEmail(commentPostUserEmail, "Notificación de Comentario", message);
-
-
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -289,7 +286,11 @@ const respondFriendRequest = async (req, res) => {
         await sender.save();
 
         // Agregar notificación de aceptación de solicitud de amistad
-        await addNotification(senderEmail, "friend_request_accepted", `Tu solicitud de amistad ha sido aceptada por ${user.username}`);
+        await addNotification(
+            senderEmail,
+            "friend_request_accepted",
+            `Tu solicitud de amistad ha sido aceptada por ${user.username}`
+        );
         // Enviar correo electrónico de notificación
         sendEmail(senderEmail, "Notificación de Aceptación de Solicitud de Amistad", message);
 
@@ -553,7 +554,7 @@ const blockUser = async (req, res) => {
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }
-}
+};
 
 const addNotification = async (userEmail, type, message, status) => {
     try {
@@ -578,17 +579,14 @@ const getNotifications = async (req, res) => {
 
         const user = await User.findOne({ email });
         if (!user) {
-            return res.status(404).json({ message: "User not found" })
+            return res.status(404).json({ message: "User not found" });
         }
 
         return res.status(200).json(user.notifications);
-
     } catch (errror) {
         return res.status(500).json({ message: error.message });
     }
 };
-
-
 
 // const sendEmail = (to, subject, message) => {
 //     const templateParams = {
@@ -604,7 +602,6 @@ const getNotifications = async (req, res) => {
 //             console.error('Failed to send email:', error);
 //         });
 // };
-
 
 module.exports = {
     createUser,

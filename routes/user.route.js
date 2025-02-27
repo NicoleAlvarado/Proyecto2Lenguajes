@@ -53,10 +53,7 @@ const createUserRouter = () => {
     router.put("/blockUser/:email", blockUser);
     router.put("/rejectUser/:email", rejectUser);
     router.post("/addNotification/:email", addNotification);
-    router.get("/getNotifications/:email", getNotifications); 
-
-    
-
+    router.get("/getNotifications/:email", getNotifications);
     router.post("/followPage", followPage);
 
     return router;
