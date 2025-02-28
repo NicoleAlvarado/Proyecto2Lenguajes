@@ -1,39 +1,21 @@
-const User = require("../models/User");
-const Page = require("../models/Page");
-const Post = require("../models/Post");
+const User = require("../models/User"); // Importar el modelo User
+const Page = require("../models/Page"); // Importar el modelo Page
+const Post = require("../models/Post"); // Importar el modelo Post
 
-const insertPage = async (req, res) => {
+
+const addPostToPage = async (req, res) => { //Metodo para agregar un post a una pagina
     try {
-        const { title, description, phone, email, address, posts } = req.body;
+        const { email, pageId } = req.params; //Recibe por parametros el email de quien hace el post en la pagina y el id de la pagina
+        const { content } = req.body; //Recibe el contenido del post 
 
-        const page = await Page.create({
-            title,
-            description,
-            phone,
-            email,
-            address,
-            posts,
-        });
-
-        res.status(201).json(page);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
-
-const addPostToPage = async (req, res) => {
-    try {
-        const { email, pageId } = req.params;
-        const { content } = req.body;
-
-        const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(404).json({ message: "Usuario no encontrado" });
+        const user = await User.findOne({ email }); //Busca al usuario por email
+        if (!user) { //Si no encuentra al usuario
+            return res.status(404).json({ message: "User not found" }); //Retorna un mensaje de error
         }
 
-        const page = user.pages.id(pageId);
+        const page = user.pages.id(pageId); //busca en las paginas de ese usuario la pagina con el id recibido
         if (!page) {
-            return res.status(404).json({ message: "Página no encontrada" });
+            return res.status(404).json({ message: "Page not found" });
         }
 
         const newPost = new Post({ content });
