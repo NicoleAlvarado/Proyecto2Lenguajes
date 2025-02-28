@@ -1,4 +1,4 @@
-document.getElementById("createPageForm").addEventListener("submit", async function (event) {
+document.getElementById("createPageForm").addEventListener("submit", async function (event) { //Funcion para crear una pagina
     event.preventDefault();
 
     // Obtener los valores del formulario
@@ -9,13 +9,13 @@ document.getElementById("createPageForm").addEventListener("submit", async funct
     const pageEmail = document.getElementById("email").value;
 
     // Obtener el email del localStorage
-    const userEmail = localStorage.getItem("userEmail"); // Se espera que el email del usuario esté en el localStorage
-    if (!userEmail) {
-        alert("No se encontró un usuario logueado");
-        return;
+    const userEmail = localStorage.getItem("userEmail"); 
+    if (!userEmail) { //Si no hay un usuario logueado
+        alert("There is no user logged in."); //Se muestra un mensaje de alerta
+        return; //Se detiene la ejecucion de la funcion
     }
 
-    // Crear el objeto de la nueva página
+    // Crear el objeto de la nueva pagina
     const newPage = {
         title,
         description,
@@ -25,7 +25,7 @@ document.getElementById("createPageForm").addEventListener("submit", async funct
     };
 
     try {
-        const response = await fetch(`/api/pages/insertUserPage/${userEmail}`, {
+        const response = await fetch(`/api/pages/insertUserPage/${userEmail}`, { //Se hace la peticion al servidor
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -33,28 +33,27 @@ document.getElementById("createPageForm").addEventListener("submit", async funct
             body: JSON.stringify(newPage),
         });
 
-        if (response.ok) {
-            const data = await response.json();
-            console.log("Datos de la respuesta:", data); // Verifica lo que recibes del servidor
-            alert("Página creada exitosamente");
+        if (response.ok) { //Si la creacion es exitosa
+            const data = await response.json(); // se guarda la respuesta en la variable data
+            showToast("Page created successfully!"); //Se muestra un mensaje de notificacion
+
            
-        } else {
+        } else { //Si hay un error
             const error = await response.json();
-            console.error("Error:", error); // Revisa el error en la consola
-            alert("Error al crear la página: " + error.message);
+            alert("Error creating the page" + error.message);
         }
     } catch (error) {
         console.error("Error:", error);
-        alert("Hubo un problema al crear la página");
+        alert("Error creating the page.");
     }
 });
 
-document.addEventListener("DOMContentLoaded", async () => {
-    const userEmail = localStorage.getItem("userEmail");
+document.addEventListener("DOMContentLoaded", async () => { //Funcion para obtener las paginas del usuario
+    const userEmail = localStorage.getItem("userEmail"); //Obtener el email del usuario desde el localStorage
 
-    if (!userEmail) {
-        console.error("No hay usuario logueado.");
-        return;
+    if (!userEmail) { //Si no hay un usuario logueado
+        console.error("There is not user logged in."); //Se muestra un mensaje de error
+        return; //Se detiene la ejecucion de la funcion
     }
 
     try {
@@ -236,4 +235,32 @@ document.getElementById("addPostForm").addEventListener("submit", async function
         alert("Hubo un error al añadir el post");
     }
 });
+
+function showToast(message, type = "success") {
+    const toastContainer = document.getElementById("toastContainer");
+
+    // Crear un nuevo elemento de notificación
+    const toastElement = document.createElement("div");
+    toastElement.className = `toast align-items-center text-bg-${type} border-0 show`;
+    toastElement.setAttribute("role", "alert");
+    toastElement.setAttribute("aria-live", "assertive");
+    toastElement.setAttribute("aria-atomic", "true");
+
+    // Contenido del toast
+    toastElement.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">${message}</div>
+            <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    `;
+
+    // Agregar el toast al contenedor
+    toastContainer.appendChild(toastElement);
+
+    // Eliminar el toast después de 3 segundos
+    setTimeout(() => {
+        toastElement.classList.remove("show");
+        setTimeout(() => toastElement.remove(), 500);
+    }, 3000);
+}
 

@@ -79,15 +79,15 @@
                 <form id="editPageForm">
                     <input type="hidden" id="editPageId">
                     <div class="mb-3">
-                        <label for="editTitle" class="form-label">Título</label>
+                        <label for="editTitle" class="form-label">Title</label>
                         <input type="text" class="form-control" id="editTitle" required>
                     </div>
                     <div class="mb-3">
-                        <label for="editDescription" class="form-label">Descripción</label>
+                        <label for="editDescription" class="form-label">Description</label>
                         <textarea class="form-control" id="editDescription" rows="3" required></textarea>
                     </div>
                     <div class="mb-3">
-                        <label for="editPhone" class="form-label">Teléfono</label>
+                        <label for="editPhone" class="form-label">Phone</label>
                         <input type="text" class="form-control" id="editPhone" required>
                     </div>
                     <div class="mb-3">
@@ -95,10 +95,10 @@
                         <input type="email" class="form-control" id="editEmail" required>
                     </div>
                     <div class="mb-3">
-                        <label for="editAddress" class="form-label">Dirección</label>
+                        <label for="editAddress" class="form-label">Direction</label>
                         <input type="text" class="form-control" id="editAddress" required>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100"><i class="bi bi-save"></i> Guardar Cambios</button>
+                    <button type="submit" class="btn btn-primary w-100"><i class="bi bi-save"></i> Save changes</button>
                 </form>
             </div>
         </div>
@@ -110,16 +110,16 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="addPostModalLabel">Añadir Post</h5>
+                <h5 class="modal-title" id="addPostModalLabel">Add Post</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="addPostForm">
                     <div class="mb-3">
-                        <label for="postContent" class="form-label">Contenido del Post</label>
+                        <label for="postContent" class="form-label">Post Content</label>
                         <textarea class="form-control" id="postContent" rows="3" required></textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100"><i class="bi bi-plus-circle"></i> Crear Post</button>
+                    <button type="submit" class="btn btn-primary w-100"><i class="bi bi-plus-circle"></i> Crete Post</button>
                 </form>
             </div>
         </div>
@@ -129,6 +129,7 @@
 
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="/Page/scripts/createPage.js"></script>
+    <script src="/Page/scripts/createPage.js"></script>
+    <div id="toastContainer" class="toast-container position-fixed bottom-0 end-0 p-3"></div>
     </body>
 </html>
