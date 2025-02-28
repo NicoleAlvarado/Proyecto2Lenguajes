@@ -1,4 +1,4 @@
-const { Router } = require("express");
+const { Router } = require("express"); //Importa solo el metodo Router de express
 
 const { createPageRouter } = require("./routes/page.route");
 const { createTextRouter } = require("./routes/text.route");
