@@ -76,7 +76,7 @@ const addCommentToPagePost = async (req, res) => { //Funcion para agregar un com
 
 const insertUserPost = async (req, res) => { //Funcion para que un usuario inserte una publicacion 
     try {
-        const { email } = req.params; //Recibe el Email del usuario que va a publicar 
+        const { email } = req.params; //Recibe el Email del usuario que va a publicar
         const { content } = req.body; //Recibe el contenido del Post 
 
         const user = await User.findOne({ email }); //Busca al usuario 
@@ -602,7 +602,6 @@ const addNotification = async (userEmail, type, message, status) => { //Funcion 
 
         //send email
         sendEmail(userEmail, `Notification of ${type}`, message); //Envia el correo 
-        console.log("Email sent successfully:", response.status, response.text);
     } catch (error) {
         console.error("Error adding notification:", error);
     }
