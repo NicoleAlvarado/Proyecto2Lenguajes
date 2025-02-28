@@ -1,1 +1,1 @@
-const URLSERVER = "http://localhost:3000"; // Cambia esto por la IP el día de la presentación
+const URLSERVER = "http://localhost:3000"; // Cambiar esto por la IP el dia de la presentacion

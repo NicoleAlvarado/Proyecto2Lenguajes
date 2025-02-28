@@ -1,77 +1,90 @@
-//Se dispara cuando el DOM se carga completamente
+// Se dispara cuando el DOM se carga completamente
 window.addEventListener("DOMContentLoaded", () => {
-    //Obtiene el formulario de login
+    // Obtiene el formulario de login
     const form = document.getElementById("login-form");
-    //Agrega un escuchador de eventos al formulario
+    const loginError = document.getElementById("loginError"); // Mensaje de error
+
+    // Agrega un escuchador de eventos al formulario
     form.addEventListener("submit", login);
 });
 
-//Funcion para manejar el recordar usuario
+// Funcion para manejar el "Recordar usuario"
 const handleRememberMe = (email, password, rememberMe) => {
-    if (rememberMe == "on") {
-        localStorage.setItem("email", email);
-        localStorage.setItem("password", password);
+    if (rememberMe === "on") { // Si el checkbox está marcado
+        localStorage.setItem("email", email); // Guarda el email en el LocalStorage
+        localStorage.setItem("password", password); // Guarda la contrasenia en el LocalStorage
     } else {
-        localStorage.removeItem("email");
-        localStorage.removeItem("password");
+        localStorage.removeItem("email"); // Elimina el email del LocalStorage
+        localStorage.removeItem("password"); // Elimina la contrasenia del LocalStorage
     }
 };
 
+// Funcion para solicitud de inicio de sesion
 const loginUser = async (email, password) => {
     try {
-        const response = await fetch("/api/users/loginUser", {
+        const response = await fetch("/api/users/loginUser", { //Hace la solicitud al servidor para iniciar sesion 
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, password }),
         });
 
-        if (!response.ok) throw new Error("Login failed");
+        // Si la respuesta no es exitosa, lanza un error con el mensaje del servidor
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || "Login failed");
+        }
 
         return await response.json();
     } catch (error) {
         console.error("Login request failed:", error);
-        return false;
+        return { error: error.message };
     }
 };
 
+// Funcion para iniciar sesion
 const login = async (e) => {
     e.preventDefault();
 
-    const { email, password, rememberMe } = Object.fromEntries(new FormData(e.target));
+    // Obtiene los valores del formulario
+    const form = e.target;
+    const loginError = document.getElementById("loginError");
+    const email = form.email.value.trim();
+    const password = form.password.value.trim();
+    const rememberMe = form.rememberMe.checked;
 
-    // const email = document.getElementById("email");
-    // const password = document.getElementById("password");
-    // const form = document.getElementById("loginForm");
-    // const loginError = document.getElementById("loginError");
+    // Reiniciar errores
+    form.classList.remove("is-invalid");
+    loginError.style.display = "none";
+    loginError.innerText = ""; // Borra el mensaje de error anterior
 
-    // Reset error states
-    // form.classList.remove("is-invalid");
-    // email.classList.remove("is-invalid");
-    // password.classList.remove("is-invalid");
-    // loginError.style.display = "none";
-
-    // Validate login
-    const response = await loginUser(email, password);
-
-    if (!response) {
-        form.classList.add("is-invalid");
+    // Validaciones antes de enviar la solicitud
+    if (!email || !password) { // Si el email o la contrasenia estan vacios
         loginError.style.display = "block";
+        loginError.innerText = "Please insert email and password";
         return;
     }
 
-    // localStorage.setItem("accessToken", response.accessToken);
-    localStorage.setItem("userEmail", email); // Guardar el email en el localStorage
+    // Llama a la funcion para hacer la solicitud al servidor 
+    const response = await loginUser(email, password);
+
+    // Manejo de errores
+    if (response.error) {
+        loginError.style.display = "block";
+        loginError.innerText = response.error;
+        form.password.value = ""; // Borra la contrasenia 
+        return;
+    }
+
+    // Si el login es exitoso, almacenaa datos y redirige a home
+    localStorage.setItem("userEmail", email); // Guarda el email en el LocalStorage
     handleRememberMe(email, password, rememberMe);
     window.location.href = "/Home/index.html";
 };
 
-// CREO QUE NO SE OCUPA
-const cleanForm = (e) => {
-    // document.getElementById("email").value = "";
-    // document.getElementById("password").value = "";
-    // document.getElementById("rememberMe").checked = false;
-};
 
+
+
+// Validacion del formulario con Bootstrap
 (function () {
     "use strict";
 
