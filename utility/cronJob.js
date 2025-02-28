@@ -1,18 +1,17 @@
-const { API_URL } = require("./environment");
+const { API_URL } = require("./environment"); // Importamos la URL de la API
 
-const insertPostEveryMinute = async () => {
+const insertPostEveryMinute = async () => { //Funcion para insertar publicaciones cada minuto 
     try {
-        console.log("Insertando post cada minuto");
 
-        const [randomPageData, randomTextData] = await Promise.all([
-            fetch(`${API_URL}pages/getRamdomPage`).then((res) => res.json()),
-            fetch(`${API_URL}texts/getRandomText`).then((res) => res.json()),
+        const [randomPageData, randomTextData] = await Promise.all([ //Obtenemos una pagina y un texto aleatorio
+            fetch(`${API_URL}pages/getRamdomPage`).then((res) => res.json()), //Obtenemos una pagina aleatoria
+            fetch(`${API_URL}texts/getRandomText`).then((res) => res.json()), //Obtenemos un texto aleatorio
         ]);
 
-        const response = await fetch(`${API_URL}pages/insertPostInPage/${randomPageData._id}`, {
+        const response = await fetch(`${API_URL}pages/insertPostInPage/${randomPageData._id}`, { //Insertamos la publicacion en la pagina aleatoria
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ content: randomTextData.text }),
+            body: JSON.stringify({ content: randomTextData.text }), //Con el texto aleatorio
         });
 
         console.log(await response.json());

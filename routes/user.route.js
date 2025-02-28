@@ -24,6 +24,7 @@ const {
     getNotifications,
     followPage,
     getUserbyEmail,
+    getUserPosts,
 } = require("../controllers/user.controller");
 
 const createUserRouter = () => {
@@ -52,6 +53,7 @@ const createUserRouter = () => {
     router.get("/getFriendRequests/:email", getFriendRequests);
     router.get("/getRecommendedPosts/:email", getRecommendedPosts);
     router.get("/getFriends/:email", getFriends);
+     router.get("/getUserPosts/:email", getUserPosts);
     router.post("/removeFriend", removeFriend);
     router.put("/blockUser/:email", blockUser);
     router.put("/rejectUser/:email", rejectUser);
