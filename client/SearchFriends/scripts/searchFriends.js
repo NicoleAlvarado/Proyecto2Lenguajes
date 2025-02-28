@@ -63,7 +63,7 @@ const searchFriend = async () => { //Funcion para buscar un amigo(usuario)
 
 //Funcion para enviar solicitud de amistad
 
-const sendFriendRequest = async (receiverEmail) => { //Recibe por parámetro el correo del usuario al que se le va a enviar la solicitud
+const sendFriendRequest = async (receiverEmail) => { //Recibe por parametro el correo del usuario al que se le va a enviar la solicitud
     const senderEmail = localStorage.getItem("userEmail"); //Obtiene el correo del usuario que esta loggeado desde el local storage
 
     if (!senderEmail) { //Si no hay un usuario loggeado
@@ -80,20 +80,22 @@ const sendFriendRequest = async (receiverEmail) => { //Recibe por parámetro el 
 
         const result = await response.json(); //Guarda la respuesta en la variable result
         if (response.ok) { //Si la respuesta es correcta
-            showToast("Solicitud de amistad enviada con éxito.");
+            showToast("Friend request sent successfully"); //Muestra un mensaje de exito
         } else {
-            alert(`Error: ${result.message}`);
+            showToast(result.message || "Error sending friend request", "danger"); //Si la respuesta no es correcta, muestra un mensaje de error
+
         }
     } catch (error) {
-        alert("Error al enviar la solicitud de amistad.");
+        showToast("Error sending friend request", "danger");
     }
 };
 
-const blockUser = async (emailToBlock) => {
-    const userEmail = localStorage.getItem("userEmail");
+//Funcion para bloquear a un usuario
+const blockUser = async (emailToBlock) => { //recibe por parametro el correo del usuario que se va a bloquear
+    const userEmail = localStorage.getItem("userEmail"); //Obtiene el correo del usuario que esta loggeado desde el local storage es decir el usuario que va a bloaquear al otro
 
     try {
-        const response = await fetch(`http://localhost:3000/api/users/blockUser/${userEmail}`, {
+        const response = await fetch(`/api/users/blockUser/${userEmail}`, { //Hace la solicitud al servidor para bloquear al usuario
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -101,41 +103,42 @@ const blockUser = async (emailToBlock) => {
             }),
         });
 
-        const result = await response.json();
-        if (response.ok) {
-            alert("Usuario bloqueado con éxito");
-            // Opcional: eliminar la tarjeta de usuario bloqueado
+        const result = await response.json(); //Guarda la respuesta en la variable result
+        if (response.ok) { //Si la respuesta es correcta 
+            showToast("User blocked successfully"); //Muestra un mensaje de exito
             document.querySelector(`button[onclick="blockUser('${emailToBlock}')"]`).closest(".card").remove();
         } else {
-            alert(result.message || "Error al bloquear el usuario");
+            showToast("Error blocking user", "danger");
+
         }
     } catch (error) {
-        console.error("Error en la solicitud:", error);
-        alert("Error de red o servidor.");
+        showToast("Error blocking user", "danger");
+
     }
 };
 
-const getFriends = async () => {
-    const userEmail = localStorage.getItem("userEmail");
-    const resultContainer = document.getElementById("resultContainer");
+const getFriends = async () => { //Funcion para obtener la lista de amigos
+    const userEmail = localStorage.getItem("userEmail"); //Obtiene el correo del usuario desde el local storage
+    const resultContainer = document.getElementById("resultContainer"); //Obtiene el contenedor donde se van a mostrar los amigos
 
-    if (!userEmail) {
-        resultContainer.innerHTML = `<p class="text-danger">Debe iniciar sesión para ver sus amigos.</p>`;
+    if (!userEmail) { //Si no hay un usuario loggeado
+        resultContainer.innerHTML = `<p class="text-danger">You should log in </p>`; //Envia un mensaje 
         return;
     }
 
     try {
-        const response = await fetch(`/api/users/getFriends/${userEmail}`);
-        if (!response.ok) throw new Error("No se pudieron obtener los amigos.");
+        const response = await fetch(`/api/users/getFriends/${userEmail}`); //Hace la solicitud al servidor para obtener la lista de amigos
+        if (!response.ok) showToast("Error getting friends", "danger"); //Si no se obtiene la lista de amigos, muestra un mensaje de error
 
-        const friends = await response.json();
+        const friends = await response.json(); //Guarda la respuesta en la variable friends
 
-        if (friends.length === 0) {
-            resultContainer.innerHTML = `<p class="text-muted">No tienes amigos agregados.</p>`;
-            return;
+        if (friends.length === 0) { //Si no tiene amigos
+            resultContainer.innerHTML = `<p class="text-muted">You don't have Friends</p>`; //Envia un mensaje de que no hay amigos
+            return; //Detiene la ejecucion de la funcion
         }
+        //Muestra la lista de amigos
 
-        let friendsHTML = `<h3>Lista de Amigos</h3><div class="list-group">`;
+        let friendsHTML = `<h3>Friends</h3><div class="list-group">`;
         friends.forEach((friend) => {
             friendsHTML += `
                 <div class="list-group-item d-flex justify-content-between align-items-center">
@@ -144,7 +147,7 @@ const getFriends = async () => {
                         <strong>@${friend.username}</strong> (${friend.email})
                     </div>
                     <button class="btn btn-danger btn-sm" onclick="removeFriend('${friend.email}')">
-                        Eliminar
+                        Remove Friend
                     </button>
                 </div>
             `;
@@ -157,33 +160,38 @@ const getFriends = async () => {
     }
 };
 
-const removeFriend = async (friendEmail) => {
-    const userEmail = localStorage.getItem("userEmail");
+//Funcion para eliminar a un amigo
 
-    if (!userEmail) {
-        alert("Debe iniciar sesión para eliminar amigos.");
-        return;
+const removeFriend = async (friendEmail) => { //Recibe por parametro el correo del amigo que se va a eliminar
+    const userEmail = localStorage.getItem("userEmail"); //Obtiene el correo del usuario que esta loggeado desde el local storage
+
+    if (!userEmail) { //Si no hay un usuario loggeado
+        showToast("You should log in", "danger"); //Muestra un mensaje de error
+    return; //Detiene la ejecucion de la funcion
     }
 
     try {
-        const response = await fetch("/api/users/removeFriend", {
+        const response = await fetch("/api/users/removeFriend", { //Hace la solicitud al servidor para eliminar al amigo
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ userEmail, friendEmail }),
         });
 
-        const result = await response.json();
-        if (response.ok) {
-            alert("Amigo eliminado con éxito.");
-            getFriends(); // Refrescar la lista
-        } else {
-            alert(`Error: ${result.message}`);
+        const result = await response.json(); //Guarda la respuesta en la variable result
+        if (response.ok) { //Si la respuesta es correcta
+            showToast("Friend removed successfully"); //Muestra un mensaje de exito
+
+            getFriends(); // Refresca la lista
+        } else { //Si la respuesta no es correcta
+            showToast("Error removing friend", "danger"); //Muestra un mensaje de error
+
         }
     } catch (error) {
         alert("Error al eliminar al amigo.");
     }
 };
 
+//Funcion para mostrar un mensaje de notificacion
 
 function showToast(message, type = "success") {
     const toastContainer = document.getElementById("toastContainer");
