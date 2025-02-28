@@ -1,29 +1,24 @@
-const { Router } = require("express");
-const {
-    insertPage,
+const { Router } = require("express"); // Importar el modulo Router de express
+const { // Importar los metodos del controlador page.controller
     addPostToPage,
     insertUserPage,
     updateUserPage,
-    deleteUserPage,
     getUserPages,
     getRecommendedPages,
     getRamdomPage,
 } = require("../controllers/page.controller");
 
-const createPageRouter = () => {
-    const router = Router();
-
-    //agregar una validacion en el middleware para que solo los usuarios logueados puedan acceder a las rutas
-    router.post("/insertPage", insertPage);
+const createPageRouter = () => { //Funcion para crear el router de las rutas de las paginas
+    const router = Router(); //Inicializa el router
+    // Definir las rutas
     router.post("/addPostToPage/:email/:pageId", addPostToPage);
     router.post("/insertUserPage/:email", insertUserPage);
     router.put("/updateUserPage/:email/:pageId", updateUserPage);
-    router.delete("/deleteUserPage/:username/:pageId", deleteUserPage);
     router.get("/getUserPages/:email", getUserPages);
     router.get("/getRecommendedPages/:email", getRecommendedPages);
     router.get("/getRamdomPage", getRamdomPage);
 
-    return router;
+    return router; //Retorna el router
 };
 
-module.exports = { createPageRouter };
+module.exports = { createPageRouter }; //Exporta la funcion createPageRouter

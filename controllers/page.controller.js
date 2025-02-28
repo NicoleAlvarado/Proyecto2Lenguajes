@@ -6,7 +6,13 @@ const Post = require("../models/Post"); // Importar el modelo Post
 const addPostToPage = async (req, res) => { //Metodo para agregar un post a una pagina
     try {
         const { email, pageId } = req.params; //Recibe por parametros el email de quien hace el post en la pagina y el id de la pagina
+        if(!email || !pageId) { //Si no recibe el email o el id de la pagina
+            return res.status(400).json({ message: "Email and pageId are required" }); //Retorna un mensaje de error
+        }
         const { content } = req.body; //Recibe el contenido del post 
+        if (!content) { //Si no recibe el contenido del post
+            return res.status(400).json({ message: "Content is required" }); //Retorna un mensaje de error
+        }
 
         const user = await User.findOne({ email }); //Busca al usuario por email
         if (!user) { //Si no encuentra al usuario
@@ -14,26 +20,32 @@ const addPostToPage = async (req, res) => { //Metodo para agregar un post a una 
         }
 
         const page = user.pages.id(pageId); //busca en las paginas de ese usuario la pagina con el id recibido
-        if (!page) {
-            return res.status(404).json({ message: "Page not found" });
+        if (!page) { //Si no encuentra la pagina
+            return res.status(404).json({ message: "Page not found" }); //Retorna un mensaje de error
         }
 
-        const newPost = new Post({ content });
-        page.posts.push(newPost);
+        const newPost = new Post({ content }); //Crea un nuevo post con el contenido recibido
+        page.posts.push(newPost); //Agrega el post a la pagina de ese usuario
 
-        await user.save();
-        res.status(201).json({ message: "Post añadido correctamente", post: newPost });
+        await user.save(); //Guarda el usuario
+        res.status(201).json({ message: "Post correctly added", post: newPost }); //retorna un mensaje de exito
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
 
-const insertUserPage = async (req, res) => {
+const insertUserPage = async (req, res) => { //Metodo para insertar una pagina a un usuario
     try {
-        const { email } = req.params;
-        const { title, description, phone, pageEmail, address } = req.body;
+        const { email } = req.params; //Recibe el email del usuario por parametros
+        if (!email) { //Si no recibe el email
+            return res.status(400).json({ message: "Email is required" }); //Retorna un mensaje de error
+        }
+        const { title, description, phone, pageEmail, address } = req.body; //Recibe los datos de la pagina en el body
+        if (!title || !description || !phone || !pageEmail || !address) { //Si no recibe alguno de los datos de la pagina
+            return res.status(400).json({ message: "All fields are required" }); //Retorna un mensaje de error
+        }
 
-        const page = new Page({
+        const page = new Page({ //Crea una nueva pagina con los datos recibidos
             title,
             description,
             phone,
@@ -41,21 +53,31 @@ const insertUserPage = async (req, res) => {
             address,
         });
 
-        const user = await User.findOne({ email }).populate("pages");
-        user.pages.push(page);
+        const user = await User.findOne({ email }).populate("pages"); //Busca al usuario por email y trae las paginas que tiene
 
-        res.status(201).json(await user.save());
+        if (!user) { //Si no encuentra al usuario
+            return res.status(404).json({ message: "User not found" }); //Retorna un mensaje de error
+        }
+        user.pages.push(page); //Agrega la pagina al usuario
+
+        res.status(201).json(await user.save()); //Guarda el usuario y retorna un mensaje de exito
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
 
-const updateUserPage = async (req, res) => {
+const updateUserPage = async (req, res) => { //Metedo para actualizar una pagina de un usuario
     try {
-        const { email, pageId } = req.params;
-        const { title, description, phone, email: pageEmail, address } = req.body;
+        const { email, pageId } = req.params; //Recibe el email del usuario y el id de la pagina por parametros
+        if (!email || !pageId) { //Si no recibe el email o el id de la pagina
+            return res.status(400).json({ message: "Email and pageId are required" }); //Retorna un mensaje de error
+        }
+        const { title, description, phone, email: pageEmail, address } = req.body; //Recibe los datos de la pagina en el body
+        if (!title || !description || !phone || !pageEmail || !address) { //Si no recibe alguno de los datos de la pagina
+            return res.status(400).json({ message: "All fields are required" }); //Retorna un mensaje de error
+        }
 
-        const user = await User.findOneAndUpdate(
+        const user = await User.findOneAndUpdate( //Busca al usuario y actualiza la pagina con los datos recibidos
             { email, "pages._id": pageId },
             {
                 $set: {
@@ -66,69 +88,57 @@ const updateUserPage = async (req, res) => {
                     "pages.$.address": address,
                 },
             },
-            { new: true }
+            { new: true } //Retorna la pagina actualizada
         );
 
-        if (!user) {
-            return res.status(404).json({ message: "Usuario o página no encontrada" });
+        if (!user) { //Si no encuentra al usuario
+            return res.status(404).json({ message: "User or page not found" }); //Retorna un mensaje de error
         }
 
-        res.status(200).json(user);
+        res.status(200).json(user); //Retorna el usuario
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
 
 
-const deleteUserPage = async (req, res) => {
+const getUserPages = async (req, res) => { //Metodo para obtener las paginas de un usuario
     try {
-        const { username, pageId } = req.params;
+        const { email } = req.params;
+        if (!email) { //Si no recibe el email
+            return res.status(400).json({ message: "Email is required" }); //Retorna un mensaje de error
+        }
 
-        const user = await User.findOneAndUpdate(
-            { username },
-            { $pull: { pages: { _id: pageId } } },
-            { new: true, runValidators: true }
-        );
+        const user = await User.findOne({ email }, "pages"); //Busca al usuario por email y trae las paginas que tiene
 
-        res.status(200).json(user);
+        if (!user || user.pages.length === 0) { //Si no encuentra al usuario o no tiene paginas
+            return res.status(404).json({ message: "There is not pages available" }); //Retorna un mensaje de error
+        }
+
+        res.status(200).json(user.pages); //Retorna las paginas del usuario
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ message: "Internal server error" });
     }
 };
 
-const getUserPages = async (req, res) => {
+const getRecommendedPages = async (req, res) => { //Metodo para obtener las paginas que un usuario no sigue
     try {
-        const { email } = req.params;
-
-        const user = await User.findOne({ email }, "pages");
-
-        if (!user || user.pages.length === 0) {
-            return res.status(404).json({ message: "No se encontraron páginas para este usuario." });
+        const { email } = req.params; //Recibe el email del usuario por parametros
+        if (!email) { //Si no recibe el email
+            return res.status(400).json({ message: "Email is required" }); //Retorna un mensaje de error
         }
 
-        res.status(200).json(user.pages);
-    } catch (error) {
-        console.error("Error en getUserPages:", error);
-        res.status(500).json({ message: "Error interno del servidor." });
-    }
-};
-
-const getRecommendedPages = async (req, res) => {
-    try {
-        const { email } = req.params;
-
-        // Obtener el usuario y sus páginas seguidas
-        const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(404).json({ message: "Usuario no encontrado." });
+        const user = await User.findOne({ email }); //Busca al usuario por email
+        if (!user) { //Si no encuentra al usuario
+            return res.status(404).json({ message: "User not found" }); //Retorna un mensaje de error
         }
 
-        const followedPages = user.followedPages || []; // Asegurar que sea un array
+        const followedPages = user.followedPages || []; //Obtiene las paginas que sigue el usuario
 
-        // Obtener las páginas que el usuario no sigue
+        // Obtener las paginas que el usuario no sigue
         const pages = await Page.find({ _id: { $nin: followedPages } });
 
-        // Obtener páginas creadas por otros usuarios que el usuario no sigue
+        // Obtener paginas creadas por otros usuarios que el usuario no sigue
         const users = await User.find({
             email: { $ne: email },
             "pages.0": { $exists: true }, // Usuarios que tienen al menos una página
@@ -138,28 +148,26 @@ const getRecommendedPages = async (req, res) => {
             pages.filter((page) => !followedPages.includes(page._id.toString()))
         );
 
-        res.status(200).json([...pages, ...userPages]);
+        res.status(200).json([...pages, ...userPages]); //Retorna las paginas que no sigue el usuario
     } catch (error) {
-        res.status(500).json({ message: "Error interno del servidor." });
+        res.status(500).json({ message: "Internal server error" });
     }
 };
 
 
-const getRamdomPage = async (req, res) => {
+const getRamdomPage = async (req, res) => { //Metodo para obtener una pagina aleatoria
     try {
-        const [randomPage] = await Page.aggregate([{ $sample: { size: 1 } }]);
-        res.status(200).json(randomPage);
+        const [randomPage] = await Page.aggregate([{ $sample: { size: 1 } }]); //Obtiene una pagina aleatoria
+        res.status(200).json(randomPage); //Retorna la pagina
     } catch (error) {
         res.status(404).json({ message: error.message });
     }
 };
 
-module.exports = {
-    insertPage,
+module.exports = { //Exporta los metodos
     addPostToPage,
     insertUserPage,
     updateUserPage,
-    deleteUserPage,
     getUserPages,
     getRecommendedPages,
     getRamdomPage,
