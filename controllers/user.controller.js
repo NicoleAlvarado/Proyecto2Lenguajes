@@ -27,7 +27,7 @@ const createUser = async (req, res) => {
         await addNotification(email, "welcome", message, "status");
 
         // Enviar correo electrónico de bienvenida
-       //await sendEmail(email, "Bienvenido a la plataforma", message, "status");
+        //await sendEmail(email, "Bienvenido a la plataforma", message, "status");
 
         return res.status(201).json(user);
     } catch (error) {
@@ -107,7 +107,7 @@ const likeUserPost = async (req, res) => {
 
         likeIndex === -1 ? post.likes.push(userEmail) : post.likes.splice(likeIndex, 1);
 
-        
+
 
         // sendEmail(likedPostUserEmail, "Notificación de Like", message);
 
@@ -115,7 +115,7 @@ const likeUserPost = async (req, res) => {
         await addNotification(likedPostUserEmail, "like", `A tu publicación le han dado like`, "status");
 
         // Enviar correo electrónico de notificación
-       // sendEmail(likedPostUserEmail, "Notificación de Like", message, "status");
+        // sendEmail(likedPostUserEmail, "Notificación de Like", message, "status");
 
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -606,6 +606,11 @@ const addNotification = async (userEmail, type, message, status) => {
 
         user.notifications.push({ type, message, status });
         await user.save();
+
+        //send email 
+        sendEmail(userEmail, `Notificación de ${type}`, message);
+        console.log("Email sent successfully:", response.status, response.text);
+
     } catch (error) {
         console.error("Error adding notification:", error);
     }
