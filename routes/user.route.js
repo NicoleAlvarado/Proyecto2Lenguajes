@@ -1,4 +1,5 @@
 const { Router } = require("express");
+const authMiddleware = require("../middlewares/authMiddleware");
 const { loginUser, refreshToken, logoutUser } = require("../controllers/login.controller");
 const {
     createUser,
@@ -47,7 +48,7 @@ const createUserRouter = () => {
     router.get("/getUser/:username", getUser);
     router.get("/getUserbyEmail/:email", getUserbyEmail);
     router.get("/login/logout", logoutUser);
-    router.get("/getUsers", getUsers);
+    router.get("/getUsers", authMiddleware, getUsers);
     router.get("/getFriendRequests/:email", getFriendRequests);
     router.get("/getRecommendedPosts/:email", getRecommendedPosts);
     router.get("/getFriends/:email", getFriends);
@@ -56,7 +57,7 @@ const createUserRouter = () => {
     router.put("/rejectUser/:email", rejectUser);
     router.post("/addNotification/:email", addNotification);
     router.get("/getNotifications/:email", getNotifications);
-    router.post("/followPage", followPage);
+    router.post("/followPage", followPage); 
 
     return router;
 };

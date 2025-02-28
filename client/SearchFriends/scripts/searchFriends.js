@@ -1,3 +1,5 @@
+
+
 const searchFriend = async () => { //Funcion para buscar un amigo(usuario)
     const username = document.getElementById("searchInput").value.trim(); //Obtiene el input para saber cuál usuario debe buscar
     const resultContainer = document.getElementById("resultContainer"); //Obtiene el contenedor donde va a mostrar el resultado
@@ -8,7 +10,7 @@ const searchFriend = async () => { //Funcion para buscar un amigo(usuario)
     }
 
     try {
-        const response = await fetch(`/api/users/getUser/${username}`); //Hace la solicitud al servidor 
+        const response = await fetch(`${URLSERVER}/api/users/getUser/${username}`); //Hace la solicitud al servidor 
         if (!response.ok) throw new Error("User not found"); //Si no se encuentra el usuario, muestra un mensaje de error
 
         const user = await response.json(); //Guarda  la respuesta en la variable user
