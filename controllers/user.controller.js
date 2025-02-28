@@ -24,16 +24,19 @@ const createUser = async (req, res) => {
         await user.save();
 
         const message = "Bienvenido a la plataforma!";
-        await addNotification(email, "welcome", message);
+        await addNotification(email, "welcome", message, "status");
 
         // Enviar correo electrónico de bienvenida
-        await sendEmail(email, "Bienvenido a la plataforma", message);
+       //await sendEmail(email, "Bienvenido a la plataforma", message, "status");
 
         return res.status(201).json(user);
     } catch (error) {
         return res.status(500).json(`${error}`);
     }
 };
+
+
+
 
 const addCommentToUserPost = async (req, res) => {
     try {
@@ -46,11 +49,13 @@ const addCommentToUserPost = async (req, res) => {
 
         res.status(200).json(await user.save());
 
-        // // Agregar notificación de comentario
-        // await addNotification(commentPostUserEmail, "comment", `Han comentado en tu publicación`);
+        // Agregar notificación de comentario
+        await addNotification(commentPostUserEmail, "comment", `Han comentado en tu publicación`, "status");
 
-        // // Enviar correo electrónico de notificación
-        // sendEmail(commentPostUserEmail, "Notificación de Comentario", message);
+        // Enviar correo electrónico de notificación
+        //sendEmail(commentPostUserEmail, "Notificación de Comentario", message, "status");
+
+
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -107,7 +112,11 @@ const likeUserPost = async (req, res) => {
         // sendEmail(likedPostUserEmail, "Notificación de Like", message);
 
         res.status(200).json(await user.save());
-        await addNotification(likedPostUserEmail, "like", `A tu publicación le han dado like`);
+        await addNotification(likedPostUserEmail, "like", `A tu publicación le han dado like`, "status");
+
+        // Enviar correo electrónico de notificación
+       // sendEmail(likedPostUserEmail, "Notificación de Like", message, "status");
+
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -299,13 +308,9 @@ const respondFriendRequest = async (req, res) => {
         await sender.save();
 
         // Agregar notificación de aceptación de solicitud de amistad
-        await addNotification(
-            senderEmail,
-            "friend_request_accepted",
-            `Tu solicitud de amistad ha sido aceptada por ${user.username}`
-        );
+        await addNotification(senderEmail, "friend_request_accepted", `Tu solicitud de amistad ha sido aceptada por ${user.username}`, "status");
         // Enviar correo electrónico de notificación
-        sendEmail(senderEmail, "Notificación de Aceptación de Solicitud de Amistad", message);
+        //sendEmail(senderEmail, "Notificación de Aceptación de Solicitud de Amistad", message);
 
         return res.status(200).json({ message: `Friend request ${action}ed successfully` });
     } catch (error) {
@@ -570,21 +575,7 @@ const blockUser = async (req, res) => {
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }
-};
-
-const addNotification = async (userEmail, type, message, status) => {
-    try {
-        const user = await User.findOne({ email: userEmail });
-        if (!user) {
-            throw new Error("User not found");
-        }
-
-        user.notifications.push({ type, message, status });
-        await user.save();
-    } catch (error) {
-        console.error("Error adding notification:", error);
-    }
-};
+}
 
 const getNotifications = async (req, res) => {
     try {
@@ -603,6 +594,24 @@ const getNotifications = async (req, res) => {
         return res.status(500).json({ message: error.message });
     }
 };
+
+
+
+const addNotification = async (userEmail, type, message, status) => {
+    try {
+        const user = await User.findOne({ email: userEmail });
+        if (!user) {
+            throw new Error("User not found");
+        }
+
+        user.notifications.push({ type, message, status });
+        await user.save();
+    } catch (error) {
+        console.error("Error adding notification:", error);
+    }
+};
+
+
 
 // const sendEmail = (to, subject, message) => {
 //     const templateParams = {
