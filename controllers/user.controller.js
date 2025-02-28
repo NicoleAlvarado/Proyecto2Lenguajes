@@ -102,11 +102,12 @@ const likeUserPost = async (req, res) => {
 
         likeIndex === -1 ? post.likes.push(userEmail) : post.likes.splice(likeIndex, 1);
 
-        //await addNotification(likedPostUserEmail, "like", `A tu publicación le han dado like`);
+        
 
         // sendEmail(likedPostUserEmail, "Notificación de Like", message);
 
         res.status(200).json(await user.save());
+        await addNotification(likedPostUserEmail, "like", `A tu publicación le han dado like`);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -199,8 +200,20 @@ const updateUser = async (req, res) => {
 
 const getUser = async (req, res) => {
     try {
+        const { username } = req.params;
+        if (!username) return res.status(204).json("Username is required");
+        const user = await User.findOne({ username });
+        if (!user) return res.status(400).json("User not found");
+        return res.status(200).json(user);
+    } catch (error) {
+        return res.status(404).json(error.message);
+    }
+};
+
+const getUserbyEmail = async (req, res) => {
+    try {
         const { email } = req.params;
-        if (!email) return res.status(204).json("Username is required");
+        if (!email) return res.status(204).json("Email is required");
         const user = await User.findOne({ email });
         if (!user) return res.status(400).json("User not found");
         return res.status(200).json(user);
@@ -628,4 +641,5 @@ module.exports = {
     followPage,
     addNotification,
     getNotifications,
+    getUserbyEmail,
 };

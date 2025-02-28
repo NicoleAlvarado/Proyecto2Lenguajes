@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     
     try {
         // Solicitar los datos del usuario
-        const response = await fetch(`http://localhost:3000/api/users/getUser/${emailStorage}`);
+        const response = await fetch(`/api/users/getUserbyEmail/${emailStorage}`);
         const userData = await response.json();
 
         if (response.ok) {
