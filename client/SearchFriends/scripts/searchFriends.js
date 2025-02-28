@@ -16,40 +16,47 @@ const searchFriend = async () => { //Funcion para buscar un amigo(usuario)
         // Obtener el correo del usuario en sesion desde el localStorage
         const currentUserEmail = localStorage.getItem("userEmail");
 
-        // Verificar si el usuario actual esta bloqueado
+        // Obtener los detalles del usuario actual
+        const currentUserResponse = await fetch(`/api/users/getUserByEmail/${currentUserEmail}`);
+        if (!currentUserResponse.ok) throw new Error("Current user not found");
+        const currentUser = await currentUserResponse.json();
+
+        // Verificar si el usuario actual está bloqueado por el usuario buscado
         if (user.Usersblocked.includes(currentUserEmail)) {
-            resultContainer.innerHTML = `<p class="text-danger">You can not see this user</p>`; //Si el usuario esta bloqueado, muestra un mensaje de error
+            resultContainer.innerHTML = `<p class="text-danger">You cannot see this user</p>`; //Si el usuario está bloqueado, muestra un mensaje de error
             return;
         }
 
         let friendRequestButton = "";
         let blockUserButton = "";
-        if (currentUserEmail && currentUserEmail !== user.email) { //En caso de que el usuario que esta loggeado no sea el mismo que el usuario que se esta buscando
+        if (currentUserEmail && currentUserEmail !== user.email) { //En caso de que el usuario que está loggeado no sea el mismo que el usuario que se está buscando
             // Verifica si el usuario actual ha sido rechazado
             if (!user.rejectedUsers.includes(currentUserEmail)) { //Si el usuario no ha sido rechazado
-                //Muestra el boton para enviar solicitud de amistad
+                //Muestra el botón para enviar solicitud de amistad
                 friendRequestButton = `
                     <button class="btn btn-success mt-2" onclick="sendFriendRequest('${user.email}')"> 
-                        Sen Friend Request
+                        Send Friend Request
                     </button>
                 `;
             }
-            //Muestra el boton para bloquear al usuario
-            blockUserButton = `
-                <button class="btn btn-secondary mt-2" onclick="blockUser('${user.email}')">
-                    Bloquear Usuario
-                </button>
-            `;
+            // Verificar si el usuario buscado ya está bloqueado por el usuario actual
+            if (!currentUser.Usersblocked.includes(user.email)) {
+                //Muestra el botón para bloquear al usuario
+                blockUserButton = `
+                    <button class="btn btn-secondary mt-2" onclick="blockUser('${user.email}')">
+                        Block User
+                    </button>
+                `;
+            }
         }
 
-        //Muestra la informacion del usuario buscado
-
+        //Muestra la información del usuario buscado
         resultContainer.innerHTML = `
             <div class="card mx-auto" style="width: 18rem;">
                 <img src="/CreateUser/avatars/${user.avatar}" class="card-img-top" alt="Avatar">
                 <div class="card-body">
                     <h5 class="card-title">@${user.username}</h5>
-                    <p class="card-text">${user.bio || "Sin biografía"}</p>
+                    <p class="card-text">${user.bio || "No bio"}</p>
                     <p class="text-muted">${user.email}</p>
                     ${friendRequestButton}
                     ${blockUserButton}
