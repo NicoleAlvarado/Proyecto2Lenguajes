@@ -102,8 +102,6 @@ const likeUserPost = async (req, res) => {
 
         likeIndex === -1 ? post.likes.push(userEmail) : post.likes.splice(likeIndex, 1);
 
-        
-
         // sendEmail(likedPostUserEmail, "Notificación de Like", message);
 
         res.status(200).json(await user.save());
@@ -299,13 +297,13 @@ const respondFriendRequest = async (req, res) => {
         await sender.save();
 
         // Agregar notificación de aceptación de solicitud de amistad
-        await addNotification(
-            senderEmail,
-            "friend_request_accepted",
-            `Tu solicitud de amistad ha sido aceptada por ${user.username}`
-        );
+        // await addNotification(
+        //     senderEmail,
+        //     "friend_request_accepted",
+        //     `Tu solicitud de amistad ha sido aceptada por ${user.username}`
+        // );
         // Enviar correo electrónico de notificación
-        sendEmail(senderEmail, "Notificación de Aceptación de Solicitud de Amistad", message);
+        // sendEmail(senderEmail, "Notificación de Aceptación de Solicitud de Amistad", message);
 
         return res.status(200).json({ message: `Friend request ${action}ed successfully` });
     } catch (error) {
@@ -427,25 +425,16 @@ const getRecommendedPosts = async (req, res) => {
 const getFriends = async (req, res) => {
     try {
         const { email } = req.params;
-        if (!email) {
-            return res.status(400).json({ message: "User email is required" });
-        }
+
+        if (!email) return res.status(400).json({ message: "User email is required" });
 
         const user = await User.findOne({ email });
+        
+        if (!user) return res.status(404).json({ message: "User not found" });
 
-        if (!user) {
-            return res.status(404).json({ message: "User not found" });
-        }
+        const friends = await User.find({ email: { $in: user.friends } }, { email: 1, username: 1, avatar: 1, _id: 0 });
 
-        // Obtener información de los amigos (nombre, avatar, email)
-        const friendsList = await Promise.all(
-            user.friends.map(async (friendEmail) => {
-                const friend = await User.findOne({ email: friendEmail });
-                return friend ? { email: friend.email, username: friend.username, avatar: friend.avatar } : null;
-            })
-        );
-
-        return res.status(200).json(friendsList.filter((friend) => friend !== null));
+        return res.status(200).json(friends);
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }
@@ -503,7 +492,7 @@ const followPage = async (req, res) => {
         }
 
         // Verificar si el usuario ya sigue la página
-        if (user.followedPages.some(id => id.equals(pageId))) {
+        if (user.followedPages.some((id) => id.equals(pageId))) {
             return res.status(400).json({ message: "Ya sigues esta página." });
         }
 
@@ -513,14 +502,13 @@ const followPage = async (req, res) => {
 
         return res.status(200).json({
             message: "Página seguida con éxito.",
-            followedPages: user.followedPages
+            followedPages: user.followedPages,
         });
     } catch (error) {
         console.error("Error en followPage:", error);
         return res.status(500).json({ message: "Error interno del servidor." });
     }
 };
-
 
 const rejectUser = async (req, res) => {
     try {

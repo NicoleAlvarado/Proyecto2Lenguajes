@@ -20,9 +20,9 @@ const UserSchema = new Schema({
     posts: [Post.schema],
     friends: [{ type: String }], // Lista de usernames de *Email* de amigos
     friendRequests: [{ type: String }], // Lista de usernames de solicitudes pendientes
-   followedPages: [{ type: mongoose.Schema.Types.ObjectId, ref: "Page" }],
- // GUARDAR EL ID DE LA PAGINAS, CUANDO SE LE DA A SEGUIR (FELIPE)
-    Usersblocked: [{ type: String }],  // Lista de emails de usuarios bloqueados
+    followedPages: [{ type: mongoose.Schema.Types.ObjectId, ref: "Page" }],
+    // GUARDAR EL ID DE LA PAGINAS, CUANDO SE LE DA A SEGUIR (FELIPE)
+    Usersblocked: [{ type: String }], // Lista de emails de usuarios bloqueados
     rejectedUsers: [{ type: String }], // Lista de emails de usuarios rechazados
     notifications: [NotificationSchema], // Lista de notificaciones
 });

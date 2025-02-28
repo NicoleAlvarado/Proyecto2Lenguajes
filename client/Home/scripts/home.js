@@ -6,8 +6,11 @@ const modalFooter = modal.querySelector("#modal-footer");
 
 const getInicialPosts = async () => {
     try {
-        const response = await fetch(`/api/users/getRecommendedPosts/${userEmail}`);
-        const posts = await response.json();
+        const postResponse = await fetch(`/api/users/getRecommendedPosts/${userEmail}`);
+        const posts = await postResponse.json();
+
+        const userResponse = await fetch(`/api/users/getFriends/${userEmail}`);
+        const userFriends = await userResponse.json();
 
         const postsContainer = document.getElementById("posts-container");
         postsContainer.innerHTML = "";
@@ -46,7 +49,7 @@ const getInicialPosts = async () => {
             const commentsButton = createOptionPostBtn(
                 ["btn", "btn-outline-info", "btn-sm"],
                 '<i class="bi bi-chat-left-text"></i> Ver Comentarios',
-                () => showComments(comments, isPage, email, pageId, postId)
+                () => showComments(comments, isPage, email, pageId, postId, userFriends)
             );
 
             commentsButton.setAttribute("data-bs-toggle", "modal");
@@ -154,9 +157,12 @@ const renderCommentCard = (comments) => `
     </div>
 `;
 
-const renderCommentFooter = (isPage, email, pageId, postId, comments) => {
+const renderCommentFooter = async (isPage, email, pageId, postId, comments, userFriends) => {
     modalFooter.innerHTML = "";
     modalFooter.classList.remove("d-none");
+
+    const dropdown = document.createElement("div");
+    dropdown.className = "btn-group dropup";
 
     const commentForm = document.createElement("form");
     commentForm.className = "d-flex flex-column gap-2 w-100";
@@ -171,10 +177,12 @@ const renderCommentFooter = (isPage, email, pageId, postId, comments) => {
     });
 
     const textarea = document.createElement("textarea");
+    textarea.id = "comment";
     textarea.className = "form-control";
     textarea.placeholder = "Escribe un comentario...";
     textarea.rows = "2";
     textarea.required = true;
+    textarea.oninput = (e) => tagFriends(e, dropdown, userFriends);
 
     const submitButton = createOptionPostBtn(
         ["btn", "btn-primary", "w-100"],
@@ -185,7 +193,50 @@ const renderCommentFooter = (isPage, email, pageId, postId, comments) => {
 
     commentForm.appendChild(textarea);
     commentForm.appendChild(submitButton);
+    modalFooter.appendChild(dropdown);
     modalFooter.appendChild(commentForm);
+};
+
+const tagFriends = async (e, dropdown, userFriends) => {
+    const textarea = e.target;
+    const lastChar = textarea.value.slice(-1);
+
+    if (lastChar !== "@") return;
+
+    userFriends.length > 0
+        ? createFriendsDropdown(dropdown, userFriends)
+        : (dropdown.innerHTML = `<li class="dropdown-item">No tienes amigos</li>`);
+};
+
+const insertUsernameInTextArea = (username) => {
+    const textarea = modalFooter.querySelector("#comment");
+    textarea.value += `[${username}]`;
+    textarea.focus();
+};
+
+const createFriendsDropdown = (dropdown, userFriends) => {
+    dropdown.innerHTML = `
+        <button id="friends-dropdown-btn" type="button" class="btn btn-sm opacity-0 p-0" data-bs-toggle="dropdown" aria-expanded="false"></button>
+        <ul class="dropdown-menu">
+            ${userFriends
+                .map(
+                    ({ username, avatar }) => `
+                        <li>
+                            <button type="button" class="dropdown-item d-flex align-items-center gap-2 py-2" onclick="insertUsernameInTextArea('${username}')">
+                                <img src="/CreateUser/avatars/${avatar}" 
+                                    alt="${username}'s avatar" 
+                                    class="rounded-circle"
+                                    style="width: 24px; height: 24px;">
+                                <span>${username}</span>
+                            </button>
+                        </li>
+                   `
+                )
+                .join("")}
+        </ul>
+    `;
+
+    dropdown.querySelector("#friends-dropdown-btn").click();
 };
 
 const likePost = async (e, pageId, postId, isPage, likedPostUserEmail, likes) => {
@@ -247,10 +298,10 @@ const showLikes = (likes) => {
     modalFooter.classList.add("d-none");
 };
 
-const showComments = (comments, isPage, email, pageId, postId) => {
+const showComments = (comments, isPage, email, pageId, postId, userFriends) => {
     modalHeaderTitle.textContent = "Comentarios";
     modalBody.innerHTML = renderCommentCard(comments);
-    renderCommentFooter(isPage, email, pageId, postId, comments);
+    renderCommentFooter(isPage, email, pageId, postId, comments, userFriends);
 };
 
 const followPage = async (pageId) => {
