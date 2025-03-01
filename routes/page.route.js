@@ -6,7 +6,8 @@ const { // Importar los metodos del controlador page.controller
     getUserPages,
     getRecommendedPages,
     getRamdomPage,
-    getPagePosts
+    getPagePosts, 
+    insertPostInPage,
 } = require("../controllers/page.controller");
 
 
@@ -15,6 +16,7 @@ const createPageRouter = () => { //Funcion para crear el router de las rutas de 
     const router = Router(); //Inicializa el router
     // Definir las rutas
     router.post("/addPostToPage/:email/:pageId", addPostToPage);
+    router.post("/insertPostInPage/:pageId", insertPostInPage);
     router.post("/insertUserPage/:email", insertUserPage);
     router.put("/updateUserPage/:email/:pageId", updateUserPage);
     router.get("/getUserPages/:email", getUserPages);
