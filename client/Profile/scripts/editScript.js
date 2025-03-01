@@ -1,11 +1,11 @@
 
 
-document.addEventListener("DOMContentLoaded", async function () {
+document.addEventListener("DOMContentLoaded", async function () { //Funcion para cargar los datos del usuario que quiere editar
     const emailStorage = localStorage.getItem("userEmail");
     
     try {
         // Solicitar los datos del usuario
-        const response = await fetch(`/api/users/getUserbyEmail/${emailStorage}`);
+        const response = await fetch(`${URLSERVER}/api/users/getUserbyEmail/${emailStorage}`);
         const userData = await response.json();
 
         if (response.ok) {

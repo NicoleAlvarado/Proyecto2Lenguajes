@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 const authMiddleware = (req, res, next) => {
     // Se obtiene el token de la cabecera 'Authorization' de la solicitud HTTP. Se espera que el token este en el formato 'Bearer <token>'.
     // Si la cabecera no existe, 'token' sera undefined.
-    const token = req.header("Authorization")?.replace("Bearer ", "");
+    const token = req.header("Authorization")?.replace("Bearer", "");
 
     // Si no se encuentra un token, se responde con un codigo de estado 401 (No autorizado) y un mensaje de error
     if (!token) {
