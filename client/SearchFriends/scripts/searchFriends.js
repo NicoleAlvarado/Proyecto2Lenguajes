@@ -19,7 +19,7 @@ const searchFriend = async () => { //Funcion para buscar un amigo(usuario)
         const currentUserEmail = localStorage.getItem("userEmail");
 
         // Obtener los detalles del usuario actual
-        const currentUserResponse = await fetch(`/api/users/getUserByEmail/${currentUserEmail}`);
+        const currentUserResponse = await fetch(`${URLSERVER}/api/users/getUserByEmail/${currentUserEmail}`);
         if (!currentUserResponse.ok) throw new Error("Current user not found");
         const currentUser = await currentUserResponse.json();
 

@@ -1,9 +1,9 @@
-// Función para crear un post
+// Funcion para crear un post
 const createPost = async (event) => {
     event.preventDefault();
 
-    const content = document.getElementById("content").value;
-    const userEmail = localStorage.getItem("userEmail");
+    const content = document.getElementById("content").value; //Obtiene el contenido del Post 
+    const userEmail = localStorage.getItem("userEmail"); //Obtiene la informacion del usuario 
 
     if (!content) {
         showToast("Please enter a post content.", "danger");
@@ -11,7 +11,7 @@ const createPost = async (event) => {
     }
 
     try {
-        const response = await fetch(`/api/users/insertUserPost/${userEmail}`, {
+        const response = await fetch(`${URLSERVER}/api/users/insertUserPost/${userEmail}`, { //Hace la solicitud al servidor para subir un post
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -22,7 +22,6 @@ const createPost = async (event) => {
         if (response.ok) {
             showToast("Post created successfully!");
             document.getElementById("content").value = ""; // Limpiar el campo de texto
-            window.location.href = "/Home/index.html";
         } else {
             const error = await response.json();
             alert(`Error: ${error.message}`);
@@ -32,26 +31,26 @@ const createPost = async (event) => {
     }
 };
 
-// Función para obtener y mostrar las publicaciones del usuario
+// Funcion para obtener y mostrar las publicaciones del usuario
 const loadUserPosts = async () => {
-    const userEmail = localStorage.getItem("userEmail");
+    const userEmail = localStorage.getItem("userEmail"); //Obtiene el email del usuario del local storage 
 
     try {
-        const response = await fetch(`/api/users/getUserPosts/${userEmail}`);
+        const response = await fetch(`${URLSERVER}/api/users/getUserPosts/${userEmail}`); //Hace la solicitud al servidor para obtener los posts
         if (!response.ok) {
             throw new Error("Error fetching posts");
         }
 
-        const posts = await response.json();
-        const postsList = document.getElementById("postsList");
+        const posts = await response.json(); //Guarda los posts 
+        const postsList = document.getElementById("postsList"); //Obtiene la lista de posts 
         postsList.innerHTML = ""; // Limpiar la lista antes de agregar nuevas publicaciones
 
-        if (posts.length === 0) {
-            postsList.innerHTML = "<li class='list-group-item text-muted'>No tienes publicaciones aún.</li>";
+        if (posts.length === 0) { //Si no hay posts del usuario aun 
+            postsList.innerHTML = "<li class='list-group-item text-muted'>You have no posts yet</li>";
             return;
         }
 
-        posts.forEach((post) => {
+        posts.forEach((post) => { //Agrega cada post 
             const listItem = document.createElement("li");
             listItem.classList.add("list-group-item");
             listItem.textContent = post.content;
@@ -62,7 +61,7 @@ const loadUserPosts = async () => {
     }
 };
 
-// Función para mostrar un mensaje de notificación
+// Funcion para mostrar un mensaje de notificacion
 function showToast(message, type = "success") {
     const toastContainer = document.getElementById("toastContainer");
 
