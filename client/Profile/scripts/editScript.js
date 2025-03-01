@@ -72,11 +72,11 @@ document.getElementById("editProfileForm").addEventListener("submit", async func
             localStorage.setItem("userEmail", email); // Actualizar el email en el localStorage en caso de que haya cambiado
             showToast("Profile Updated"); 
         } else {
-            alert("Error updating profile " + (result.message || "Unknown error "));
+            showToast("Error datos no aceptados ", "danger");
         }
     } catch (error) {
         
-        alert("Server error");
+        showToast("Server error", "danger");
     }
 });
 
