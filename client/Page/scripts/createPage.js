@@ -48,12 +48,12 @@ document.getElementById("createPageForm").addEventListener("submit", async funct
     }
 });
 
-document.addEventListener("DOMContentLoaded", async () => { //Funcion para obtener las paginas del usuario
-    const userEmail = localStorage.getItem("userEmail"); //Obtener el email del usuario desde el localStorage
+document.addEventListener("DOMContentLoaded", async () => {
+    const userEmail = localStorage.getItem("userEmail");
 
-    if (!userEmail) { //Si no hay un usuario logueado
-        console.error("There is not user logged in."); //Se muestra un mensaje de error
-        return; //Se detiene la ejecucion de la funcion
+    if (!userEmail) {
+        console.error("There is no user logged in.");
+        return;
     }
 
     try {
@@ -70,7 +70,6 @@ document.addEventListener("DOMContentLoaded", async () => { //Funcion para obten
     }
 });
 
-// Función para renderizar las páginas del usuario
 const renderUserPages = (pages) => {
     const pagesList = document.getElementById("userPagesList");
 
@@ -108,6 +107,11 @@ const renderUserPages = (pages) => {
                         data-page-id="${page._id}">
                         <i class="bi bi-plus-circle"></i> Añadir Post
                     </button>
+                    <button class="btn btn-secondary btn-sm view-posts-btn" 
+                        data-bs-toggle="modal" data-bs-target="#viewPostsModal"
+                        data-page-id="${page._id}">
+                        <i class="bi bi-eye"></i> Ver Post
+                    </button>
                 </div>
             </div>
         `
@@ -118,7 +122,7 @@ const renderUserPages = (pages) => {
     document.querySelectorAll(".add-post-btn").forEach((button) => {
         button.addEventListener("click", (event) => {
             const pageId = event.target.closest("button").getAttribute("data-page-id");
-            openPostModal(pageId);
+            // Eliminar la llamada a openPostModal
         });
     });
 
@@ -129,16 +133,21 @@ const renderUserPages = (pages) => {
             loadPageDataToModal(btn);
         });
     });
+
+    // Agregar eventos a los botones "Ver Post"
+    document.querySelectorAll(".view-posts-btn").forEach((button) => {
+        button.addEventListener("click", async function () {
+            const pageId = this.getAttribute("data-page-id");
+            await loadPagePosts(pageId);
+        });
+    });
 };
 
-
 const loadPageDataToModal = (btn) => {
-    // Obtener el ID de la página directamente del botón
     const pageId = btn.getAttribute("data-page-id");
 
-    // Asignar el ID al formulario
     const editForm = document.getElementById("editPageForm");
-    editForm.setAttribute("data-page-id", pageId); // Guardar el ID en el formulario
+    editForm.setAttribute("data-page-id", pageId);
 
     document.getElementById("editTitle").value = btn.dataset.title;
     document.getElementById("editDescription").value = btn.dataset.description;
@@ -147,15 +156,11 @@ const loadPageDataToModal = (btn) => {
     document.getElementById("editAddress").value = btn.dataset.address;
 };
 
-
-
-
 document.getElementById("editPageForm").addEventListener("submit", async function (event) {
     event.preventDefault();
 
-    // Obtener el ID de la página desde el formulario
     const form = event.target;
-    const pageId = form.getAttribute("data-page-id"); // Ahora lo obtenemos desde el formulario
+    const pageId = form.getAttribute("data-page-id");
 
     if (!pageId) {
         alert("Error: No se pudo obtener el ID de la página.");
@@ -187,7 +192,6 @@ document.getElementById("editPageForm").addEventListener("submit", async functio
         form.reset();
         bootstrap.Modal.getInstance(document.getElementById("editPageModal")).hide();
 
-        // Recargar la lista de páginas
         const res = await fetch(`/api/pages/getUserPages/${userEmail}`);
         const pages = await res.json();
         renderUserPages(pages);
@@ -223,7 +227,6 @@ document.getElementById("addPostForm").addEventListener("submit", async function
             alert("Post añadido correctamente");
             bootstrap.Modal.getInstance(document.getElementById("addPostModal")).hide();
 
-            // Recargar la lista de páginas
             const res = await fetch(`/api/pages/getUserPages/${userEmail}`);
             const pages = await res.json();
             renderUserPages(pages);
@@ -235,6 +238,33 @@ document.getElementById("addPostForm").addEventListener("submit", async function
         alert("Hubo un error al añadir el post");
     }
 });
+async function loadPagePosts(pageId) {
+    const userEmail = localStorage.getItem("userEmail"); // Obtener el email del usuario desde el localStorage
+    try {
+        const response = await fetch(`/api/pages/getPagePosts/${userEmail}/${pageId}`);
+        if (!response.ok) {
+            throw new Error("Error fetching posts");
+        }
+
+        const posts = await response.json();
+        const postsList = document.getElementById("pagePostsList");
+        postsList.innerHTML = ""; // Limpiar la lista antes de agregar nuevas publicaciones
+
+        if (posts.length === 0) {
+            postsList.innerHTML = "<li class='list-group-item text-muted'>No posts available.</li>";
+            return;
+        }
+
+        posts.forEach((post) => {
+            const listItem = document.createElement("li");
+            listItem.classList.add("list-group-item");
+            listItem.textContent = post.content;
+            postsList.appendChild(listItem);
+        });
+    } catch (error) {
+        alert("Error loading posts.");
+    }
+}
 
 function showToast(message, type = "success") {
     const toastContainer = document.getElementById("toastContainer");
@@ -263,4 +293,3 @@ function showToast(message, type = "success") {
         setTimeout(() => toastElement.remove(), 500);
     }, 3000);
 }
-

@@ -21,6 +21,7 @@ const createPost = async (event) => {
 
         if (response.ok) {
             showToast("Post created successfully!");
+            document.getElementById("content").value = ""; // Limpiar el campo de texto
             window.location.href = "/Home/index.html";
         } else {
             const error = await response.json();

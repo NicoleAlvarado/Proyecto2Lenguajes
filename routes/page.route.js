@@ -6,7 +6,10 @@ const { // Importar los metodos del controlador page.controller
     getUserPages,
     getRecommendedPages,
     getRamdomPage,
+    getPagePosts
 } = require("../controllers/page.controller");
+
+
 
 const createPageRouter = () => { //Funcion para crear el router de las rutas de las paginas
     const router = Router(); //Inicializa el router
@@ -17,6 +20,8 @@ const createPageRouter = () => { //Funcion para crear el router de las rutas de 
     router.get("/getUserPages/:email", getUserPages);
     router.get("/getRecommendedPages/:email", getRecommendedPages);
     router.get("/getRamdomPage", getRamdomPage);
+    router.get("/getPagePosts/:email/:pageId", getPagePosts); 
+
 
     return router; //Retorna el router
 };

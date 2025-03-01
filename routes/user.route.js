@@ -35,7 +35,7 @@ const createUserRouter = () => {
     router.post("/addCommentToPagePost/:pageId/:postId", addCommentToPagePost);
     router.post("/insertUserPost/:email", insertUserPost);
     router.post("/likeUserPost/:likedPostUserEmail/:postId", likeUserPost);
-    router.post("/likePagePost/:pageId/:postId", likePagePost);
+    router.post("/likePagePost/:pageId/:postId",  likePagePost);//
     router.post("/loginUser", loginUser);
     router.post("/refreshToken", refreshToken);
     router.post("/followPage", followPage);
@@ -49,7 +49,7 @@ const createUserRouter = () => {
     router.get("/getUser/:username", getUser);
     router.get("/getUserbyEmail/:email", getUserbyEmail);
     router.get("/login/logout", logoutUser);
-    router.get("/getUsers", authMiddleware, getUsers);
+    router.get("/getUsers", getUsers);
     router.get("/getFriendRequests/:email", getFriendRequests);
     router.get("/getRecommendedPosts/:email", getRecommendedPosts);
     router.get("/getFriends/:email", getFriends);

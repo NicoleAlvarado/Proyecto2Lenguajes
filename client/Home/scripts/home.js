@@ -250,7 +250,7 @@ const likePost = async (e, pageId, postId, isPage, likedPostUserEmail, likes) =>
 
         const response = await fetch(endpoint, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json" }, 
             body: JSON.stringify({ userEmail }),
         });
 
