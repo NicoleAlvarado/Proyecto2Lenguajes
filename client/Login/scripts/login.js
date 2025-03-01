@@ -10,7 +10,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
 // Funcion para manejar el "Recordar usuario"
 const handleRememberMe = (email, password, rememberMe) => {
-    if (rememberMe === "on") { // Si el checkbox está marcado
+    if (rememberMe === "on") { // Si el checkbox esta marcado
         localStorage.setItem("email", email); // Guarda el email en el LocalStorage
         localStorage.setItem("password", password); // Guarda la contrasenia en el LocalStorage
     } else {
@@ -22,7 +22,8 @@ const handleRememberMe = (email, password, rememberMe) => {
 // Funcion para solicitud de inicio de sesion
 const loginUser = async (email, password) => {
     try {
-        const response = await fetch("/api/users/loginUser", { //Hace la solicitud al servidor para iniciar sesion 
+        const response = await fetch(`${URLSERVER}/api/users/loginUser`, {
+            //Hace la solicitud al servidor para iniciar sesion
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, password }),
