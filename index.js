@@ -13,7 +13,9 @@ getConnection(); //Se llama a la funcion getConnection para conectarse con la ba
 
 const app = express(); //Se crea el servidor
 app.use(express.json()); //Se habilita el uso de JSON
-app.use(cors()); //Se habilita el uso de cors
+//app.use(cors()); //Se habilita el uso de cors
+app.use(cors({ origin: "*" })); // Permite cualquier origen
+
 app.use(cookieParser()); //Se habilita el uso de cookie-parser
 app.use(sessionMiddleware); //Se habilita el uso de sessionMiddleware
 app.disable("x-powered-by"); //Se deshabilita la cabecera x-powered-by que viene por defecto en express
@@ -24,4 +26,6 @@ app.get("/", (_, res) => res.sendFile(path.join(__dirname, "client", "Login/inde
  
 // cron.schedule("* * * * *", insertPostEveryMinute); //Se programa la tarea de insertar un post cada minuto
 
-app.listen(PORT || 5000, () => console.log(`Servidor corriendo en el puerto ${PORT || 5000}`)); //Se levanta el servidor en el puerto 5000 o en el puerto que se haya configurado en el archivo environment
+app.listen(PORT || 5000, '0.0.0.0', () => {
+    console.log(`Servidor corriendo en http://0.0.0.0:${PORT || 5000}`);
+});
