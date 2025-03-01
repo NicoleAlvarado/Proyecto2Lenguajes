@@ -322,6 +322,8 @@ const sendFriendRequest = async (req, res) => {
         // Agregar la solicitud de amistad
         receiver.friendRequests.push(sender.email);
         await receiver.save();
+        sendEmail(receiverEmail, "Friend Request", `${sender.username} sent you a friend request`); //Envia un correo al usuario que recibe la solicitud
+        sendEmail(senderEmail, "Friend Request", `You sent a friend request to ${receiver.username}`); //Envia un correo al usuario que envia la solicitud
 
         return res.status(200).json({ message: "Friend request sent successfully" });
     } catch (error) {
@@ -683,7 +685,7 @@ const addNotification = async (userEmail, type, message, status) => {
         await user.save();
 
         //send email
-        sendEmail(userEmail, `Notification of ${type}`, message); //Envia el correo
+        sendEmail(userEmail, `Notification of ${type}`, message); //Envia el correo 
     } catch (error) {
         console.error("Error adding notification:", error);
     }
