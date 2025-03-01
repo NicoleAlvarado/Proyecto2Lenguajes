@@ -22,6 +22,6 @@ app.use("/api", createAPIRouter()); //Se habilita el uso de la ruta /api
 app.use(express.static(path.join(__dirname, "client"))); //Se habilita el uso de la carpeta client
 app.get("/", (_, res) => res.sendFile(path.join(__dirname, "client", "Login/index.html"))); //Se habilita la ruta / y se envía el archivo index.html
  
-// cron.schedule("* * * * *", insertPostEveryMinute); //Se programa la tarea de insertar un post cada minuto
+ cron.schedule("* * * * *", insertPostEveryMinute); //Se programa la tarea de insertar un post cada minuto
 
 app.listen(PORT || 5000, () => console.log(`Servidor corriendo en el puerto ${PORT || 5000}`)); //Se levanta el servidor en el puerto 5000 o en el puerto que se haya configurado en el archivo environment
