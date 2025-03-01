@@ -90,7 +90,7 @@ function cleanMessages() {
 
 async function requestRegistUser(user) {
     try {
-        const response = await fetch("/api/users/createUser", {
+        const response = await fetch(`${URLSERVER}/api/users/createUser`, {
             // Ruta correcta
             method: "POST",
             headers: {
@@ -109,7 +109,6 @@ async function requestRegistUser(user) {
 
         return true; // Retorna true en caso de que el usuario se haya creado correctamente
     } catch (error) {
-        console.error("Error:", error); // Para depuración
         document.getElementById("errorMessage").textContent = "Network error. Please try again later.";
         return false;
     }
