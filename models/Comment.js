@@ -1,16 +1,16 @@
-const mongoose = require("mongoose");
-const { Schema, model } = mongoose;
+const mongoose = require("mongoose"); //Se exporta mongoose 
+const { Schema, model } = mongoose; // se exporta el Schema de mongoose 
 
-const CommentSchema = new Schema({
-    userEmail: {
+const CommentSchema = new Schema({ //Esquema para los comentarios 
+    userEmail: { //Tiene el email del usuario que hace el comentario 
         type: String,
         required: true,
     },
-    comment: {
+    comment: { //Tiene el comentario 
         type: String,
         required: true,
     },
-    date: {
+    date: { //Tiene la fecha 
         type: Date,
         default: Date.now,
     },

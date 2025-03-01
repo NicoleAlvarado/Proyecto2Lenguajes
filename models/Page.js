@@ -1,29 +1,29 @@
-const mongoose = require("mongoose");
-const { Schema, model } = mongoose;
-const Post = require("./Post");
+const mongoose = require("mongoose"); //Exporta mongoose 
+const { Schema, model } = mongoose; //exporta el schema de mongoose 
+const Post = require("./Post"); //Exporta el schema de posts 
 
-const PageSchema = new Schema({
-    title: {
+const PageSchema = new Schema({ //Crea un esquema para las paginas 
+    title: { // La pagina tiene un titulo
         type: String,
         required: true,
     },
-    description: {
+    description: { //Una descripcion 
         type: String,
         required: true,
     },
-    phone: {
+    phone: { //Un telefono 
         type: String,
         required: true,
     },
-    email: {
+    email: { //un email propio de la pagina 
         type: String,
         required: true,
     },
-    address: {
+    address: { //una direccion 
         type: String,
         required: true,
     },
-    posts: [Post.schema],
+    posts: [Post.schema], //y tiene un arreglo de posts 
 });
 
 PageSchema.index({ title: 1 }, { unique: true });

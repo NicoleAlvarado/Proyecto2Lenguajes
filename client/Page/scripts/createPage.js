@@ -25,7 +25,8 @@ document.getElementById("createPageForm").addEventListener("submit", async funct
     };
 
     try {
-        const response = await fetch(`/api/pages/insertUserPage/${userEmail}`, { //Se hace la peticion al servidor
+        const response = await fetch(`${URLSERVER}/api/pages/insertUserPage/${userEmail}`, {
+            //Se hace la peticion al servidor
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -48,8 +49,8 @@ document.getElementById("createPageForm").addEventListener("submit", async funct
     }
 });
 
-document.addEventListener("DOMContentLoaded", async () => {
-    const userEmail = localStorage.getItem("userEmail");
+document.addEventListener("DOMContentLoaded", async () => { //Funcion para mostrar las paginas de un usuario 
+    const userEmail = localStorage.getItem("userEmail"); //Obtiene el email del localstorage
 
     if (!userEmail) {
         console.error("There is no user logged in.");
@@ -57,41 +58,41 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     try {
-        const response = await fetch(`/api/pages/getUserPages/${userEmail}`);
+        const response = await fetch(`${URLSERVER}/api/pages/getUserPages/${userEmail}`); //hace la solicitud para obtener las paginas de un usuario
         const data = await response.json();
 
         if (!response.ok) {
             throw new Error(data.message || "Error al obtener las páginas.");
         }
 
-        renderUserPages(data);
+        renderUserPages(data); //Renderiza las paginas del usuario
     } catch (error) {
-        console.error("Error al obtener las páginas:", error);
+        console.error("Internal server error", error);
     }
 });
 
-const renderUserPages = (pages) => {
-    const pagesList = document.getElementById("userPagesList");
+const renderUserPages = (pages) => { //Funcion para renderizar las paginas de un usuario 
+    const pagesList = document.getElementById("userPagesList"); //Obtiene la lista de paginas
 
     if (!pagesList) {
-        console.error("No se encontró el contenedor de páginas en el HTML.");
+        console.error("Error with the container");
         return;
     }
 
-    if (pages.length === 0) {
-        pagesList.innerHTML = "<p class='text-muted'>No tienes páginas creadas.</p>";
+    if (pages.length === 0) { //Si no hay paginas
+        pagesList.innerHTML = "<p class='text-muted'>You don't have pages created</p>"; //Envia un mensaje de que no hay paginas creadas
         return;
     }
 
-    pagesList.innerHTML = pages
+    pagesList.innerHTML = pages //Muestra todas las paginas creadas
         .map(
             (page) => `
             <div class="card mb-3">
                 <div class="card-body">
                     <h5 class="card-title">${page.title}</h5>
                     <p class="card-text">${page.description}</p>
-                    <p class="card-text"><strong>Teléfono:</strong> ${page.phone}</p>
-                    <p class="card-text"><strong>Dirección:</strong> ${page.address}</p>
+                    <p class="card-text"><strong>Phone:</strong> ${page.phone}</p>
+                    <p class="card-text"><strong>Direction:</strong> ${page.address}</p>
                     <button class="btn btn-warning btn-sm edit-page-btn" 
                         data-bs-toggle="modal" data-bs-target="#editPageModal"
                         data-page-id="${page._id}" 
@@ -100,17 +101,17 @@ const renderUserPages = (pages) => {
                         data-phone="${page.phone}"
                         data-email="${page.email}"
                         data-address="${page.address}">
-                        <i class="bi bi-pencil"></i> Editar
+                        <i class="bi bi-pencil"></i> Edit Page
                     </button>
                     <button class="btn btn-info btn-sm add-post-btn" 
                         data-bs-toggle="modal" data-bs-target="#addPostModal"
                         data-page-id="${page._id}">
-                        <i class="bi bi-plus-circle"></i> Añadir Post
+                        <i class="bi bi-plus-circle"></i> Add post to my page
                     </button>
                     <button class="btn btn-secondary btn-sm view-posts-btn" 
                         data-bs-toggle="modal" data-bs-target="#viewPostsModal"
                         data-page-id="${page._id}">
-                        <i class="bi bi-eye"></i> Ver Post
+                        <i class="bi bi-eye"></i> View posts
                     </button>
                 </div>
             </div>
@@ -118,11 +119,11 @@ const renderUserPages = (pages) => {
         )
         .join("");
 
-    // Agregar eventos a los botones "Añadir Post"
+    // Agregar eventos a los botones add post
     document.querySelectorAll(".add-post-btn").forEach((button) => {
         button.addEventListener("click", (event) => {
             const pageId = event.target.closest("button").getAttribute("data-page-id");
-            // Eliminar la llamada a openPostModal
+          
         });
     });
 
@@ -143,7 +144,7 @@ const renderUserPages = (pages) => {
     });
 };
 
-const loadPageDataToModal = (btn) => {
+const loadPageDataToModal = (btn) => { //Funcion para cargar la informacion de la pagina en el modal 
     const pageId = btn.getAttribute("data-page-id");
 
     const editForm = document.getElementById("editPageForm");
@@ -156,7 +157,7 @@ const loadPageDataToModal = (btn) => {
     document.getElementById("editAddress").value = btn.dataset.address;
 };
 
-document.getElementById("editPageForm").addEventListener("submit", async function (event) {
+document.getElementById("editPageForm").addEventListener("submit", async function (event) { //Funcion para editar una pagina
     event.preventDefault();
 
     const form = event.target;
@@ -176,7 +177,7 @@ document.getElementById("editPageForm").addEventListener("submit", async functio
     const userEmail = localStorage.getItem("userEmail");
 
     try {
-        const response = await fetch(`/api/pages/updateUserPage/${userEmail}/${pageId}`, {
+        const response = await fetch(`${URLSERVER}/api/pages/updateUserPage/${userEmail}/${pageId}`, { //Se hace la solicitud al servidor para editar una pagina
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
@@ -188,20 +189,20 @@ document.getElementById("editPageForm").addEventListener("submit", async functio
             throw new Error("Error al actualizar la página");
         }
 
-        alert("Página actualizada correctamente");
+        showToast("Page Updated"); 
         form.reset();
         bootstrap.Modal.getInstance(document.getElementById("editPageModal")).hide();
 
-        const res = await fetch(`/api/pages/getUserPages/${userEmail}`);
+        const res = await fetch(`${URLSERVER}/api/pages/getUserPages/${userEmail}`); //Se hace la solicitud al servidor para obtener las paginas del usuario
         const pages = await res.json();
-        renderUserPages(pages);
+        renderUserPages(pages); //Vuelve a renderizar las paginas 
     } catch (error) {
         console.error(error);
-        alert("Hubo un error al actualizar la página");
+        alert("Error updating the pages");
     }
 });
 
-document.getElementById("addPostForm").addEventListener("submit", async function (event) {
+document.getElementById("addPostForm").addEventListener("submit", async function (event) { //Funcion para agregar un post a una pagina
     event.preventDefault();
 
     const pageId = document.querySelector(".add-post-btn").getAttribute("data-page-id");
@@ -213,8 +214,13 @@ document.getElementById("addPostForm").addEventListener("submit", async function
         return;
     }
 
+    if (!content) {
+        showToast("Please enter the content of the post", "danger"); 
+        return;
+    }
+
     try {
-        const response = await fetch(`/api/pages/addPostToPage/${userEmail}/${pageId}`, {
+        const response = await fetch(`${URLSERVER}/api/pages/addPostToPage/${userEmail}/${pageId}`, { //Se hace la solicitud al servidor para 
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -224,24 +230,23 @@ document.getElementById("addPostForm").addEventListener("submit", async function
 
         if (response.ok) {
             const data = await response.json();
-            alert("Post añadido correctamente");
+           showToast("Post added");
             bootstrap.Modal.getInstance(document.getElementById("addPostModal")).hide();
 
-            const res = await fetch(`/api/pages/getUserPages/${userEmail}`);
+            const res = await fetch(`${URLSERVER}/api/pages/getUserPages/${userEmail}`); //Se vuelven a obtener las paginas del usuario
             const pages = await res.json();
             renderUserPages(pages);
         } else {
-            throw new Error("Error al añadir el post");
+            throw new Error("Error adding the post");
         }
     } catch (error) {
-        console.error(error);
-        alert("Hubo un error al añadir el post");
+        alert("Server Error");
     }
 });
-async function loadPagePosts(pageId) {
+async function loadPagePosts(pageId) { //Funcion para mostrar los posts de una pagina
     const userEmail = localStorage.getItem("userEmail"); // Obtener el email del usuario desde el localStorage
     try {
-        const response = await fetch(`/api/pages/getPagePosts/${userEmail}/${pageId}`);
+        const response = await fetch(`${URLSERVER}/api/pages/getPagePosts/${userEmail}/${pageId}`); //Hace la solicitud al servidor para mostrar los posts
         if (!response.ok) {
             throw new Error("Error fetching posts");
         }

@@ -1,15 +1,15 @@
 window.onload = async function () {
-    // Obtener el correo del usuario en sesión desde localStorage
+    // Obtener el correo del usuario en sesion desde localStorage
     const userEmail = localStorage.getItem("userEmail");
 
     if (!userEmail) {
-        alert("Por favor, inicia sesión.");
+        alert("Por favor, inicia sesion.");
         window.location.href = "/login"; // Redirigir a login si no está logueado
         return;
     }
 
     // Obtener solicitudes de amistad
-    const friendRequestsResponse = await fetch(`/api/users/getFriendRequests/${userEmail}`);
+    const friendRequestsResponse = await fetch(`${URLSERVER}/api/users/getFriendRequests/${userEmail}`);
     const friendRequestsContainer = document.getElementById("friendRequestsContainer");
 
     if (!friendRequestsResponse.ok) {
@@ -39,7 +39,7 @@ window.onload = async function () {
     }
 
     // Obtener notificaciones
-    const notificationsResponse = await fetch(`/api/users/getNotifications/${userEmail}`);
+    const notificationsResponse = await fetch(`${URLSERVER}/api/users/getNotifications/${userEmail}`);
     const notificationsContainer = document.getElementById("notificationsContainer");
 
     if (!notificationsResponse.ok) {
@@ -65,10 +65,10 @@ window.onload = async function () {
     }
 };
 
-const respondToRequest = async (senderEmail, action, button) => {
+const respondToRequest = async (senderEmail, action, button) => { //Funcion para responder una solicitud 
     const userEmail = localStorage.getItem("userEmail");
 
-    const response = await fetch("/api/users/respondFriendRequest", {
+    const response = await fetch(`${URLSERVER}/api/users/respondFriendRequest`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -80,18 +80,18 @@ const respondToRequest = async (senderEmail, action, button) => {
 
     const result = await response.json();
     if (response.ok) {
-        alert(`Solicitud ${action}d con éxito`);
+        showToast("Request Responded")
         button.closest(".card").remove(); // Eliminar la tarjeta de solicitud de amistad
     } else {
         alert(result.message || "Error al procesar la solicitud");
     }
 };
 
-const putReject = async (emailToReject, button) => {
+const putReject = async (emailToReject, button) => { //Funcion para rechazar una solicitud 
     const userEmail = localStorage.getItem("userEmail");
 
     try {
-        const response = await fetch(`http://localhost:3000/api/users/rejectUser/${userEmail}`, {
+        const response = await fetch(`${URLSERVER}/api/users/rejectUser/${userEmail}`, { //Realiza la solicitud para rechazar un usuario
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -101,7 +101,7 @@ const putReject = async (emailToReject, button) => {
 
         const result = await response.json();
         if (response.ok) {
-            alert("Usuario rechazado con éxito");
+            showToast("User Rejected"); 
             button.closest(".card").remove(); // Eliminar la tarjeta de solicitud de amistad
         } else {
             alert(result.message || "Error al bloquear el usuario");
@@ -112,11 +112,11 @@ const putReject = async (emailToReject, button) => {
     }
 };
 
-const putBlock = async (emailToBlock, button) => {
+const putBlock = async (emailToBlock, button) => { //Funcion para bloquear un usuario 
     const userEmail = localStorage.getItem("userEmail");
 
     try {
-        const response = await fetch(`http://localhost:3000/api/users/blockUser/${userEmail}`, {
+        const response = await fetch(`${URLSERVER}/api/users/blockUser/${userEmail}`, { //Realiza la solicitud al servidor 
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -126,7 +126,7 @@ const putBlock = async (emailToBlock, button) => {
 
         const result = await response.json();
         if (response.ok) {
-            alert("Usuario bloqueado con éxito");
+            showToast("User blocked")
             button.closest(".card").remove(); // Eliminar la tarjeta de solicitud de amistad
         } else {
             alert(result.message || "Error al bloquear el usuario");
@@ -136,3 +136,34 @@ const putBlock = async (emailToBlock, button) => {
         alert("Error de red o servidor.");
     }
 };
+
+//Funcion para mostrar un mensaje de notificacion
+
+function showToast(message, type = "success") {
+    const toastContainer = document.getElementById("toastContainer");
+
+    // Crear un nuevo elemento de notificación
+    const toastElement = document.createElement("div");
+    toastElement.className = `toast align-items-center text-bg-${type} border-0 show`;
+    toastElement.setAttribute("role", "alert");
+    toastElement.setAttribute("aria-live", "assertive");
+    toastElement.setAttribute("aria-atomic", "true");
+
+    // Contenido del toast
+    toastElement.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">${message}</div>
+            <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    `;
+
+    // Agregar el toast al contenedor
+    toastContainer.appendChild(toastElement);
+
+    // Eliminar el toast después de 3 segundos
+    setTimeout(() => {
+        toastElement.classList.remove("show");
+        setTimeout(() => toastElement.remove(), 500);
+    }, 3000);
+}
+

@@ -19,7 +19,7 @@ const searchFriend = async () => { //Funcion para buscar un amigo(usuario)
         const currentUserEmail = localStorage.getItem("userEmail");
 
         // Obtener los detalles del usuario actual
-        const currentUserResponse = await fetch(`/api/users/getUserByEmail/${currentUserEmail}`);
+        const currentUserResponse = await fetch(`${URLSERVER}/api/users/getUserByEmail/${currentUserEmail}`);
         if (!currentUserResponse.ok) throw new Error("Current user not found");
         const currentUser = await currentUserResponse.json();
 
@@ -31,19 +31,24 @@ const searchFriend = async () => { //Funcion para buscar un amigo(usuario)
 
         let friendRequestButton = "";
         let blockUserButton = "";
-        if (currentUserEmail && currentUserEmail !== user.email) { //En caso de que el usuario que está loggeado no sea el mismo que el usuario que se está buscando
-            // Verifica si el usuario actual ha sido rechazado
-            if (!user.rejectedUsers.includes(currentUserEmail)) { //Si el usuario no ha sido rechazado
-                //Muestra el botón para enviar solicitud de amistad
+        if (currentUserEmail && currentUserEmail !== user.email) { //En caso de que el usuario que esta loggeado no sea el mismo que el usuario que se esta buscando
+            // Verifica si el usuario actual ha sido rechazado, o si ya son amigos, o si esta bloqueado 
+            if (
+                !user.rejectedUsers.includes(currentUserEmail) &&
+                !user.friends.includes(currentUserEmail) &&
+                !currentUser.Usersblocked.includes(user.email)
+            ) {
+                //Si el usuario no ha sido rechazado, y no son amigos y no tiene bloqueado al usuario 
+                //Muestra el boton para enviar solicitud de amistad
                 friendRequestButton = `
                     <button class="btn btn-success mt-2" onclick="sendFriendRequest('${user.email}')"> 
                         Send Friend Request
                     </button>
                 `;
             }
-            // Verificar si el usuario buscado ya está bloqueado por el usuario actual
+            // Verificar si el usuario buscado ya esta bloqueado por el usuario actual
             if (!currentUser.Usersblocked.includes(user.email)) {
-                //Muestra el botón para bloquear al usuario
+                //Muestra el boton para bloquear al usuario
                 blockUserButton = `
                     <button class="btn btn-secondary mt-2" onclick="blockUser('${user.email}')">
                         Block User
@@ -52,7 +57,7 @@ const searchFriend = async () => { //Funcion para buscar un amigo(usuario)
             }
         }
 
-        //Muestra la información del usuario buscado
+        //Muestra la informacion del usuario buscado
         resultContainer.innerHTML = `
             <div class="card mx-auto" style="width: 18rem;">
                 <img src="/CreateUser/avatars/${user.avatar}" class="card-img-top" alt="Avatar">
@@ -81,7 +86,7 @@ const sendFriendRequest = async (receiverEmail) => { //Recibe por parametro el c
     }
 
     try {
-        const response = await fetch("/api/users/sendFriendRequest", { //Hace la solicitud al servidor para enviar una solicitud de amistad
+        const response = await fetch(`${URLSERVER}/api/users/sendFriendRequest`, { //Hace la solicitud al servidor para enviar una solicitud de amistad
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ senderEmail, receiverEmail }),
@@ -104,7 +109,8 @@ const blockUser = async (emailToBlock) => { //recibe por parametro el correo del
     const userEmail = localStorage.getItem("userEmail"); //Obtiene el correo del usuario que esta loggeado desde el local storage es decir el usuario que va a bloaquear al otro
 
     try {
-        const response = await fetch(`/api/users/blockUser/${userEmail}`, { //Hace la solicitud al servidor para bloquear al usuario
+        const response = await fetch(`${URLSERVER}/api/users/blockUser/${userEmail}`, {
+            //Hace la solicitud al servidor para bloquear al usuario
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -180,7 +186,8 @@ const removeFriend = async (friendEmail) => { //Recibe por parametro el correo d
     }
 
     try {
-        const response = await fetch("/api/users/removeFriend", { //Hace la solicitud al servidor para eliminar al amigo
+        const response = await fetch(`${URLSERVER}/api/users/removeFriend`, {
+            //Hace la solicitud al servidor para eliminar al amigo
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ userEmail, friendEmail }),
