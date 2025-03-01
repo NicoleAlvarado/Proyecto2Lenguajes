@@ -4,18 +4,18 @@ const modalHeaderTitle = modal.querySelector("#modal-header > h1");
 const modalBody = modal.querySelector("#modal-body");
 const modalFooter = modal.querySelector("#modal-footer");
 
-const getInicialPosts = async () => {
+const getInicialPosts = async () => { //Funcion para obtener los posts iniciales 
     try {
-        const postResponse = await fetch(`/api/users/getRecommendedPosts/${userEmail}`);
+        const postResponse = await fetch(`${URLSERVER}/api/users/getRecommendedPosts/${userEmail}`);
         const posts = await postResponse.json();
 
-        const userResponse = await fetch(`/api/users/getFriends/${userEmail}`);
+        const userResponse = await fetch(`${URLSERVER}/api/users/getFriends/${userEmail}`);
         const userFriends = await userResponse.json();
 
         const postsContainer = document.getElementById("posts-container");
         postsContainer.innerHTML = "";
 
-        posts.forEach((post) => {
+        posts.forEach((post) => { //Carga los posts
             const { pageId, isPage, email, randomPost } = post;
             const { _id: postId, likes, comments } = randomPost;
             const isLiked = likes.includes(userEmail);
@@ -39,7 +39,7 @@ const getInicialPosts = async () => {
 
             const likesButton = createOptionPostBtn(
                 ["btn", "btn-outline-secondary", "btn-sm"],
-                '<i class="bi bi-people"></i> Ver Likes',
+                '<i class="bi bi-people"></i> View Likes',
                 () => showLikes(likes)
             );
 
@@ -48,7 +48,7 @@ const getInicialPosts = async () => {
 
             const commentsButton = createOptionPostBtn(
                 ["btn", "btn-outline-info", "btn-sm"],
-                '<i class="bi bi-chat-left-text"></i> Ver Comentarios',
+                '<i class="bi bi-chat-left-text"></i> View comments',
                 () => showComments(comments, isPage, email, pageId, postId, userFriends)
             );
 
@@ -71,16 +71,20 @@ const getInicialPosts = async () => {
     }
 };
 
+//Funcion para mostrar el contenido de las paginas 
+
 const renderPageContent = ({ pageId, title, randomPost }) => `
     <div class="card-body">
         <h5 class="card-title">${title}</h5>
         <p class="card-text">${randomPost.content}</p>
         <button class="btn btn-success btn-sm" onclick="followPage('${pageId}')">
-            <i class="bi bi-plus-circle"></i> Seguir página
+            <i class="bi bi-plus-circle"></i> Follow Page
         </button>
     </div>
-    <div class="card-footer text-muted">Página recomendada</div>
+    <div class="card-footer text-muted">Page</div>
 `;
+
+//Funcion para mostrar el contenido de los amigos
 
 const renderFriendContent = ({ avatar, username, randomPost }) => `
     <div class="card-body">
@@ -88,7 +92,7 @@ const renderFriendContent = ({ avatar, username, randomPost }) => `
         <h5 class="card-title">${username}</h5>
         <p class="card-text">${randomPost.content}</p>
     </div>
-    <div class="card-footer text-muted">Publicación de un amigo</div>
+    <div class="card-footer text-muted">Friend's post</div>
 `;
 
 const createOptionPostBtn = (classes, innerHTML, onClick) => {
@@ -99,6 +103,7 @@ const createOptionPostBtn = (classes, innerHTML, onClick) => {
     return button;
 };
 
+//Funcion para mostrar la informacion de los likes 
 const renderLikesInfo = (likes) => `
     <div class="likes-container">
         ${
@@ -115,10 +120,12 @@ const renderLikesInfo = (likes) => `
                     )
                     .join("")}
               </ul>`
-                : '<p class="text-center text-muted my-3">Nadie ha dado like todavía</p>'
+                : '<p class="text-center text-muted my-3">No likes yet</p>'
         }
     </div>
 `;
+
+//Funcion para mostrar los comentarios
 
 const renderCommentCard = (comments) => `
     <div class="comments-container">
@@ -152,11 +159,12 @@ const renderCommentCard = (comments) => `
                         `
                       )
                       .join("")
-                : '<p class="text-center text-muted my-3">No hay comentarios todavía</p>'
+                : '<p class="text-center text-muted my-3">No comments yet</p>'
         }
     </div>
 `;
 
+//Funcion para el footer de los comentarios 
 const renderCommentFooter = async (isPage, email, pageId, postId, comments, userFriends) => {
     modalFooter.innerHTML = "";
     modalFooter.classList.remove("d-none");
@@ -179,14 +187,14 @@ const renderCommentFooter = async (isPage, email, pageId, postId, comments, user
     const textarea = document.createElement("textarea");
     textarea.id = "comment";
     textarea.className = "form-control";
-    textarea.placeholder = "Escribe un comentario...";
+    textarea.placeholder = "Type a comment";
     textarea.rows = "2";
     textarea.required = true;
-    textarea.oninput = (e) => tagFriends(e, dropdown, userFriends);
+    textarea.oninput = (e) => tagFriends(e, dropdown, userFriends); //On input para revisar lo del arroba
 
     const submitButton = createOptionPostBtn(
         ["btn", "btn-primary", "w-100"],
-        '<i class="bi bi-send"></i> Comentar',
+        '<i class="bi bi-send"></i> Comment',
         null
     );
     submitButton.type = "submit";
@@ -197,22 +205,25 @@ const renderCommentFooter = async (isPage, email, pageId, postId, comments, user
     modalFooter.appendChild(commentForm);
 };
 
+//Funcion para mencionar amigos
 const tagFriends = async (e, dropdown, userFriends) => {
     const textarea = e.target;
     const lastChar = textarea.value.slice(-1);
 
-    if (lastChar !== "@") return;
+    if (lastChar !== "@") return; //Revisa que el ultimo caracter enviado sea el arroba
 
     userFriends.length > 0
         ? createFriendsDropdown(dropdown, userFriends)
-        : (dropdown.innerHTML = `<li class="dropdown-item">No tienes amigos</li>`);
+        : (dropdown.innerHTML = `<li class="dropdown-item">You don't have friends</li>`);
 };
 
-const insertUsernameInTextArea = (username) => {
+const insertUsernameInTextArea = (username) => { //Inserta el username en el textarea
     const textarea = modalFooter.querySelector("#comment");
     textarea.value += `[${username}]`;
     textarea.focus();
 };
+
+//Funcion para mostrar los amigos en el mencionar
 
 const createFriendsDropdown = (dropdown, userFriends) => {
     dropdown.innerHTML = `
@@ -239,14 +250,16 @@ const createFriendsDropdown = (dropdown, userFriends) => {
     dropdown.querySelector("#friends-dropdown-btn").click();
 };
 
+
+//Funcion para dar like a un post
 const likePost = async (e, pageId, postId, isPage, likedPostUserEmail, likes) => {
     try {
         const button = e.target;
         const icon = button.querySelector("i");
 
-        const endpoint = isPage
-            ? `/api/users/likePagePost/${pageId}/${postId}`
-            : `/api/users/likeUserPost/${likedPostUserEmail}/${postId}`;
+        const endpoint = isPage //Revisa si es pagina o si es post de usuario para dar el like 
+            ? `${URLSERVER}/api/users/likePagePost/${pageId}/${postId}`
+            : `${URLSERVER}/api/users/likeUserPost/${likedPostUserEmail}/${postId}`;
 
         const response = await fetch(endpoint, {
             method: "POST",
@@ -268,11 +281,14 @@ const likePost = async (e, pageId, postId, isPage, likedPostUserEmail, likes) =>
     }
 };
 
+
+//Funcion para agregar un comentario a una publicacion 
 const addCommentToPost = async (isPage, commentPostUserEmail, pageId, postId, comment, comments) => {
     try {
+        //Revisa si es un usuario o una publicacion de una pagina
         const endpoint = isPage
-            ? `/api/users/addCommentToPagePost/${pageId}/${postId}`
-            : `/api/users/addCommentToUserPost/${commentPostUserEmail}/${postId}`;
+            ? `${URLSERVER}/api/users/addCommentToPagePost/${pageId}/${postId}`
+            : `${URLSERVER}/api/users/addCommentToUserPost/${commentPostUserEmail}/${postId}`;
 
         const response = await fetch(endpoint, {
             method: "POST",
@@ -292,18 +308,23 @@ const addCommentToPost = async (isPage, commentPostUserEmail, pageId, postId, co
     }
 };
 
+//Funcion para mostrar los likes
+
 const showLikes = (likes) => {
-    modalHeaderTitle.textContent = "Personas que han dado me gusta";
+    modalHeaderTitle.textContent = "People who liked";
     modalBody.innerHTML = renderLikesInfo(likes);
     modalFooter.classList.add("d-none");
 };
 
+
+//Funcion para mostrar los comentarios 
 const showComments = (comments, isPage, email, pageId, postId, userFriends) => {
-    modalHeaderTitle.textContent = "Comentarios";
+    modalHeaderTitle.textContent = "Comments";
     modalBody.innerHTML = renderCommentCard(comments);
     renderCommentFooter(isPage, email, pageId, postId, comments, userFriends);
 };
 
+//Funcion para seguir una pagina
 const followPage = async (pageId) => {
     const userEmail = localStorage.getItem("userEmail"); // Obtener el email del usuario almacenado
 
@@ -313,7 +334,7 @@ const followPage = async (pageId) => {
     }
 
     try {
-        const response = await fetch("/api/users/followPage", {
+        const response = await fetch(`${URLSERVER}/api/users/followPage`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -371,7 +392,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // Función para cerrar sesión
 const logout = async () => {
     try {
-        const response = await fetch("/api/users/login/logout");
+        const response = await fetch(`${URLSERVER}/api/users/login/logout`);
         if (!response.ok) throw new Error("No se pudo cerrar sesión");
         window.location.href = "/Login/index.html";
     } catch (error) {

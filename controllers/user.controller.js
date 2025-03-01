@@ -568,7 +568,7 @@ const followPage = async (req, res) => {
 
         // Verificar si el usuario ya sigue la pagina
         if (user.followedPages.some((id) => id.equals(pageId))) {
-            return res.status(400).json({ message: "Ya sigues esta página." });
+            return res.status(400).json({ message: "You already follow this page" });
         }
 
         // Agregar la pagina a la lista de paginas seguidas
