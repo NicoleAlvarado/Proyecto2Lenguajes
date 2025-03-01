@@ -38,6 +38,22 @@ const addPostToPage = async (req, res) => {
     }
 };
 
+
+    const insertPostInPage = async (req, res) => {
+    try {
+        const { pageId } = req.params;
+        const { content } = req.body;
+
+        const page = await Page.findById(pageId);
+        page.posts.push(new Post({ content }));
+
+        res.status(201).json(await page.save());
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+
 const insertUserPage = async (req, res) => {
     //Metodo para insertar una pagina a un usuario
     try {
@@ -215,4 +231,5 @@ module.exports = {
     getRecommendedPages,
     getRamdomPage,
     getPagePosts,
+    insertPostInPage,
 };

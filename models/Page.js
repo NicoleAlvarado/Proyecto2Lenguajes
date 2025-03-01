@@ -26,6 +26,5 @@ const PageSchema = new Schema({ //Crea un esquema para las paginas
     posts: [Post.schema], //y tiene un arreglo de posts 
 });
 
-PageSchema.index({ title: 1 }, { unique: true });
 
 module.exports = model("Page", PageSchema);
