@@ -1,11 +1,10 @@
-document.addEventListener("DOMContentLoaded", async function () {
-    const emailStorage = localStorage.getItem("userEmail");
-    if (!emailStorage) {
-        alert("No user email found. Please log in.");
-        window.location.href = "/login";
-        return;
-    }
+const emailStorage = localStorage.getItem("userEmail");
+if (!emailStorage) {
+    alert("No user email found. Please log in.");
+    window.location.href = "/login";
+}
 
+document.addEventListener("DOMContentLoaded", async function () {
     try {
         const response = await fetch(`/api/pages/getRecommendedPages/${emailStorage}`);
         const recommendedPages = await response.json();
@@ -23,16 +22,16 @@ document.addEventListener("DOMContentLoaded", async function () {
             return;
         }
 
-        recommendedPages.forEach((page) => {
+        recommendedPages.forEach(({ _id: id, title, description }) => {
             const pageCard = document.createElement("div");
             pageCard.classList.add("col-md-4", "mb-3");
 
             pageCard.innerHTML = `
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">${page.title}</h5>
-                        <p class="card-text">${page.description || "No description available."}</p>
-                        <button class="btn btn-primary follow-btn" data-page-id="${page._id}">
+                        <h5 class="card-title">${title}</h5>
+                        <p class="card-text">${description || "No description available."}</p>
+                        <button class="btn btn-primary follow-btn" onclick="followPage(event, '${id}')">
                             Follow <i class="bi bi-plus"></i>
                         </button>
                     </div>
@@ -40,26 +39,19 @@ document.addEventListener("DOMContentLoaded", async function () {
             `;
             pagesContainer.appendChild(pageCard);
         });
-
-        // Agregar evento a los botones de "Follow"
-        document.querySelectorAll(".follow-btn").forEach((button) => {
-            button.addEventListener("click", async function () {
-                const pageId = this.getAttribute("data-page-id");
-                await followPage(emailStorage, pageId, this);
-            });
-        });
     } catch (error) {
         console.error("Error fetching recommended pages:", error);
         alert("Failed to load recommended pages.");
     }
 });
 
-async function followPage(userEmail, pageId, button) {
+const followPage = async (e, pageId) => {
     try {
-        const response = await fetch("/api/users/followPage", {
+        const button = e.target;
+        const response = await fetch(`/api/users/followPage`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ userEmail, pageId }),
+            body: JSON.stringify({ userEmail: emailStorage, pageId }),
         });
 
         const result = await response.json();
@@ -74,4 +66,4 @@ async function followPage(userEmail, pageId, button) {
         console.error("Error following page:", error);
         alert("An error occurred. Please try again.");
     }
-}
+};
