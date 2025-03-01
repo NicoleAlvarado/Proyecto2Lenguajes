@@ -1,7 +1,7 @@
 const nodemailer = require("nodemailer"); // Importar el modulo Nodemailer de Node.js para enviar correos electronicos
 
-const userGmail = "jfelipe070703@gmail.com";
-const passAppGmail = "hdfx wtfn xvzn aunj";
+const userGmail = process.env.USER_GMAIL;
+const passAppGmail = process.env.PASS_APP_GMAIL;
 
 // Configurar el transportador de Nodemailer
 const transporter = nodemailer.createTransport({

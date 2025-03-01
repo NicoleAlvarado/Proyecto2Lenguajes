@@ -38,9 +38,17 @@ const createUser = async (req, res) => { //Funcion para crear un usuario
 const addCommentToUserPost = async (req, res) => { //Funcion para agregar un comentario a una publicacion de un usuario
     try {
         const { commentPostUserEmail, postId } = req.params; //Recibe el email de quien va a dejar el comentario y el id del post
+        if (!commentPostUserEmail || !postId) { //Si no se recibe alguno de los dos envia un mensaje de error
+            return res.status(400).json("Comment post user email and post id are required");
+        }
         const { userEmail, comment } = req.body; //Recibe el correo del usuario y el comentario que va a dejar 
-
+        if (!userEmail || !comment) { //Si no se recibe alguno de los dos envia un mensaje de error
+            return res.status(400).json("User email and comment are required");
+        }
         const user = await User.findOne({ email: commentPostUserEmail }); //Busca al usuario
+        if (!user) { //Si no lo encuentra envia un mensaje de error
+            return res.status(404).json(`User with email ${commentPostUserEmail} not found`);
+        }
         const post = user.posts.id(postId); //Y obtiene el post de ese usuario 
         post.comments.push(new Comment({ userEmail, comment })); //Agrega el comentario a ese post 
 
@@ -54,14 +62,19 @@ const addCommentToUserPost = async (req, res) => { //Funcion para agregar un com
 };
 
 const addCommentToPagePost = async (req, res) => { //Funcion para agregar un comentario a una publicacion de una pagina 
-    try { 
+    try {
         const { pageId, postId } = req.params; //recibe el id de la pagina y el id de la publicacion 
+        if (!pageId || !postId) { //Si no se recibe alguno de los dos envia un mensaje de error
+            return res.status(400).json("Page id and post id are required");
+        }
         const { userEmail, comment } = req.body; //Recibe el email del usuario que va a comentar y el comentario 
-
+        if (!userEmail || !comment) { //Si no se recibe alguno de los dos envia un mensaje de error
+            return res.status(400).json("User email and comment are required");
+        }
         let page = await Page.findById(pageId); //Busca la pagina
 
         if (!page) {
-            const userWithPage = await User.findOne({ "pages._id": pageId }); 
+            const userWithPage = await User.findOne({ "pages._id": pageId });
             page = userWithPage.pages.id(pageId);
         }
 
@@ -76,10 +89,16 @@ const addCommentToPagePost = async (req, res) => { //Funcion para agregar un com
 
 const insertUserPost = async (req, res) => { //Funcion para que un usuario inserte una publicacion 
     try {
-        const { email } = req.params; //Recibe el Email del usuario que va a publicar
+        const { email } = req.params; //Recibe el Email del usuario que va a publicar 
         const { content } = req.body; //Recibe el contenido del Post 
-
+        if (!content) { //Si no se recibe envia un mensaje de error
+            return res.status(400).json("Content is required");
+        }
         const user = await User.findOne({ email }); //Busca al usuario 
+        if (!user) { //Si no lo encuentra envia un mensaje de error
+            return res.status(404).json(`User with email ${email} not found`);
+        }
+
         user.posts.push(new Post({ content })); //Y agrega el nuevo post a los posts del usuario 
 
         res.status(201).json(await user.save());
@@ -91,10 +110,21 @@ const insertUserPost = async (req, res) => { //Funcion para que un usuario inser
 const likeUserPost = async (req, res) => { //Funcion para dar like a la publicacion de un usuario 
     try {
         const { likedPostUserEmail, postId } = req.params; //Recibe el email del usuario que recibe el like y el id del post que recibe el like
+        if (!likedPostUserEmail || !postId) { //Si no se recibe alguno de los dos envia un mensaje de error
+            return res.status(400).json("Liked post user email and post id are required");
+        }
         const { userEmail } = req.body; //Recibe el email de quien envia el like
-
+        if (!userEmail) { //Si no se recibe envia un mensaje de error
+            return res.status(400).json("User email is required");
+        }
         const user = await User.findOne({ email: likedPostUserEmail }); //Busca al usuario que va a recibir el like
+        if (!user) { //Si no lo encuentra envia un mensaje de error
+            return res.status(404).json(`User with email ${likedPostUserEmail} not found`);
+        }
         const post = user.posts.id(postId); //Busca la publicacion de ese usuario
+        if (!post) { //Si no la encuentra envia un mensaje de error
+            return res.status(404).json(`Post with id ${postId} not found`);
+        }
         const likeIndex = post.likes.indexOf(userEmail); // Devuelve la posicion del array donde esta el like del usuario que quiere dar like
 
         likeIndex === -1 ? post.likes.push(userEmail) : post.likes.splice(likeIndex, 1); //Si no tiene el like, es decir, si retorna -1, se agrega el like, sino, se quita
@@ -109,18 +139,31 @@ const likeUserPost = async (req, res) => { //Funcion para dar like a la publicac
 const likePagePost = async (req, res) => { //Funcion para darle like a un post de una pagina
     try {
         const { pageId, postId } = req.params; //recibe el id de la pagina y el id del post 
+        if (!pageId || !postId) { //Si no se recibe alguno de los dos envia un mensaje de error
+            return res.status(400).json("Page id and post id are required");
+        }
         const { userEmail } = req.body; //recibe el email del usuario que va a dar like
-
+        if (!userEmail) { //Si no se recibe envia un mensaje de error
+            return res.status(400).json("User email is required");
+        }
         let page = await Page.findById(pageId); //Busca la pagina
-
+        if (!page) { //Si no la encuentra busca al usuario que tiene esa pagina
+            const userWithPage = await User.findOne({ "pages._id": pageId });
+            page = userWithPage.pages.id(pageId);
+        }
         if (!page) {
             const userWithPage = await User.findOne({ "pages._id": pageId }); //o la busca en las paginas de los usuarios 
             page = userWithPage.pages.id(pageId);
         }
 
         const post = page.posts.id(postId); //busca la publicacion en la pagina 
+        if (!post) { //Si no la encuentra envia un mensaje de error
+            return res.status(404).json(`Post with id ${postId} not found`);
+        }
         const likeIndex = post.likes.indexOf(userEmail); //Revisa el indice donde esta el like 
-
+        if (likeIndex === -1) {
+            post.likes.push(userEmail);
+        }
         likeIndex === -1 ? post.likes.push(userEmail) : post.likes.splice(likeIndex, 1); //Si no tiene like lo agrega, si ya tiene like lo quita 
 
         res.status(201).json(page.parent() ? await page.parent().save() : page.save());
@@ -149,7 +192,7 @@ const deleteUser = async (req, res) => { //Funcion para eliminar un usuario
         return res.status(500).json(`Error: ${error.message}`);
     }
 };
- 
+
 const updateUser = async (req, res) => { //Funcion para actualizar la informacion de un usuario
     try {
         const { useremail } = req.params; //Recibe el correo del usuario que va a actualizar 
@@ -335,6 +378,7 @@ const getFriendRequests = async (req, res) => { //Funcion para obtener las solic
 const getFriendPosts = async (friends) => { //Funcion para obtener las publicaciones de un amigo 
     const users = await User.find({ email: { $in: friends }, "posts.0": { $exists: true } }).limit(25); //Busca usuarios cuyo email este en el array friends
 
+
     return users.map(({ username, email, avatar, posts }) => ({
         pageId: 0,
         username,
@@ -388,16 +432,17 @@ const getInitialPosts = async () => { //Funcion para obtener los post iniciales 
 const getRecommendedPosts = async (req, res) => { //Funcion para obtener los post recomendados que se mostraran en el feed 
     try {
         const { email } = req.params; //Se recibe el email del usuario 
-
+        if (!email) return res.status(400).json({ message: "User email is required" });
         const user = await User.findOne({ email }); //Se busca al usuario 
         if (!user) return res.status(404).json({ message: "User not found" });
 
         const { friends, followedPages } = user; //Se obtienen los amigos y paginas seguidas del usuario 
+
         const pagesIds = followedPages.map((id) => new mongoose.Types.ObjectId(id)); //Convierte los id de las paginas a ObjectId
 
         //Si no tiene amigos y no sigue a nadie retorna las paginas iniciales
 
-        if (friends.length === 0 && followedPages.length === 0) return res.status(200).json(await getInitialPosts()); 
+        if (friends.length === 0 && followedPages.length === 0) return res.status(200).json(await getInitialPosts());
 
 
         //Si tiene amigos o sigue alguna pagina obtiene los posts de los amigos y de las paginas que sigue 
@@ -433,7 +478,7 @@ const getFriends = async (req, res) => { //Funcion para obtener los amigos de un
         return res.status(500).json({ message: error.message });
     }
 };
- 
+
 const removeFriend = async (req, res) => { //Funcion para eliminar un amigo 
     try {
         const { userEmail, friendEmail } = req.body; //Recibe el email de ambos usuarios 
@@ -513,7 +558,7 @@ const rejectUser = async (req, res) => { //Funcion para rechazar la solicitud de
         }
 
         //Busca ambos usuarios 
-        const user = await User.findOne({ email }); 
+        const user = await User.findOne({ email });
         const userToBlock = await User.findOne({ email: emailToReject });
 
         if (!user || !userToBlock) {
@@ -543,6 +588,7 @@ const blockUser = async (req, res) => {
 
         // Buscar a los usuarios en la base de datos
         const user = await User.findOne({ email });
+
         const userToBlock = await User.findOne({ email: emailToBlock });
 
         // Si alguno de los usuarios no existe, retorna error

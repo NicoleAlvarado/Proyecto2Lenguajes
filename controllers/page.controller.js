@@ -164,6 +164,31 @@ const getRamdomPage = async (req, res) => { //Metodo para obtener una pagina ale
     }
 };
 
+// Función para obtener los posts de una página a través del usuario
+const getPagePosts = async (req, res) => {
+    try {
+        const { email, pageId } = req.params;
+        const user = await User.findOne({ email }).populate("pages.posts");
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const page = user.pages.id(pageId);
+
+        if (!page) {
+            return res.status(404).json({ message: "Page not found" });
+        }
+
+        res.json(page.posts);
+    } catch (error) {
+        console.error("Error fetching page posts:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+
+
 module.exports = { //Exporta los metodos
     addPostToPage,
     insertUserPage,
@@ -171,4 +196,6 @@ module.exports = { //Exporta los metodos
     getUserPages,
     getRecommendedPages,
     getRamdomPage,
+    getPagePosts, 
+
 };
